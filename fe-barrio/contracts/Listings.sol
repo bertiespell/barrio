@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.4.22 <0.9.0;
 
-contract Listings {
+import "./AccessControl.sol";
+
+/// @title Listings manages buying and selling of listed items
+contract Listings is AccessControl {
 
   /// @dev used to store information about a Listing
   struct Listing {
@@ -43,6 +46,7 @@ contract Listings {
   ) 
     public
     payable
+    whenNotPaused
   {
     // Confirm the IPFS hash isn't already listed
     // To compare a `nil` value, the entire struct is initialised to 0 value
@@ -67,6 +71,7 @@ contract Listings {
   )
     public
     payable
+    whenNotPaused
   {
     //  Confirm the seller isn't already in the list
     require(listings[ipfsHash].buyerAddresses[msg.sender] != true);
@@ -88,6 +93,7 @@ contract Listings {
     string memory ipfsHash
   )
     public
+    whenNotPaused
    {
     //  Confirm the seller is in the list
     require(listings[ipfsHash].buyerAddresses[msg.sender] == true);
@@ -116,5 +122,15 @@ contract Listings {
       // Refund buyers in escrow
       listings[ipfsHash].buyerAddressesArray[i].transfer(listings[ipfsHash].price);
     }
+  }
+
+  /// @dev this method calls selfdestruct() and removes the contract from the blockchain. 
+  /// Access is limited to the CEO. 
+  function kill() 
+      public
+      onlyCEO 
+      whenNotPaused
+  {
+      selfdestruct(ceoAddress);
   }
 }
