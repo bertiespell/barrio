@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.4.22 <0.9.0;
 
+import "@chainlink/contracts/src/v0.8/KeeperCompatible.sol";
 import "./AccessControl.sol";
 
 /// @title Listings manages buying and selling of listed items
-contract Listings is AccessControl {
+abstract contract Listings is AccessControl, KeeperCompatible {
+// contract Listings is AccessControl {
 
   /// @dev used to store information about a Listing
   struct Listing {
@@ -124,13 +126,34 @@ contract Listings is AccessControl {
     }
   }
 
+  // This function contains the logic that runs off-chain during every block as an eth_call to determine if performUpkeep 
+  // should be executed on-chain. To reduce on-chain gas usage, attempt to do your gas intensive calculations off-chain 
+  // in checkUpkeep and pass the result to performUpkeep on-chain.
+  // Because checkUpkeep is only off-chain in simulation it is best to treat this as a view function and not modify any state. 
+  // This might not always be possible if you want to use more advanced Solidity features like DelegateCall. 
+  // It is a best practice to import the KeeperCompatible.sol contract and use the cannotExecute modifier to ensure 
+  // that the method can be used only for simulation purposes.
+  function checkUpkeep(bytes calldata checkData) external returns (bool upkeepNeeded, bytes memory performData) {
+      // 
+  }
+
+  // When checkUpkeep returns upkeepNeeded == true, the Keeper node broadcasts a transaction to the blockchain 
+  // to execute your performUpkeep function on-chain with performData as an input.
+  // Ensure that your performUpkeep is idempotent. Your performUpkeep function should change state such that checkUpkeep 
+  // will not return true for the same subset of work once said work is complete. Otherwise the Upkeep will remain eligible 
+  // and result in multiple performances by the Keeper Network on the exactly same subset of work. As a best practice, always 
+  // revalidate conditions for your Upkeep at the start of your performUpkeep function.
+  function performUpkeep(bytes calldata performData) external {
+      // 
+  }
+
   /// @dev this method calls selfdestruct() and removes the contract from the blockchain. 
   /// Access is limited to the CEO. 
   function kill() 
-      public
-      onlyCEO 
-      whenNotPaused
+    public
+    onlyCEO 
+    whenNotPaused
   {
-      selfdestruct(ceoAddress);
+    selfdestruct(ceoAddress);
   }
 }
