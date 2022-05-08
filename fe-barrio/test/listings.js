@@ -432,3 +432,99 @@ async function increase(duration) {
 		);
 	});
 }
+
+contract("Listings.performUpkeep", function (accounts) {
+	it("should remove listings that are over a week old", async () => {
+		const alice = accounts[0];
+		const bob = accounts[1];
+
+		const listingContract = await Listings.deployed();
+		const contractBalanceBefore = await web3.eth.getBalance(
+			listingContract.address
+		);
+		const itemPrice = 2;
+
+		await listingContract.createListing(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			itemPrice,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		await listingContract.makeOffer(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			{ from: bob, value: itemPrice, gasPrice: 0 }
+		);
+
+		const contractBalanceAfterOffer = await web3.eth.getBalance(
+			listingContract.address
+		);
+
+		assert.equal(
+			BigInt(contractBalanceAfterOffer),
+			BigInt(contractBalanceBefore) + BigInt(itemPrice)
+		);
+
+		await increase(604801);
+
+		await listingContract.performUpkeep(
+			web3.eth.abi.encodeParameter("string[]", [
+				"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			])
+		);
+
+		const contractBalanceAfterUpkeep = await web3.eth.getBalance(
+			listingContract.address
+		);
+
+		assert.equal(
+			BigInt(contractBalanceAfterUpkeep),
+			BigInt(contractBalanceBefore)
+		);
+	});
+
+	it("should not remove listings that are not over a week old", async () => {
+		const alice = accounts[2];
+		const bob = accounts[3];
+
+		const listingContract = await Listings.deployed();
+		const contractBalanceBefore = await web3.eth.getBalance(
+			listingContract.address
+		);
+		const itemPrice = 2;
+
+		await listingContract.createListing(
+			"QmRAQB6YaCyidP37UdDnjFY5vQuiBrcqdyoW1CuDgwxkD4",
+			itemPrice,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		await listingContract.makeOffer(
+			"QmRAQB6YaCyidP37UdDnjFY5vQuiBrcqdyoW1CuDgwxkD4",
+			{ from: bob, value: itemPrice, gasPrice: 0 }
+		);
+
+		const contractBalanceAfterOffer = await web3.eth.getBalance(
+			listingContract.address
+		);
+
+		assert.equal(
+			BigInt(contractBalanceAfterOffer),
+			BigInt(contractBalanceBefore) + BigInt(itemPrice)
+		);
+
+		await listingContract.performUpkeep(
+			web3.eth.abi.encodeParameter("string[]", [
+				"QmRAQB6YaCyidP37UdDnjFY5vQuiBrcqdyoW1CuDgwxkD4",
+			])
+		);
+
+		const contractBalanceAfterUpkeep = await web3.eth.getBalance(
+			listingContract.address
+		);
+
+		assert.equal(
+			BigInt(contractBalanceAfterUpkeep),
+			BigInt(contractBalanceAfterOffer)
+		);
+	});
+});
