@@ -3,12 +3,9 @@ pragma solidity >=0.4.22 <0.9.0;
 
 /// @title Manages special access privileges.
 contract AccessControl {
-    // This facet controls access control. There are four roles defined here.
-
     /// @dev Emited when contract is upgraded - See README.md for updgrade plan
     event ContractUpgrade(address newContract);
 
-    // The addresses of the accounts (or contracts) that can execute actions within each roles.
     address payable public ceoAddress;
     address public cfoAddress;
     address public cooAddress;
@@ -17,7 +14,6 @@ contract AccessControl {
     bool public paused = false;
 
     constructor() {
-        // ---- Initialize ceoAddress ----
         ceoAddress = payable(msg.sender);
     }
 
@@ -42,8 +38,8 @@ contract AccessControl {
     modifier onlyCLevel() {
         require(
             msg.sender == cooAddress ||
-            msg.sender == ceoAddress ||
-            msg.sender == cfoAddress
+                msg.sender == ceoAddress ||
+                msg.sender == cfoAddress
         );
         _;
     }
@@ -80,7 +76,7 @@ contract AccessControl {
     }
 
     /// @dev Modifier to allow actions only when the contract IS paused
-    modifier whenPaused {
+    modifier whenPaused() {
         require(paused);
         _;
     }
@@ -97,15 +93,12 @@ contract AccessControl {
     /// @notice This is public rather than external so it can be called by
     ///  derived contracts.
     function unpause() public onlyCEO whenPaused {
-        // can't unpause if contract was upgraded
         paused = false;
     }
 
     function checkAddressAuth() internal view returns (bool) {
-        return (
-            msg.sender == cooAddress ||
+        return (msg.sender == cooAddress ||
             msg.sender == ceoAddress ||
-            msg.sender == cfoAddress
-        );
+            msg.sender == cfoAddress);
     }
 }
