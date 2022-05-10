@@ -1,9 +1,6 @@
 import React, { useState } from "react";
-import axios from "axios";
 
-import './App.css';
-import { saveFile } from './filecoin';
-
+import "./App.css";
 
 // const submitForm = () => {
 //   const formData = new FormData();
@@ -15,30 +12,30 @@ import { saveFile } from './filecoin';
 // };
 
 function App() {
-  const [name, setName] = useState("");
-  const [selectedFile, setSelectedFile] = useState(null);
+	const [name, setName] = useState("");
+	const [selectedFile, setSelectedFile] = useState(null);
 
-  return (
-    <div className="App">
-      <header className="App-header">
-        <p>
-        <form>
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+	return (
+		<div className="App">
+			<header className="App-header">
+				<p>
+					<form>
+						<input
+							type="text"
+							value={name}
+							onChange={(e) => setName(e.target.value)}
+						/>
 
-        <input
-          type="file"
-          value={selectedFile}
-          onChange={(e) => setSelectedFile(e.target.files[0])}
-        />
-      </form>
-        </p>
-      </header>
-    </div>
-  );
+						<input
+							type="file"
+							value={selectedFile}
+							onChange={(e) => setSelectedFile(e.target.files[0])}
+						/>
+					</form>
+				</p>
+			</header>
+		</div>
+	);
 }
 
 export default App;
