@@ -1,14 +1,21 @@
 import React, { useState } from "react";
-
+import axios from "axios";
 import "./App.css";
 
 function App() {
 	const [name, setName] = useState("");
 	const [selectedFile, setSelectedFile] = useState();
 
-	const submitForm = (event) => {
+	const submitForm = async (event) => {
 		event.preventDefault();
 		console.log(event, name, selectedFile);
+
+		const data = await axios({
+			method: "get",
+			url: "http://localhost:3001/ipfs/bafybeigudyphsqvmr7esak2on2asewtxy4vjbqhitkzq4hjeih4wono45e",
+		});
+
+		console.log(data);
 	};
 
 	// upload file to server, wait for hash

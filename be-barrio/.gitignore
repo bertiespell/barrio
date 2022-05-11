@@ -25,3 +25,7 @@ yarn-error.log*
 
 # assets
 /uploads
+
+# database
+/orbitdb/12D3KooWA6oRch7gBFRSLffavUZxsYiSZCS4EhiP4eB5mnqGEpTP
+/ipfs

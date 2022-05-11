@@ -5,6 +5,7 @@ var {
 	getFilesFromPath,
 	makeStorageClient,
 } = require("web3.storage");
+var getDb = require("../orbitdb/orbit");
 
 require("dotenv").config();
 
@@ -42,6 +43,8 @@ async function storeFilesInIpfs(req, res) {
 				//     offersMade: string[] // user hash
 				// })
 
+				// const db = getDb();
+
 				res.send({
 					status: true,
 					message: "Files are uploaded with cid:" + cid,
@@ -57,7 +60,7 @@ async function storeFilesInIpfs(req, res) {
 }
 
 async function retrieveFilesFromIpfs(req, res) {
-	const cid = req.body.cid;
+	const cid = req.params.cid;
 
 	if (!cid) {
 		res.send({
@@ -87,12 +90,23 @@ async function retrieveFilesFromIpfs(req, res) {
 	}
 }
 
-/* Get a listing from ipfs */
+async function retrieveAllFiles(req, res) {
+	const db = await getDb();
+	const allListings = await db.all;
+	res.send(allListings);
+}
+
+/* Get a listing from web3.storage ipfs */
 router.get("/", async function (req, res, next) {
+	await retrieveAllFiles(req, res);
+});
+
+/* Get a listing from web3.storage ipfs */
+router.get("/:cid", async function (req, res, next) {
 	await retrieveFilesFromIpfs(req, res);
 });
 
-/* Store a new listing in ipfs */
+/* Store a new listing in web3.storage ipfs */
 router.post("/", async function (req, res, next) {
 	await storeFilesInIpfs(req, res);
 });
