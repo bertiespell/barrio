@@ -12,7 +12,7 @@ To do:
 -   Implement review system, so that buyers and sellers can build up reputation, eventually enabling a new sales model, where buyers could have confidence to hand over funds before receiveing the product.
 -   Add a secure and encrypted messaging system to allow buyers/sellers to negotiate on price, meetup location and potentially trusted third parties.
 -   Add token functionality to receive tokens upon sale/purchase of a listed item.
--   Add small fee to list item, to cover filecoin storage costs, and to deter people from mining tokens by selling and buying their own items.
+-   Add small fee to list item, to cover future filecoin storage costs, and to deter people from mining tokens by selling and buying their own items.
 -   Tokens can then be used to vote on dApp upgrades, to facillitate a community-led project.
 -   FE that allows you to search by location, price, seller reviews etc.
 -   Take a small cut of listing price when a purchase happens
