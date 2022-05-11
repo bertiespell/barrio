@@ -11,21 +11,39 @@ require("dotenv").config();
 
 const storage = new Web3Storage({ token: process.env.WEB3STORAGE_TOKEN });
 
+/* Get a listing from web3.storage ipfs */
+router.get("/", async function (req, res, next) {
+	await retrieveAllFiles(req, res);
+});
+
+/* Get a listing from web3.storage ipfs */
+router.get("/:cid", async function (req, res, next) {
+	await retrieveFilesFromIpfs(req, res);
+});
+
+/* Store a new listing in web3.storage ipfs */
+router.post("/", async function (req, res, next) {
+	await storeFilesInIpfs(req, res);
+});
+
 async function storeFilesInIpfs(req, res) {
 	try {
-		// TODO: add request validation for metadata fields
-		if (!req.files.listings) {
+		const validatedRequest = validateRequest(req);
+
+		if (!validatedRequest.valid) {
 			res.send({
 				status: false,
-				message: "No file uploaded",
+				message: validatedRequest.message,
 			});
 		} else {
 			try {
 				let data = [];
 
-				for (const file of req.files.listings) {
+				const requestFiles = [req.files.listings].flat();
+				for (const file of requestFiles) {
 					// move photo to uploads directory
 					const path = "./uploads/" + file.name;
+
 					file.mv(path);
 
 					const pathFiles = await getFilesFromPath(path);
@@ -35,21 +53,24 @@ async function storeFilesInIpfs(req, res) {
 				const cid = await storage.put(data);
 
 				// Add to OrbitDB - using key-value store, where cid is the key
-				// await db.put(cid, {
-				//     price: uint,
-				//     title: string,
-				//     description: string,
-				//     imageFiles: string[], // this is of the hashes
-				//     offersMade: string[] // user hash
-				// })
+				const db = await getDb();
+				try {
+					const metadata = await db.put(cid, {
+						price: req.body.price,
+						title: req.body.title,
+						description: req.body.description,
+						imageFiles: cid,
+						offersMade: [],
+					});
 
-				// const db = getDb();
-
-				res.send({
-					status: true,
-					message: "Files are uploaded with cid:" + cid,
-					data: data,
-				});
+					res.send({
+						status: true,
+						message: "Files are uploaded with cid:" + cid,
+						data: metadata,
+					});
+				} catch (e) {
+					res.status(500).send(err);
+				}
 			} catch (err) {
 				res.status(500).send(err);
 			}
@@ -82,7 +103,17 @@ async function retrieveFilesFromIpfs(req, res) {
 			for (const file of files) {
 				console.log(`${file.cid} -- ${file.name} -- ${file.size}`);
 			}
-			res.send(files);
+
+			// Also send the metadata from OrbitDB
+			const db = await getDb();
+			const metadata = await db.get(req.params.cid);
+
+			const responseData = {
+				files,
+				metadata,
+			};
+
+			res.send(responseData);
 		} catch (err) {
 			console.log(err);
 			res.status(500).send(err);
@@ -96,19 +127,39 @@ async function retrieveAllFiles(req, res) {
 	res.send(allListings);
 }
 
-/* Get a listing from web3.storage ipfs */
-router.get("/", async function (req, res, next) {
-	await retrieveAllFiles(req, res);
-});
+const validateRequest = (req) => {
+	const validated = {
+		valid: false,
+		message: "",
+	};
+	if (!req.body) {
+		validated.message = "No body provided";
+		return validated;
+	}
 
-/* Get a listing from web3.storage ipfs */
-router.get("/:cid", async function (req, res, next) {
-	await retrieveFilesFromIpfs(req, res);
-});
+	if (!req.files || !req.files.listings) {
+		validated.message = "No file uploaded";
+		return validated;
+	}
 
-/* Store a new listing in web3.storage ipfs */
-router.post("/", async function (req, res, next) {
-	await storeFilesInIpfs(req, res);
-});
+	if (!req.body.price) {
+		validated.message = "No price provided";
+		return validated;
+	}
+
+	if (!req.body.title) {
+		validated.message = "No title provided";
+		return validated;
+	}
+
+	if (!req.body.description) {
+		validated.message = "No description uploaded";
+		return validated;
+	}
+
+	return {
+		valid: true,
+	};
+};
 
 module.exports = router;

@@ -1,6 +1,6 @@
 # Barrio
 
-Barrio is designed to facillitate a decentralised local second-hand commerce market reducing waste and encouraging sustainability, by allowing people to buy local items with ETH. Sellers can list an item for sale in their local area, and buyers can put in an offer.
+Barrio is designed to facillitate a decentralised local second-hand commerce market reducing waste and encouraging sustainability, by allowing people to buy and sell local items with ETH. Sellers can list an item for sale in their local area, and buyers can put in an offer.
 They then meet up in person to complete the exchange, and as the goods change hands, the seller ensures that the buyer confirms the purchase in the app and that the funds have arrived. Alternatively, both the buyer and seller can agree on a trusted third party to complete the sale, allowing, for example, auction houses, estate agents, shops and other third parties to negotiate purchases.
 Barrio provides a mechanism to allow for the purchase and sale of real-world off-chain assets, whilst building up a system of reputation and trust to facilitate future trade.
 The project brings off chain assets and the history of their sales on-chain - adding a metadata and provenance layer with IPFS and Ethereum.

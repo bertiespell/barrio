@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import "./App.css";
+import { createListing } from "./getData";
 
 function App() {
 	const [name, setName] = useState("");
@@ -10,12 +11,7 @@ function App() {
 		event.preventDefault();
 		console.log(event, name, selectedFile);
 
-		const data = await axios({
-			method: "get",
-			url: "http://localhost:3001/ipfs/bafybeigudyphsqvmr7esak2on2asewtxy4vjbqhitkzq4hjeih4wono45e",
-		});
-
-		console.log(data);
+		createListing(selectedFile);
 	};
 
 	// upload file to server, wait for hash
