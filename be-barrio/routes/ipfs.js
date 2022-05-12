@@ -40,20 +40,31 @@ async function storeFilesInIpfs(req, res) {
 				let data = [];
 
 				const requestFiles = [req.files.listings].flat();
+
 				for (const file of requestFiles) {
 					// move photo to uploads directory
 					const path = "./uploads/" + file.name;
 
 					file.mv(path);
 
-					const pathFiles = await getFilesFromPath(path);
-					data.push(...pathFiles);
+					try {
+						const pathFiles = await getFilesFromPath(path);
+						data.push(...pathFiles);
+					} catch (e) {
+						res.status(500).send(err);
+					}
 				}
 
-				const cid = await storage.put(data);
+				let cid;
+				try {
+					cid = await storage.put(data);
+				} catch (e) {
+					res.status(500).send(err);
+				}
 
 				// Add to OrbitDB - using key-value store, where cid is the key
 				const db = await getDb();
+				console.log(cid);
 				try {
 					const metadata = await db.put(cid, {
 						price: req.body.price,
