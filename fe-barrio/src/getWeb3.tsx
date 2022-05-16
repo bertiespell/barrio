@@ -1,5 +1,4 @@
 import Listings from "./abi/Listings.json"; //truffle project dir
-import web3 from "web3";
 import { BigNumber, ethers } from "ethers";
 
 // Uses a singleton pattern to construct, load and get database
@@ -111,7 +110,6 @@ class Web3Connection {
 		try {
 			// Ether amount to send
 			const price = await listingContract.getPriceForListing(listing);
-			console.log(BigNumber.from(price));
 
 			const offer = await listingWithSigner.makeOffer(listing, {
 				value: BigNumber.from(price),

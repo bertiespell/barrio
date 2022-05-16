@@ -39,7 +39,11 @@ async function storeFilesInIpfs(req, res) {
 			try {
 				let fileData = [];
 
-				const requestFiles = [req.files.listings].flat();
+				const requestFiles = [req.files.listings]
+					.flat()
+					.map((listing) =>
+						Object.assign(listing, { name: listing.name.trim() })
+					);
 
 				for (const file of requestFiles) {
 					// move photo to uploads directory
