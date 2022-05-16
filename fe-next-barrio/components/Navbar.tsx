@@ -27,11 +27,10 @@ function classNames(...classes: any) {
 }
 
 export default function Navbar() {
-	const [sidebarOpen, setSidebarOpen] = useState(true);
+	const [sidebarOpen, setSidebarOpen] = useState(false);
 
 	return (
 		<>
-			{/* When the mobile menu is open, add `overflow-hidden` to the `body` element to prevent double scrollbars */}
 			<Popover
 				as="header"
 				className={({ open }) =>
