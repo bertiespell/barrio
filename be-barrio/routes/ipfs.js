@@ -37,7 +37,7 @@ async function storeFilesInIpfs(req, res) {
 			});
 		} else {
 			try {
-				let data = [];
+				let fileData = [];
 
 				const requestFiles = [req.files.listings].flat();
 
@@ -49,7 +49,7 @@ async function storeFilesInIpfs(req, res) {
 
 					try {
 						const pathFiles = await getFilesFromPath(path);
-						data.push(...pathFiles);
+						fileData.push(...pathFiles);
 					} catch (e) {
 						res.status(500).send(err);
 					}
@@ -57,26 +57,30 @@ async function storeFilesInIpfs(req, res) {
 
 				let cid;
 				try {
-					cid = await storage.put(data);
+					cid = await storage.put(fileData);
 				} catch (e) {
 					res.status(500).send(err);
 				}
 
 				// Add to OrbitDB - using key-value store, where cid is the key
 				const db = await getDb();
-				console.log(cid);
+
 				try {
-					const metadata = await db.put(cid, {
+					const metadata = {
 						price: req.body.price,
 						title: req.body.title,
 						description: req.body.description,
-						imageFiles: cid,
+						location: req.body.location,
+						imageFilesCID: cid,
 						offersMade: [],
-					});
+					};
+					const orbitID = await db.put(cid, metadata);
 
 					res.send({
 						status: true,
-						message: "Files are uploaded with cid:" + cid,
+						message: "Files are uploaded with cid: " + cid,
+						imageFilesCID: cid,
+						orbitID: orbitID,
 						data: metadata,
 					});
 				} catch (e) {
@@ -165,6 +169,11 @@ const validateRequest = (req) => {
 
 	if (!req.body.description) {
 		validated.message = "No description uploaded";
+		return validated;
+	}
+
+	if (!req.body.location) {
+		validated.message = "No location uploaded";
 		return validated;
 	}
 

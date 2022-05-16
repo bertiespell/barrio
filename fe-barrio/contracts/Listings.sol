@@ -13,12 +13,13 @@ contract Listings is AccessControl, KeeperCompatible {
         address payable[] buyerAddressesArray;
         uint256 price;
         uint256 date;
+        bool bought;
     }
 
     /// @dev stores all of the submitted Listings
-    mapping(string => Listing) private listings;
+    mapping(string => Listing) public listings;
     /// @dev Also store listings hash as an array in order to loop over later during upkeep
-    string[] listingsArray;
+    string[] public listingsArray;
 
     /// @dev emitted whenever a new listing is submitted
     event ListingSubmitted(
@@ -64,6 +65,8 @@ contract Listings is AccessControl, KeeperCompatible {
 
     /// @dev Make an offer to buy a listing
     function makeOffer(string memory ipfsHash) public payable whenNotPaused {
+        require(listings[ipfsHash].sellerAddress != msg.sender);
+        require(listings[ipfsHash].bought == false);
         require(listings[ipfsHash].buyerAddresses[msg.sender] != true);
         require(listings[ipfsHash].price <= msg.value);
         listings[ipfsHash].buyerAddresses[msg.sender] = true;
@@ -75,6 +78,7 @@ contract Listings is AccessControl, KeeperCompatible {
     /// @dev Confirm a buy has taken place and transfer funds
     function confirmBuy(string memory ipfsHash) public whenNotPaused {
         require(listings[ipfsHash].buyerAddresses[msg.sender] == true);
+        require(listings[ipfsHash].bought == false);
 
         for (
             uint256 i = 0;
@@ -92,6 +96,8 @@ contract Listings is AccessControl, KeeperCompatible {
                 );
             }
         }
+
+        listings[ipfsHash].bought = true;
     }
 
     /// @dev Called during performUpkeep to empty unused funds
@@ -105,6 +111,8 @@ contract Listings is AccessControl, KeeperCompatible {
                 listings[ipfsHash].price
             );
         }
+
+        listings[ipfsHash].bought = true;
     }
 
     function checkUpkeep(
@@ -152,6 +160,56 @@ contract Listings is AccessControl, KeeperCompatible {
         returns (bool)
     {
         return date < block.timestamp - interval;
+    }
+
+    function getListingsArray() public view returns (string[] memory) {
+        string[] memory allListings = new string[](listingsArray.length);
+        for (uint256 i = 0; i < listingsArray.length; i++) {
+            allListings[i] = listingsArray[i];
+        }
+        return allListings;
+    }
+
+    function getBuyersForListing(string memory ipfsHash)
+        public
+        view
+        returns (address[] memory)
+    {
+        require(listings[ipfsHash].sellerAddress != address(0x0));
+
+        address[] memory buyerAddresses = new address[](
+            listings[ipfsHash].buyerAddressesArray.length
+        );
+        for (
+            uint256 i = 0;
+            i < listings[ipfsHash].buyerAddressesArray.length;
+            i++
+        ) {
+            buyerAddresses[i] = listings[ipfsHash].buyerAddressesArray[i];
+        }
+        return buyerAddresses;
+    }
+
+    function getPriceForListing(string memory ipfsHash)
+        public
+        view
+        returns (uint256)
+    {
+        require(listings[ipfsHash].sellerAddress != address(0x0));
+
+        uint256 price = listings[ipfsHash].price;
+        return price;
+    }
+
+    function getSellerForListing(string memory ipfsHash)
+        public
+        view
+        returns (address)
+    {
+        require(listings[ipfsHash].sellerAddress != address(0x0));
+
+        address sellerAddress = listings[ipfsHash].sellerAddress;
+        return sellerAddress;
     }
 
     /// @dev this method calls selfdestruct() and removes the contract from the blockchain.

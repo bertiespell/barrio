@@ -50,6 +50,26 @@ async function main() {
 		console.log(tx, "TX:createListing");
 	};
 
+	const getAllListings = async () => {
+		const getListingsArray = listings.methods
+			.getListingsArray()
+			.encodeABI();
+
+		const tx = await web3.eth.sendTransaction(
+			{
+				from: signer.address,
+				to: address,
+				gas: 30000000,
+				data: getListingsArray,
+			},
+			function (err, res) {
+				if (err) console.log(err, "ERR:getListingsArray");
+				if (res) console.log(res, "RES:getListingsArray");
+			}
+		);
+		console.log(tx, "TX:getListingsArray");
+	};
+
 	const network = process.env.ETHEREUM_NETWORK;
 
 	// Set up web3 object, connected to the local development network
@@ -71,6 +91,7 @@ async function main() {
 	// uncomment to use these methods on the smart contract
 	// await setInterval(604800);
 	// await createListing("QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps", 1);
+	await getAllListings();
 }
 
 main();

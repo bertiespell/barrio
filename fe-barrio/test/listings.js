@@ -13,7 +13,7 @@ contract("Listings.createListing", function (accounts) {
 		await listingContract.createListing(
 			"QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB",
 			1,
-			{ from: alice }
+			{ from: alice, gasPrice: 0 }
 		);
 	});
 
@@ -26,7 +26,7 @@ contract("Listings.createListing", function (accounts) {
 			await listingContract.createListing(
 				"QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB",
 				1,
-				{ from: alice }
+				{ from: alice, gasPrice: 0 }
 			);
 		} catch (error) {
 			called = true;
@@ -38,7 +38,7 @@ contract("Listings.createListing", function (accounts) {
 });
 
 contract("Listings.makeOffer", function (accounts) {
-	it("should make an offer on a listing", async () => {
+	it("should make an offer on a listing and not allow seller", async () => {
 		const alice = accounts[0];
 		const bob = accounts[1];
 
@@ -46,13 +46,25 @@ contract("Listings.makeOffer", function (accounts) {
 		await listingContract.createListing(
 			"QmRAQB6YaCyidP37UdDnjFY5vQuiBrcqdyoW1CuDgwxkD4",
 			2,
-			{ from: alice }
+			{ from: alice, gasPrice: 0 }
 		);
 
 		await listingContract.makeOffer(
 			"QmRAQB6YaCyidP37UdDnjFY5vQuiBrcqdyoW1CuDgwxkD4",
-			{ from: bob, value: 2 }
+			{ from: bob, value: 2, gasPrice: 0 }
 		);
+
+		let called = false;
+		try {
+			await listingContract.makeOffer(
+				"QmRAQB6YaCyidP37UdDnjFY5vQuiBrcqdyoW1CuDgwxkD4",
+				{ from: alice, value: 2, gasPrice: 0 }
+			);
+		} catch (err) {
+			called = true;
+		}
+
+		assert(called);
 	});
 
 	it("should hold the money in escrow", async () => {
@@ -102,17 +114,17 @@ contract("Listings.makeOffer", function (accounts) {
 		const listing = await listingContract.createListing(
 			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
 			2,
-			{ from: alice }
+			{ from: alice, gasPrice: 0 }
 		);
 
 		await listingContract.makeOffer(
 			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
-			{ from: bob, value: 2 }
+			{ from: bob, value: 2, gasPrice: 0 }
 		);
 
 		await listingContract.makeOffer(
 			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
-			{ from: charlie, value: 2 }
+			{ from: charlie, value: 2, gasPrice: 0 }
 		);
 	});
 
@@ -124,14 +136,14 @@ contract("Listings.makeOffer", function (accounts) {
 		await listingContract.createListing(
 			"QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB",
 			20,
-			{ from: alice }
+			{ from: alice, gasPrice: 0 }
 		);
 
 		let called = false;
 		try {
 			await listingContract.makeOffer(
 				"QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB",
-				{ from: bob }
+				{ from: bob, gasPrice: 0 }
 			);
 		} catch (error) {
 			called = true;
@@ -148,7 +160,7 @@ contract("Listings.makeOffer", function (accounts) {
 		try {
 			await listingContract.makeOffer(
 				"QmRAQB6YaCyidP37UdDnjFY5vQuiBrcqdyoW1CuDgwxkD4",
-				{ from: bob, value: 2 }
+				{ from: bob, value: 2, gasPrice: 0 }
 			);
 		} catch (error) {
 			called = true;
@@ -157,6 +169,78 @@ contract("Listings.makeOffer", function (accounts) {
 	});
 });
 
+contract("Listings.confirmBuy after it's been bought", function (accounts) {
+	it("should fail", async () => {
+		const alice = accounts[0];
+		const bob = accounts[1];
+		const charlie = accounts[2];
+
+		const listingContract = await Listings.deployed();
+
+		const itemPrice = 2;
+
+		await listingContract.createListing(
+			"QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB",
+			itemPrice,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		await listingContract.makeOffer(
+			"QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB",
+			{ from: bob, value: itemPrice, gasPrice: 0 }
+		);
+
+		await listingContract.confirmBuy(
+			"QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB",
+			{ from: bob, gasPrice: 0 }
+		);
+
+		let called = false;
+		try {
+			await listingContract.confirmBuy(
+				"QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB",
+				{ from: bob, gasPrice: 0 }
+			);
+		} catch (err) {
+			called = true;
+		}
+
+		assert(called);
+
+		called = false;
+		try {
+			await listingContract.confirmBuy(
+				"QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB",
+				{ from: charlie, gasPrice: 0 }
+			);
+		} catch (err) {
+			called = true;
+		}
+
+		assert(called);
+
+		try {
+			await listingContract.makeOffer(
+				"QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB",
+				{ from: bob, gasPrice: 0 }
+			);
+		} catch (err) {
+			called = true;
+		}
+
+		assert(called);
+
+		called = false;
+		try {
+			await listingContract.makeOffer(
+				"QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB",
+				{ from: charlie, gasPrice: 0 }
+			);
+		} catch (err) {
+			called = true;
+		}
+	});
+});
 contract("Listings.confirmBuy", function (accounts) {
 	it("should transfer the price to the buyer", async () => {
 		const alice = accounts[0];
@@ -432,6 +516,174 @@ async function increase(duration) {
 		);
 	});
 }
+
+contract("Listings.getListingsArray with entries", function (accounts) {
+	it("should return the array of listings", async () => {
+		const alice = accounts[0];
+
+		const listingContract = await Listings.deployed();
+		await listingContract.createListing(
+			"QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB",
+			1,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		const listingArray = await listingContract.getListingsArray();
+		assert.equal(
+			"QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB",
+			listingArray[0]
+		);
+	});
+});
+
+contract("Listings.getListingsArray empty array", function (accounts) {
+	it("should return an empty array of listings when no listings are submitted", async () => {
+		const listingContract = await Listings.deployed();
+
+		const listingArray = await listingContract.getListingsArray();
+		assert.equal(listingArray.length, 0);
+	});
+});
+
+contract("Listings.getListingsArray multiple", function (accounts) {
+	it("should return multiple listings", async () => {
+		const alice = accounts[1];
+		const bob = accounts[2];
+
+		const listingContract = await Listings.deployed();
+
+		await listingContract.createListing(
+			"QmYA2fn8cMbVWo4v95RwcwJVyQsNtnEwHerfWR8UNtEwoE",
+			1,
+			{ from: alice, gasPrice: 0 }
+		);
+		await listingContract.createListing(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			1,
+			{ from: bob, gasPrice: 0 }
+		);
+
+		const listingArray = await listingContract.getListingsArray();
+
+		assert.equal(
+			"QmYA2fn8cMbVWo4v95RwcwJVyQsNtnEwHerfWR8UNtEwoE",
+			listingArray[0]
+		);
+		assert.equal(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			listingArray[1]
+		);
+	});
+});
+
+contract("Listings.getSellerForListing", function (accounts) {
+	it("should return the seller of listing", async () => {
+		const alice = accounts[0];
+
+		const listingContract = await Listings.deployed();
+		await listingContract.createListing(
+			"QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB",
+			1,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		const seller = await listingContract.getSellerForListing(
+			"QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB"
+		);
+		assert.equal(seller, alice);
+	});
+
+	it("should fail is the listing doesn't exist", async () => {
+		const listingContract = await Listings.deployed();
+
+		let called = false;
+		try {
+			await listingContract.getSellerForListing(
+				"QmYA2fn8cMbVWo4v95RwcwJVyQsNtnEwHerfWR8UNtEwoE"
+			);
+		} catch (e) {
+			called = true;
+		}
+		assert(called);
+	});
+});
+
+contract("Listings.getPriceForListing", function (accounts) {
+	it("should return the price of listing", async () => {
+		const alice = accounts[0];
+
+		const listingContract = await Listings.deployed();
+		await listingContract.createListing(
+			"QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB",
+			1,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		const price = await listingContract.getPriceForListing(
+			"QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB"
+		);
+		assert.equal(price, 1);
+	});
+
+	it("should fail is the listing doesn't exist", async () => {
+		const listingContract = await Listings.deployed();
+
+		let called = false;
+		try {
+			await listingContract.getPriceForListing(
+				"QmYA2fn8cMbVWo4v95RwcwJVyQsNtnEwHerfWR8UNtEwoE"
+			);
+		} catch (e) {
+			called = true;
+		}
+		assert(called);
+	});
+});
+
+contract("Listings.getBuyersForListing", function (accounts) {
+	it("should return a list of buyers for listing", async () => {
+		const alice = accounts[0];
+		const bob = accounts[1];
+		const charlie = accounts[2];
+
+		const listingContract = await Listings.deployed();
+		await listingContract.createListing(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			2,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		await listingContract.makeOffer(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			{ from: bob, value: 2, gasPrice: 0 }
+		);
+
+		await listingContract.makeOffer(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			{ from: charlie, value: 2 }
+		);
+
+		const buyers = await listingContract.getBuyersForListing(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps"
+		);
+		assert.equal(buyers[0], bob);
+		assert.equal(buyers[1], charlie);
+	});
+
+	it("should fail is the listing doesn't exist", async () => {
+		const listingContract = await Listings.deployed();
+
+		let called = false;
+		try {
+			await listingContract.getPriceForListing(
+				"QmYA2fn8cMbVWo4v95RwcwJVyQsNtnEwHerfWR8UNtEwoE"
+			);
+		} catch (e) {
+			called = true;
+		}
+		assert(called);
+	});
+});
 
 contract("Listings.performUpkeep", function (accounts) {
 	it("should remove listings that are over a week old", async () => {
