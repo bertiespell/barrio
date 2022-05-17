@@ -9,6 +9,14 @@ var getDb = require("./orbitdb/orbit");
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 var ipfsRouter = require("./routes/ipfs");
+const rateLimit = require("express-rate-limit");
+
+const limiter = rateLimit({
+	windowMs: 10000, // 10 seconds
+	max: 10, // Limit each IP to 10 requests per `window` (here, per 10 seconds)
+	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
 
 getDb();
 
@@ -19,6 +27,9 @@ app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
 
 app.use(cors());
+
+// Apply the rate limiting middleware to all requests
+app.use(limiter);
 
 app.use(logger("dev"));
 app.use(express.json());
