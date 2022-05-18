@@ -21,6 +21,11 @@ router.get("/:cid", async function (req, res, next) {
 	await retrieveFilesFromIpfs(req, res);
 });
 
+/* Get a listing from web3.storage ipfs */
+router.delete("/:cid", async function (req, res, next) {
+	await deleteFiles(req, res);
+});
+
 /* Store a new listing in web3.storage ipfs */
 router.post("/", async function (req, res, next) {
 	await storeFilesInIpfs(req, res);
@@ -131,41 +136,114 @@ async function retrieveFilesFromIpfs(req, res) {
 		});
 	} else {
 		try {
-			const result = await storage.get(cid);
-			console.log(
-				`Got a response! [${result.status}] ${result.statusText}`
-			);
-			if (!result.ok) {
-				throw new Error(`failed to get ${cid}`);
-			}
-
-			// unpack File objects from the response
-			const files = await result.files();
-			for (const file of files) {
-				console.log(`${file.cid} -- ${file.name} -- ${file.size}`);
-			}
-
-			// Also send the metadata from OrbitDB
-			const db = await getDb();
-			const metadata = await db.get(req.params.cid);
-
-			const responseData = {
-				files,
-				metadata,
-			};
-
+			const responseData = await getAndCacheFile(req, cid);
 			res.send(responseData);
 		} catch (err) {
-			console.log(err);
+			console.error(err);
 			res.status(500).send(err);
 		}
 	}
 }
 
+const getAndCacheFile = async (req, cid) => {
+	const cachedValue = listingsCache.get(cid);
+	if (cachedValue) {
+		console.log("Cached value found: ", cachedValue);
+		return cachedValue;
+	}
+
+	try {
+		const result = await storage.get(cid);
+		console.log(`Got a response! [${result.status}] ${result.statusText}`);
+		if (!result.ok) {
+			throw new Error(`failed to get ${cid}`);
+		}
+
+		// unpack File objects from the response
+		const files = await result.files();
+		for (const file of files) {
+			console.log(`${file.cid} -- ${file.name} -- ${file.size}`);
+		}
+
+		// Also send the metadata from OrbitDB
+		const db = await getDb();
+		const metadata = await db.get(req.params.cid);
+
+		const listingData = {
+			files,
+			metadata,
+		};
+
+		listingsCache.set(cid, listingData, cacheTime);
+		return listingData;
+	} catch (err) {
+		console.error(err);
+		res.status(500).send(err);
+	}
+};
+
 async function retrieveAllFiles(req, res) {
-	const db = await getDb();
-	const allListings = await db.all;
-	res.send(allListings);
+	try {
+		const db = await getDb();
+		const allListings = await db.all;
+		const allListingsArr = [];
+		Object.keys(allListings).map((key) =>
+			allListingsArr.push(allListings[key])
+		);
+		res.send(allListingsArr);
+	} catch (err) {
+		console.error(err);
+		res.status(500).send(err);
+	}
+}
+
+async function deleteFiles(req, res) {
+	// TODO: need to validate/authorise this properly
+	const cid = req.params.cid;
+
+	if (!cid) {
+		res.send({
+			status: false,
+			message: "No CID provided",
+		});
+	} else {
+		try {
+			let error;
+			// delete from db
+			try {
+				const db = await getDb();
+				await db.del(cid);
+			} catch (err) {
+				console.error(err);
+				error = err;
+			}
+
+			// delete from cache
+			try {
+				await listingsCache.del(cid);
+			} catch (err) {
+				console.error(err);
+				error = err;
+			}
+
+			// delete from ipfs
+			try {
+				// delete isn't implemented in storage yet
+				// await storage.delete(cid);
+			} catch (err) {
+				console.error(err);
+				error = err;
+			}
+			if (error) {
+				res.status(500).send(error);
+			} else {
+				res.status(200).send("Record deleted");
+			}
+		} catch (err) {
+			console.error(err);
+			res.status(500).send(err);
+		}
+	}
 }
 
 const validateRequest = (req) => {
@@ -198,8 +276,33 @@ const validateRequest = (req) => {
 		return validated;
 	}
 
-	if (!req.body.location) {
-		validated.message = "No location uploaded";
+	try {
+		if (!JSON.parse(req.body.location)) {
+			validated.message = "No listing preferences provided";
+			return validated;
+		}
+	} catch (err) {
+		validated.message = "Location couldn't be decoded";
+		return validated;
+	}
+
+	if (!req.body.user) {
+		validated.message = "No user provided";
+		return validated;
+	}
+
+	if (!req.body.preferences) {
+		validated.message = "No listing preferences provided";
+		return validated;
+	}
+
+	try {
+		if (!JSON.parse(req.body.preferences)) {
+			validated.message = "No listing preferences provided";
+			return validated;
+		}
+	} catch (err) {
+		validated.message = "Listing preferences couldn't be decoded";
 		return validated;
 	}
 
