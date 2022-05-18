@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import LoadingSpinner from "../components/LoadingSpinner";
 import { CardListing } from "../pages/listings";
 import { makeGatewayURL } from "../utils/getIpfs";
 import { getAllListings } from "../utils/getOrbitData";
@@ -8,7 +9,7 @@ export const ListingsContext = React.createContext({});
 
 const ListingsProvider = ({ children }: any) => {
 	const [listings, setListings] = useState<any[]>([]);
-	const [loading, setLoading] = useState(false);
+	const [loading, setLoading] = useState(true);
 
 	const validateProduct = (listing: any) => {
 		if (!listing.imageFilesCID) return false;
@@ -48,7 +49,6 @@ const ListingsProvider = ({ children }: any) => {
 
 	const getAllProducts = async () => {
 		try {
-			setLoading(true);
 			const allListings = await getAllListings();
 
 			const mappedData = allListings.data
@@ -104,7 +104,15 @@ const ListingsProvider = ({ children }: any) => {
 				getAllProducts,
 			}}
 		>
-			{loading ? <p>loading</p> : children}
+			{loading ? (
+				<div className="max-w-7xl mx-auto pt-20 pb-20 px-4 sm:px-6 lg:px-8">
+					<div className="px-4 sm:px-6 lg:px-8">
+						<LoadingSpinner />
+					</div>
+				</div>
+			) : (
+				children
+			)}
 		</ListingsContext.Provider>
 	);
 };

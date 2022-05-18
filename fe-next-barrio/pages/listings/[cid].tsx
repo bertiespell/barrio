@@ -227,7 +227,41 @@ export default function Listing() {
 
 						<form className="mt-6">
 							<div className="mt-10 flex sm:flex-col1">
-								<button
+								{product.bought ? (
+									<>
+										<span className="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+											This item has been bought already!
+										</span>
+									</>
+								) : (
+									<>
+										<button
+											type="submit"
+											className="max-w-xs flex-1 bg-indigo-600 border border-transparent rounded-md py-3 px-8 flex items-center justify-center text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-indigo-500 sm:w-full"
+											onClick={(e) => {
+												e.preventDefault();
+												makeOfferInMetamask(
+													cid as string
+												);
+											}}
+										>
+											Buy
+										</button>
+										<button
+											type="button"
+											className="ml-4 py-3 px-3 rounded-md flex items-center justify-center text-gray-400 hover:bg-gray-100 hover:text-gray-500"
+										>
+											<HeartIcon
+												className="h-6 w-6 flex-shrink-0"
+												aria-hidden="true"
+											/>
+											<span className="sr-only">
+												Add to favorites
+											</span>
+										</button>
+									</>
+								)}
+								{/* <button
 									type="submit"
 									className="max-w-xs flex-1 bg-indigo-600 border border-transparent rounded-md py-3 px-8 flex items-center justify-center text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-indigo-500 sm:w-full"
 									onClick={(e) => {
@@ -236,20 +270,7 @@ export default function Listing() {
 									}}
 								>
 									Buy
-								</button>
-
-								<button
-									type="button"
-									className="ml-4 py-3 px-3 rounded-md flex items-center justify-center text-gray-400 hover:bg-gray-100 hover:text-gray-500"
-								>
-									<HeartIcon
-										className="h-6 w-6 flex-shrink-0"
-										aria-hidden="true"
-									/>
-									<span className="sr-only">
-										Add to favorites
-									</span>
-								</button>
+								</button> */}
 							</div>
 						</form>
 
@@ -262,7 +283,8 @@ export default function Listing() {
 							</h2>
 
 							<div className="border-t divide-y divide-gray-200">
-								{product.offersMade.length ? (
+								{product.offersMade.length &&
+								!product.bought ? (
 									<Disclosure as="div" key={cid as string}>
 										{({ open }) => (
 											<>
@@ -320,74 +342,11 @@ export default function Listing() {
 											</>
 										)}
 									</Disclosure>
+								) : product.bought ? (
+									""
 								) : (
 									"No buyers yet, be the first and make an offer!"
 								)}
-								{/* {product.offersMade.length ? 
-									product.offersMade.map((offer) => (
-										<Disclosure as="div" key={offer.user}>
-											{({ open }) => (
-												<>
-													<h3>
-														<Disclosure.Button className="group relative w-full py-6 flex justify-between items-center text-left">
-															<span
-																className={classNames(
-																	open
-																		? "text-indigo-600"
-																		: "text-gray-900",
-																	"text-sm font-medium"
-																)}
-															>
-																{"View offers"}
-															</span>
-															<span className="ml-6 flex items-center">
-																{open ? (
-																	<MinusSmIcon
-																		className="block h-6 w-6 text-indigo-400 group-hover:text-indigo-500"
-																		aria-hidden="true"
-																	/>
-																) : (
-																	<PlusSmIcon
-																		className="block h-6 w-6 text-gray-400 group-hover:text-gray-500"
-																		aria-hidden="true"
-																	/>
-																)}
-															</span>
-														</Disclosure.Button>
-													</h3>
-													<Disclosure.Panel
-														as="div"
-														className="pb-6 prose prose-sm"
-													>
-														<ul role="list">
-															{product.offersMade.map(
-																(offer) => (
-																	<li
-																		key={
-																			offer.user
-																		}
-																	>
-																		{
-																			offer.user
-																		}{" "}
-																		<b>
-																			{
-																				offer.price
-																			}{" "}
-																			ETH
-																		</b>
-																	</li>
-																)
-															)}
-														</ul>
-													</Disclosure.Panel>
-												</>
-											)}
-										</Disclosure>
-									) : (
-										"No buyers yet, be the first and make an offer!"
-									)
-								} */}
 							</div>
 						</section>
 					</div>

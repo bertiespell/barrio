@@ -6,6 +6,7 @@ import Slideover from "./Slideover";
 import getWeb3 from "../utils/getWeb3";
 import SuccessAlert from "./SuccessAlert";
 import ErrorAlert from "./ErrorAlert";
+import Link from "next/link";
 
 const user = {
 	name: "Chelsea Hagon",
@@ -142,13 +143,11 @@ export default function Navbar() {
 											/>
 										</button>
 									</div>
-
-									<a
-										href="/new-listing"
-										className="ml-6 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-									>
-										Post ad
-									</a>
+									<Link href="/new-listing">
+										<a className="ml-6 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+											Post ad
+										</a>
+									</Link>
 								</div>
 							</div>
 						</div>
@@ -160,21 +159,23 @@ export default function Navbar() {
 						>
 							<div className="max-w-3xl mx-auto px-2 pt-2 pb-3 space-y-1 sm:px-4">
 								{navigation.map((item) => (
-									<a
-										key={item.name}
-										href={item.href}
-										aria-current={
-											item.current ? "page" : undefined
-										}
-										className={classNames(
-											item.current
-												? "bg-gray-100 text-gray-900"
-												: "hover:bg-gray-50",
-											"block rounded-md py-2 px-3 text-base font-medium"
-										)}
-									>
-										{item.name}
-									</a>
+									<Link key={item.name} href={item.href}>
+										<a
+											aria-current={
+												item.current
+													? "page"
+													: undefined
+											}
+											className={classNames(
+												item.current
+													? "bg-gray-100 text-gray-900"
+													: "hover:bg-gray-50",
+												"block rounded-md py-2 px-3 text-base font-medium"
+											)}
+										>
+											{item.name}
+										</a>
+									</Link>
 								))}
 							</div>
 							<div className="border-t border-gray-200 pt-4 pb-3">

@@ -124,14 +124,14 @@ class Web3Connection {
 				try {
 					price = await listingContract.getPriceForListing(listing);
 				} catch (err) {
-					console.log(err);
+					console.error(err);
 					throw Error("(SM) Unable to get listing price");
 				}
 				return await listingWithSigner.makeOffer(listing, {
 					value: BigNumber.from(price),
 				});
 			} catch (err) {
-				console.log(err);
+				console.error(err);
 				throw Error("(SM) Unable to get make offer");
 			}
 		} catch (err) {

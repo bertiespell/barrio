@@ -1,12 +1,8 @@
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import Layout from "../components/Layout";
-import { useEffect, useState } from "react";
-import { CardListing } from "./listings";
-import { getAllListings, getListing } from "../utils/getOrbitData";
-import { makeGatewayURL } from "../utils/getIpfs";
-import getWeb3 from "../utils/getWeb3";
 import ListingsProvider from "../context/listings";
+import App from "next/app";
 
 function MyApp({ Component, pageProps }: AppProps) {
 	return (
@@ -19,5 +15,17 @@ function MyApp({ Component, pageProps }: AppProps) {
 		</>
 	);
 }
+
+// Only uncomment this method if you have blocking data requirements for
+// every single page in your application. This disables the ability to
+// perform automatic static optimization, causing every page in your app to
+// be server-side rendered.
+
+MyApp.getInitialProps = async (appContext) => {
+	// calls page's `getInitialProps` and fills `appProps.pageProps`
+	const appProps = await App.getInitialProps(appContext);
+
+	return { ...appProps };
+};
 
 export default MyApp;

@@ -1,8 +1,9 @@
 import { PaperClipIcon } from "@heroicons/react/solid";
-import { FormEvent, useState } from "react";
+import { FormEvent, useContext, useState } from "react";
 import ErrorAlert from "../components/ErrorAlert";
 import LoadingSpinner from "../components/LoadingSpinner";
 import SuccessAlert from "../components/SuccessAlert";
+import { ListingsContext } from "../context/listings";
 import {
 	createListing,
 	deleteListing,
@@ -11,6 +12,10 @@ import {
 import getWeb3 from "../utils/getWeb3";
 
 export default function NewListing() {
+	// listing context to update on success
+	const { getAllProducts } = useContext(ListingsContext);
+
+	// form data
 	const [title, setTitle] = useState("");
 	const [description, setDescription] = useState("");
 	// location data
@@ -84,7 +89,6 @@ export default function NewListing() {
 		let listing: OrbitListing;
 		// save data to IPFS and OrbitDB
 		try {
-			console.log("Are files available?", selectedFiles);
 			listing = await createListing(formData);
 		} catch (e) {
 			setError({
@@ -122,6 +126,7 @@ export default function NewListing() {
 		});
 		setShowAlert(true);
 		setLoading(false);
+		getAllProducts();
 	};
 
 	const removeSelectedFiles = (e: FormEvent, file: File) => {
@@ -138,12 +143,8 @@ export default function NewListing() {
 			<div className="max-w-3xl mx-auto">
 				{loading ? (
 					<div>
-						<div
-							className="flex justify-center items-center m-auto"
-							style={{ width: "6rem", height: "6rem" }}
-						>
-							<LoadingSpinner />
-						</div>
+						<LoadingSpinner />
+
 						<div className="flex justify-center items-center m-auto p-10">
 							<div className="space-y-8 divide-y divide-gray-200">
 								<h3 className="text-center text-lg leading-6 font-medium text-gray-900">

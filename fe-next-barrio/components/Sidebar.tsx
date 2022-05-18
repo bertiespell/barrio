@@ -6,6 +6,7 @@ import {
 	UserIcon,
 } from "@heroicons/react/outline";
 import { XIcon } from "@heroicons/react/solid";
+import Link from "next/link";
 
 const navigation = [
 	{ name: "Profile", icon: UserIcon, href: "#", current: false },
@@ -62,34 +63,35 @@ export default function Sidebar({ setSidebarOpen }: any) {
 					aria-label="Sidebar"
 				>
 					{navigation.map((item) => (
-						<a
-							key={item.name}
-							href={item.href}
-							className={classNames(
-								item.current
-									? "bg-indigo-800 text-white"
-									: "text-indigo-100 hover:bg-indigo-600 hover:bg-opacity-75",
-								"group flex items-center px-2 py-2 text-sm font-medium rounded-md"
-							)}
-						>
-							<item.icon
-								className="mr-3 flex-shrink-0 h-6 w-6 text-indigo-300"
-								aria-hidden="true"
-							/>
-							<span className="flex-1">{item.name}</span>
-							{item.count ? (
-								<span
-									className={classNames(
-										item.current
-											? "bg-indigo-600"
-											: "bg-indigo-800",
-										"ml-3 inline-block py-0.5 px-3 text-xs font-medium rounded-full"
-									)}
-								>
-									{item.count}
-								</span>
-							) : null}
-						</a>
+						<Link key={item.name} href={item.href}>
+							<a
+								className={classNames(
+									item.current
+										? "bg-indigo-800 text-white"
+										: "text-indigo-100 hover:bg-indigo-600 hover:bg-opacity-75",
+									"group flex items-center px-2 py-2 text-sm font-medium rounded-md"
+								)}
+								onClick={() => setSidebarOpen(false)}
+							>
+								<item.icon
+									className="mr-3 flex-shrink-0 h-6 w-6 text-indigo-300"
+									aria-hidden="true"
+								/>
+								<span className="flex-1">{item.name}</span>
+								{item.count ? (
+									<span
+										className={classNames(
+											item.current
+												? "bg-indigo-600"
+												: "bg-indigo-800",
+											"ml-3 inline-block py-0.5 px-3 text-xs font-medium rounded-full"
+										)}
+									>
+										{item.count}
+									</span>
+								) : null}
+							</a>
+						</Link>
 					))}
 				</nav>
 			</div>
