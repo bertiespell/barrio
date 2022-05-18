@@ -3,10 +3,16 @@ import { BigNumber, ethers } from "ethers";
 
 const listingsContractAddress: string = (process.env.NEXT_PUBLIC_LISTINGS_CONTRACT_ADDRESS as string);
 
+export type EthListingData = {
+	buyers: string[];
+	price: string;
+	seller: string;
+	bought: boolean;
+}
 // Uses a singleton pattern to construct, load and get web3
 class Web3Connection {
 	provider!: ethers.providers.Web3Provider;
-	currentAccount!: string;
+	currentAccount: string = "";
 
 	constructor() {
 		if ((Web3Connection as any)._instance) {
@@ -22,7 +28,7 @@ class Web3Connection {
 
 	}
 
-	async getAccounts() {
+	async getAccounts(): Promise<string> {
 		try {
 			const accounts = await this.provider.send(
 				"eth_requestAccounts",
@@ -31,7 +37,6 @@ class Web3Connection {
 
 			this.currentAccount = accounts[0];
 
-			console.log("(SM) ETH enabled with account: ", this.currentAccount);
 			return this.currentAccount;
 		} catch (err) {
 			console.error(err, "err");
@@ -51,19 +56,17 @@ class Web3Connection {
 		);
 
 		try {
-			const createdListing = await listingWithSigner.createListing(
+			return await listingWithSigner.createListing(
 				listing,
 				ethers.utils.parseEther(price)
 			);
-			console.log("(SM) Listing created: ", createdListing);
-			return createdListing;
 		} catch (err) {
 			console.error(err, "err");
 			throw Error("(SM) Unable to create listing");
 		}
 	}
 
-	async getAllListings(): Promise<string[] | Error> {
+	async getAllListings(): Promise<string[]> {
 		try {
 			const listingContract = new ethers.Contract(
 				listingsContractAddress,
@@ -71,20 +74,14 @@ class Web3Connection {
 				this.provider
 			);
 	
-			const allListings = await listingContract.getListingsArray();
-			console.log("(SM) All listings retrieved: ", allListings);
-			return allListings;
+			return await listingContract.getListingsArray();
 		} catch (err) {
 			console.error(err, "err");
 			throw Error("(SM) Unable to get all listings");
 		}
 	}
 
-	async getListingData(listing: string): Promise<{
-		buyers: string[];
-		price: string;
-		seller: string;
-	} | Error> {
+	async getListingData(listing: string): Promise<EthListingData> {
 		try {
 			const listingContract = new ethers.Contract(
 				listingsContractAddress,
@@ -95,16 +92,13 @@ class Web3Connection {
 			const buyers = await listingContract.getBuyersForListing(listing);
 			const price = await listingContract.getPriceForListing(listing);
 			const seller = await listingContract.getSellerForListing(listing);
-	
-			console.log(`(SM) Retrieving ${listing} data from smart contract: `, {
-				buyers,
-				price,
-				seller,
-			});
+			const bought = await listingContract.getBoughtForListing(listing);
+		
 			return {
 				buyers,
 				price,
 				seller,
+				bought
 			};
 		} catch (err) {
 			console.error(err, "err");
@@ -112,7 +106,7 @@ class Web3Connection {
 		}
 	}
 
-	async makeOffer(listing: string): Promise<any | Error> {
+	async makeOffer(listing: string): Promise<any> {
 		try {
 			const listingContract = new ethers.Contract(
 				listingsContractAddress,
@@ -126,15 +120,19 @@ class Web3Connection {
 	
 			try {
 				// Ether amount to send
-				const price = await listingContract.getPriceForListing(listing);
-
-				const offer = await listingWithSigner.makeOffer(listing, {
+				let price;
+				try {
+					price = await listingContract.getPriceForListing(listing);
+				} catch (err) {
+					console.log(err);
+					throw Error("(SM) Unable to get listing price");
+				}
+				return await listingWithSigner.makeOffer(listing, {
 					value: BigNumber.from(price),
 				});
-
-				return offer;
 			} catch (err) {
 				console.log(err);
+				throw Error("(SM) Unable to get make offer");
 			}
 		} catch (err) {
 			console.error(err, "err");

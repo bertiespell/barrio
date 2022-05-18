@@ -212,6 +212,17 @@ contract Listings is AccessControl, KeeperCompatible {
         return sellerAddress;
     }
 
+    function getBoughtForListing(string memory ipfsHash)
+        public
+        view
+        returns (bool)
+    {
+        require(listings[ipfsHash].sellerAddress != address(0x0));
+
+        bool bought = listings[ipfsHash].bought;
+        return bought;
+    }
+
     /// @dev this method calls selfdestruct() and removes the contract from the blockchain.
     function kill() public onlyCEO whenNotPaused {
         selfdestruct(ceoAddress);

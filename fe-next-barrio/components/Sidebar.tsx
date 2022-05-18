@@ -13,11 +13,23 @@ const navigation = [
 	{
 		name: "Listings",
 		icon: ClipboardIcon,
-		href: "#",
+		href: "/my-listings",
 		current: false,
 	},
-	{ name: "Offers", icon: FireIcon, href: "#", count: 4, current: false },
-	{ name: "Messages", icon: ChatIcon, href: "#", count: 3, current: false },
+	{
+		name: "Offers",
+		icon: FireIcon,
+		href: "/my-offers",
+		count: 4,
+		current: false,
+	},
+	{
+		name: "Messages",
+		icon: ChatIcon,
+		href: "/messages",
+		count: 3,
+		current: false,
+	},
 ];
 
 function classNames(...classes: any) {

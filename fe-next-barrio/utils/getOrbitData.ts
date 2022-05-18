@@ -2,12 +2,10 @@ import axios from "axios";
 
 export const getListing = async (listingCID: string) => {
 	try {
-		const listingData = await axios({
+		return await axios({
 			method: "get",
 			url: "http://localhost:3001/ipfs/" + listingCID,
 		});
-		console.log("(OrbitDB) listing data: ", listingData);
-		return listingData;
 	} catch (err) {
 		console.error("(OrbitDB) Couldn't getListing data from orbit: ", err);
 		throw Error("Couldn't getListing data from orbit")
@@ -16,12 +14,10 @@ export const getListing = async (listingCID: string) => {
 
 export const getAllListings = async () => {
 	try {
-		const listingData = await axios({
+		return await axios({
 			method: "get",
 			url: "http://localhost:3001/ipfs/",
 		});
-		console.log("(OrbitDB) all listing data: ", listingData);
-		return listingData;
 	} catch (err) {
 		console.error("(OrbitDB) Couldn't getAllListing data from orbit: ", err);
 		throw Error("Couldn't getAllListing data from orbit")
@@ -97,8 +93,6 @@ export const createListing = async (listing: ListingFormData): Promise<OrbitList
 			}
 		);
 
-		console.log("(OrbitDB) listing created: ", orbitData);
-
 		return orbitData.data;
 	} catch (err) {
 		console.error("(OrbitDB) Couldn't create listing in orbit data from orbit: ", err);
@@ -108,12 +102,10 @@ export const createListing = async (listing: ListingFormData): Promise<OrbitList
 
 export const deleteListing = async (listingCID: string): Promise<any> => {
 	try {
-		const listingData = await axios({
+		return await axios({
 			method: "delete",
 			url: "http://localhost:3001/ipfs/" + listingCID,
 		});
-		console.log("(OrbitDB) listing data deleted: ", listingData);
-		return listingData;
 	} catch (err) {
 		console.error("(OrbitDB) Couldn't getListing data from orbit: ", err);
 		throw Error("Couldn't delete data from orbit")

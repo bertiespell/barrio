@@ -20,7 +20,7 @@ export default function NewListing() {
 	const [state, setState] = useState("");
 	const [postcode, setPostcode] = useState("");
 
-	//preferences
+	// preferences
 	const [auction, setAuction] = useState(false);
 	const [saveIpfsData, setSaveIpfsData] = useState(false);
 	const [useThirdParty, setUseThirdParty] = useState(false);

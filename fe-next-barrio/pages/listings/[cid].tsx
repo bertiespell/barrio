@@ -1,23 +1,79 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Disclosure, Tab } from "@headlessui/react";
 import { StarIcon } from "@heroicons/react/solid";
 import { HeartIcon, MinusSmIcon, PlusSmIcon } from "@heroicons/react/outline";
 import { getListing } from "../../utils/getOrbitData";
 import { useRouter } from "next/router";
-import { ProductData } from "../../types/Listings";
 import { makeGatewayURL } from "../../utils/getIpfs";
 import getWeb3 from "../../utils/getWeb3";
+import { CardListing, Offer } from "../listings";
+import ErrorAlert from "../../components/ErrorAlert";
+import SuccessAlert from "../../components/SuccessAlert";
+import { ListingsContext } from "../../context/listings";
 
 function classNames(...classes: any[]) {
 	return classes.filter(Boolean).join(" ");
 }
 
 export default function Listing() {
+	const { getAllProducts } = useContext(ListingsContext);
+
 	const router = useRouter();
 	const { cid } = router.query;
 
-	const [data, setData] = useState<ProductData | null>(null);
+	const [product, setProduct] = useState<CardListing>(null as any);
 	const [isLoading, setLoading] = useState(false);
+
+	// errors
+	const [showError, setShowError] = useState(false);
+	const [error, setError] = useState({
+		title: "Unknown Error Occurred",
+		message: "Sorry about that...",
+	});
+
+	// successAlert
+	const [showAlert, setShowAlert] = useState(false);
+	const [alert, setAlert] = useState({
+		title: "Wow something happened!",
+		message: "Congrats",
+	});
+
+	const makeOfferInMetamask = async (listingId: string) => {
+		try {
+			await getWeb3.makeOffer(listingId);
+
+			getAllProducts();
+
+			setAlert({
+				title: "Success!",
+				message: "You've made an offer on this item!",
+			});
+			setShowAlert(true);
+		} catch (err) {
+			setError({
+				title: "Failed to send offer to smart contract",
+				message:
+					"Sorry, there was an issue sending your offer to the EVM. Please try again later. Check that you haven't already made an offer on this item before",
+			});
+			setShowError(true);
+		}
+	};
+
+	const addOfferData = async (price: string) => {
+		try {
+			const ethData = await getWeb3.getListingData(cid as string);
+			product.offersMade = ethData["buyers"].map((buyer) => {
+				return {
+					user: buyer,
+					price,
+				} as Offer;
+			});
+			product.bought = ethData.bought;
+			setProduct(product as any);
+		} catch (e) {
+			console.warn(e);
+		}
+	};
 
 	useEffect(() => {
 		if (!router.isReady) return;
@@ -25,7 +81,6 @@ export default function Listing() {
 		getListing(cid as string).then((res) => {
 			// fetch the images from ipfs
 			const images = res?.data.metadata.fileNames.map((image: string) => {
-				console.log(image);
 				return {
 					id: image,
 					name: image,
@@ -33,39 +88,31 @@ export default function Listing() {
 				};
 			});
 
-			const data: ProductData = {
+			const data: CardListing = {
+				id: cid as string,
 				name: res?.data.metadata.title,
+				// date: res?.data.metadata.date,
+				user: res?.data.metadata.user,
 				price: res?.data.metadata.price,
 				description: res?.data.metadata.description,
 				location: res?.data.metadata.location,
 				images,
-				// TODO: implement rating (retrieve from smart contract and/or show "seller doesn't have any ratings yet!")
-				rating: 5,
-				details: [
-					{
-						name: "Offers",
-						items: [],
-						// TODO: let's retrieve offers made from the smart contract
-						// items: res?.data.metadata.offersMade.map(
-						// 	(address: string) => {
-						// 		return {
-						// 			address: address,
-						// 			price: res?.data.metadata.price,
-						// 		};
-						// 	}
-						// ),
-					},
-				],
+				rating: -1,
+				bought: false,
+				offersMade: [],
 			};
 
-			setData(data as any);
+			setProduct(data as any);
 			setLoading(false);
+
+			addOfferData(res?.data.metadata.price);
+
 			return res;
 		});
 	}, [router.isReady]);
 
 	if (isLoading) return <p>Loading...</p>;
-	if (!data) return <p>No profile data</p>;
+	if (!product) return <p>No profile data</p>;
 
 	return (
 		<div className="bg-white">
@@ -76,7 +123,7 @@ export default function Listing() {
 						{/* Image selector */}
 						<div className="hidden mt-6 w-full max-w-2xl mx-auto sm:block lg:max-w-none">
 							<Tab.List className="grid grid-cols-4 gap-6">
-								{data.images.map((image) => (
+								{product.images.map((image) => (
 									<Tab
 										key={image.id}
 										className="relative h-24 bg-white rounded-md flex items-center justify-center text-sm font-medium uppercase text-gray-900 cursor-pointer hover:bg-gray-50 focus:outline-none focus:ring focus:ring-offset-4 focus:ring-opacity-50"
@@ -89,7 +136,7 @@ export default function Listing() {
 												<span className="absolute inset-0 rounded-md overflow-hidden">
 													<img
 														src={image.src}
-														alt=""
+														alt={image.name}
 														className="w-full h-full object-center object-cover"
 													/>
 												</span>
@@ -110,11 +157,11 @@ export default function Listing() {
 						</div>
 
 						<Tab.Panels className="w-full aspect-w-1 aspect-h-1">
-							{data.images.map((image) => (
+							{product.images.map((image) => (
 								<Tab.Panel key={image.id}>
 									<img
 										src={image.src}
-										alt={image.alt}
+										alt={image.name}
 										className="w-full h-full object-center object-cover sm:rounded-lg"
 									/>
 								</Tab.Panel>
@@ -125,13 +172,13 @@ export default function Listing() {
 					{/* Product info */}
 					<div className="mt-10 px-4 sm:px-0 sm:mt-16 lg:mt-0">
 						<h1 className="text-3xl font-extrabold tracking-tight text-gray-900">
-							{data.name}
+							{product.name}
 						</h1>
 
 						<div className="mt-3">
 							<h2 className="sr-only">Product information</h2>
 							<p className="text-3xl text-gray-900">
-								{data.price} ETH
+								{product.price} ETH
 							</p>
 						</div>
 
@@ -144,7 +191,7 @@ export default function Listing() {
 										<StarIcon
 											key={rating}
 											className={classNames(
-												data.rating > rating
+												product.rating > rating
 													? "text-indigo-500"
 													: "text-gray-300",
 												"h-5 w-5 flex-shrink-0"
@@ -152,9 +199,17 @@ export default function Listing() {
 											aria-hidden="true"
 										/>
 									))}
+									{product.rating > 0 ? (
+										""
+									) : (
+										<p className="text-s text-gray-500">
+											This seller hasn't recieved any
+											ratings yet
+										</p>
+									)}
 								</div>
 								<p className="sr-only">
-									{data.rating} out of 5 stars
+									{product.rating} out of 5 stars
 								</p>
 							</div>
 						</div>
@@ -165,7 +220,7 @@ export default function Listing() {
 							<div
 								className="text-base text-gray-700 space-y-6"
 								dangerouslySetInnerHTML={{
-									__html: data.description,
+									__html: product.description,
 								}}
 							/>
 						</div>
@@ -177,7 +232,7 @@ export default function Listing() {
 									className="max-w-xs flex-1 bg-indigo-600 border border-transparent rounded-md py-3 px-8 flex items-center justify-center text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-indigo-500 sm:w-full"
 									onClick={(e) => {
 										e.preventDefault();
-										getWeb3.makeOffer(cid as string);
+										makeOfferInMetamask(cid as string);
 									}}
 								>
 									Buy
@@ -207,9 +262,70 @@ export default function Listing() {
 							</h2>
 
 							<div className="border-t divide-y divide-gray-200">
-								{data.details.map((detail) =>
-									detail.items.length ? (
-										<Disclosure as="div" key={detail.name}>
+								{product.offersMade.length ? (
+									<Disclosure as="div" key={cid as string}>
+										{({ open }) => (
+											<>
+												<h3>
+													<Disclosure.Button className="group relative w-full py-6 flex justify-between items-center text-left">
+														<span
+															className={classNames(
+																open
+																	? "text-indigo-600"
+																	: "text-gray-900",
+																"text-sm font-medium"
+															)}
+														>
+															{"View offers"}
+														</span>
+														<span className="ml-6 flex items-center">
+															{open ? (
+																<MinusSmIcon
+																	className="block h-6 w-6 text-indigo-400 group-hover:text-indigo-500"
+																	aria-hidden="true"
+																/>
+															) : (
+																<PlusSmIcon
+																	className="block h-6 w-6 text-gray-400 group-hover:text-gray-500"
+																	aria-hidden="true"
+																/>
+															)}
+														</span>
+													</Disclosure.Button>
+												</h3>
+												<Disclosure.Panel
+													as="div"
+													className="pb-6 prose prose-sm"
+												>
+													<ul role="list">
+														{product.offersMade.map(
+															(offer) => (
+																<li
+																	key={
+																		offer.user
+																	}
+																>
+																	{offer.user}{" "}
+																	<b>
+																		{
+																			offer.price
+																		}{" "}
+																		ETH
+																	</b>
+																</li>
+															)
+														)}
+													</ul>
+												</Disclosure.Panel>
+											</>
+										)}
+									</Disclosure>
+								) : (
+									"No buyers yet, be the first and make an offer!"
+								)}
+								{/* {product.offersMade.length ? 
+									product.offersMade.map((offer) => (
+										<Disclosure as="div" key={offer.user}>
 											{({ open }) => (
 												<>
 													<h3>
@@ -222,7 +338,7 @@ export default function Listing() {
 																	"text-sm font-medium"
 																)}
 															>
-																{detail.name}
+																{"View offers"}
 															</span>
 															<span className="ml-6 flex items-center">
 																{open ? (
@@ -244,19 +360,19 @@ export default function Listing() {
 														className="pb-6 prose prose-sm"
 													>
 														<ul role="list">
-															{detail.items.map(
-																(item) => (
+															{product.offersMade.map(
+																(offer) => (
 																	<li
 																		key={
-																			item.address
+																			offer.user
 																		}
 																	>
 																		{
-																			item.address
+																			offer.user
 																		}{" "}
 																		<b>
 																			{
-																				item.price
+																				offer.price
 																			}{" "}
 																			ETH
 																		</b>
@@ -271,12 +387,27 @@ export default function Listing() {
 									) : (
 										"No buyers yet, be the first and make an offer!"
 									)
-								)}
+								} */}
 							</div>
 						</section>
 					</div>
 				</div>
 			</div>
+			<ErrorAlert
+				open={showError}
+				setOpen={setShowError}
+				errorTitle={error.title}
+				errorMessage={error.message}
+			/>
+
+			<SuccessAlert
+				open={showAlert}
+				setOpen={setShowAlert}
+				alertTitle={alert.title}
+				alertMessage={alert.message}
+				callToAction="View my offers"
+				navigate={`/my-offers`}
+			/>
 		</div>
 	);
 }

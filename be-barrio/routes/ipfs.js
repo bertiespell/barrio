@@ -84,6 +84,9 @@ async function storeFilesInIpfs(req, res) {
 				// Add to OrbitDB - using key-value store, where cid is the key
 				const db = await getDb();
 
+				const currentDate = new Date();
+				const timestamp = currentDate.getTime();
+
 				try {
 					const metadata = {
 						price: req.body.price,
@@ -94,6 +97,7 @@ async function storeFilesInIpfs(req, res) {
 						fileNames,
 						user: req.body.user,
 						preferences: req.body.preferences,
+						date: timestamp,
 					};
 					// save the listing data in orbitDB using the ipfs image hash as a unique identifier
 					await db.put(cid, metadata);

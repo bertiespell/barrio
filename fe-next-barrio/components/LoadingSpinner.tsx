@@ -1,4 +1,4 @@
-export default function LoadingSpinner() {
+export default function LoadingSpinner({}) {
 	return (
 		<>
 			<svg
