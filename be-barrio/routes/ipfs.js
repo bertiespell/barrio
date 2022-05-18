@@ -1,13 +1,13 @@
 var express = require("express");
 var router = express.Router();
-var {
-	Web3Storage,
-	getFilesFromPath,
-	makeStorageClient,
-} = require("web3.storage");
+var { Web3Storage, getFilesFromPath } = require("web3.storage");
 var getDb = require("../orbitdb/orbit");
+var cache = require("js-cache");
 
 require("dotenv").config();
+
+var listingsCache = new cache();
+const cacheTime = 726000000; // two hours
 
 const storage = new Web3Storage({ token: process.env.WEB3STORAGE_TOKEN });
 
@@ -37,13 +37,20 @@ async function storeFilesInIpfs(req, res) {
 			});
 		} else {
 			try {
-				let fileData = [];
+				const fileData = [];
 
 				const requestFiles = [req.files.listings]
 					.flat()
 					.map((listing) =>
-						Object.assign(listing, { name: listing.name.trim() })
+						Object.assign(listing, {
+							name: listing.name.replace(/\s/g, ""),
+						})
 					);
+
+				const fileNames = requestFiles.map((listing) =>
+					// remove white space, and remove leading/trailig slashes
+					listing.name.replace(/\s/g, "").replace(/^\/|\/$/g, "")
+				);
 
 				for (const file of requestFiles) {
 					// move photo to uploads directory
@@ -54,15 +61,18 @@ async function storeFilesInIpfs(req, res) {
 					try {
 						const pathFiles = await getFilesFromPath(path);
 						fileData.push(...pathFiles);
-					} catch (e) {
+					} catch (err) {
+						console.error(err);
 						res.status(500).send(err);
 					}
 				}
 
 				let cid;
 				try {
+					// store the image files in ipfs via web3 and save cid
 					cid = await storage.put(fileData);
-				} catch (e) {
+				} catch (err) {
+					console.error(err);
 					res.status(500).send(err);
 				}
 
@@ -76,25 +86,37 @@ async function storeFilesInIpfs(req, res) {
 						description: req.body.description,
 						location: req.body.location,
 						imageFilesCID: cid,
-						offersMade: [],
+						fileNames,
+						user: req.body.user,
+						preferences: req.body.preferences,
 					};
-					const orbitID = await db.put(cid, metadata);
+					// save the listing data in orbitDB using the ipfs image hash as a unique identifier
+					await db.put(cid, metadata);
 
-					res.send({
-						status: true,
-						message: "Files are uploaded with cid: " + cid,
-						imageFilesCID: cid,
-						orbitID: orbitID,
-						data: metadata,
-					});
-				} catch (e) {
+					const listingData = {
+						files: fileData,
+						metadata,
+					};
+					console.log(
+						"Saving data in cache, then returning",
+						listingData
+					);
+
+					// cache the data
+					listingsCache.set(cid, listingData, cacheTime);
+
+					res.send(listingData);
+				} catch (err) {
+					console.error(err);
 					res.status(500).send(err);
 				}
 			} catch (err) {
+				console.error(err);
 				res.status(500).send(err);
 			}
 		}
 	} catch (err) {
+		console.error(err);
 		res.status(500).send(err);
 	}
 }
