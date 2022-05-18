@@ -82,11 +82,12 @@ function App() {
 					Get Specific Listing
 				</button>
 				<button
-					onClick={(e) =>
+					onClick={(e) => {
+						e.preventDefault();
 						web3Connection.makeOffer(
 							"bafybeiddkz4iaslgtos4t74sbf4hmcler7gkiqpzyygb35jxv6rsynp5zq"
-						)
-					}
+						);
+					}}
 				>
 					Make Offer
 				</button>

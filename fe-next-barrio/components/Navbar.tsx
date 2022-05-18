@@ -3,6 +3,9 @@ import { Menu, Popover, Transition } from "@headlessui/react";
 import { SearchIcon } from "@heroicons/react/solid";
 import { BellIcon, MenuIcon, XIcon } from "@heroicons/react/outline";
 import Slideover from "./Slideover";
+import getWeb3 from "../utils/getWeb3";
+import SuccessAlert from "./SuccessAlert";
+import ErrorAlert from "./ErrorAlert";
 
 const user = {
 	name: "Chelsea Hagon",
@@ -16,11 +19,6 @@ const navigation = [
 	{ name: "Teams", href: "#", current: false },
 	{ name: "Directory", href: "#", current: false },
 ];
-const userNavigation = [
-	{ name: "Your Profile", href: "#" },
-	{ name: "Settings", href: "#" },
-	{ name: "Sign out", href: "#" },
-];
 
 function classNames(...classes: any) {
 	return classes.filter(Boolean).join(" ");
@@ -28,6 +26,20 @@ function classNames(...classes: any) {
 
 export default function Navbar() {
 	const [sidebarOpen, setSidebarOpen] = useState(false);
+	const [account, setAccount] = useState("");
+
+	const [showMetamaskEnabled, setShowMetamaskEnabled] = useState(false);
+	const [showMetamaskError, setShowMetamaskError] = useState(false);
+
+	const enableMetamask = async () => {
+		try {
+			const newAccount = await getWeb3.getAccounts();
+			setAccount(newAccount);
+			setShowMetamaskEnabled(true);
+		} catch (err) {
+			setShowMetamaskError(true);
+		}
+	};
 
 	return (
 		<>
@@ -117,53 +129,19 @@ export default function Navbar() {
 										/>
 									</a>
 
-									{/* Profile dropdown */}
-									<Menu
-										as="div"
-										className="flex-shrink-0 relative ml-5"
-									>
-										<div>
-											<Menu.Button className="bg-white rounded-full flex focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-												<span className="sr-only">
-													Open user menu
-												</span>
-												<img
-													className="h-8 w-8 rounded-full"
-													src={user.imageUrl}
-													alt=""
-												/>
-											</Menu.Button>
-										</div>
-										<Transition
-											as={Fragment}
-											enter="transition ease-out duration-100"
-											enterFrom="transform opacity-0 scale-95"
-											enterTo="transform opacity-100 scale-100"
-											leave="transition ease-in duration-75"
-											leaveFrom="transform opacity-100 scale-100"
-											leaveTo="transform opacity-0 scale-95"
-										>
-											<Menu.Items className="origin-top-right absolute z-10 right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 py-1 focus:outline-none">
-												{userNavigation.map((item) => (
-													<Menu.Item key={item.name}>
-														{({ active }) => (
-															<a
-																href={item.href}
-																className={classNames(
-																	active
-																		? "bg-gray-100"
-																		: "",
-																	"block py-2 px-4 text-sm text-gray-700"
-																)}
-															>
-																{item.name}
-															</a>
-														)}
-													</Menu.Item>
-												))}
-											</Menu.Items>
-										</Transition>
-									</Menu>
+									<div className="flex-shrink-0 relative ml-5">
+										<button className="bg-white rounded-full flex focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+											<span className="sr-only">
+												Open user menu
+											</span>
+											<img
+												className="h-8 w-8 rounded-full"
+												src="https://raw.githubusercontent.com/MetaMask/brand-resources/master/SVG/metamask-fox.svg"
+												alt=""
+												onClick={() => enableMetamask()}
+											/>
+										</button>
+									</div>
 
 									<a
 										href="/new-listing"
@@ -229,17 +207,6 @@ export default function Navbar() {
 										/>
 									</button>
 								</div>
-								<div className="mt-3 max-w-3xl mx-auto px-2 space-y-1 sm:px-4">
-									{userNavigation.map((item) => (
-										<a
-											key={item.name}
-											href={item.href}
-											className="block rounded-md py-2 px-3 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-900"
-										>
-											{item.name}
-										</a>
-									))}
-								</div>
 							</div>
 						</Popover.Panel>
 					</>
@@ -248,6 +215,25 @@ export default function Navbar() {
 			<Slideover
 				sidebarOpen={sidebarOpen}
 				setSidebarOpen={setSidebarOpen}
+			/>
+			<SuccessAlert
+				open={showMetamaskEnabled}
+				setOpen={setShowMetamaskEnabled}
+				account={account}
+				alertTitle={""}
+				alertMessage={`You've successfully linked your
+				metamask account with wallet: 
+				${account}. You can now post new
+				listings and make offers on
+				items.`}
+			/>
+			<ErrorAlert
+				open={showMetamaskError}
+				setOpen={setShowMetamaskError}
+				errorTitle={"Metamask Error"}
+				errorMessage={
+					"There was an issue connected your metamask account. Ensure that you're logged in and that you've addressed any pending notifications in Metamask."
+				}
 			/>
 		</>
 	);

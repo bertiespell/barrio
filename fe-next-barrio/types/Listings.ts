@@ -3,11 +3,6 @@ export type BuyOffer = {
 	price: string;
 };
 
-export type IpfsImage = {
-	cid: string;
-	_name: string;
-};
-
 export type ProductData = {
 	name: string;
 	price: string;

@@ -4,8 +4,9 @@ import { StarIcon } from "@heroicons/react/solid";
 import { HeartIcon, MinusSmIcon, PlusSmIcon } from "@heroicons/react/outline";
 import { getListing } from "../../utils/getOrbitData";
 import { useRouter } from "next/router";
-import { IpfsImage, ProductData } from "../../types/Listings";
+import { ProductData } from "../../types/Listings";
 import { makeGatewayURL } from "../../utils/getIpfs";
+import getWeb3 from "../../utils/getWeb3";
 
 function classNames(...classes: any[]) {
 	return classes.filter(Boolean).join(" ");
@@ -23,11 +24,12 @@ export default function Listing() {
 		setLoading(true);
 		getListing(cid as string).then((res) => {
 			// fetch the images from ipfs
-			const images = res?.data.files.map((image: IpfsImage) => {
+			const images = res?.data.metadata.fileNames.map((image: string) => {
+				console.log(image);
 				return {
-					id: image.cid,
-					name: image._name,
-					src: makeGatewayURL(cid as string, image._name),
+					id: image,
+					name: image,
+					src: makeGatewayURL(cid as string, image),
 				};
 			});
 
@@ -37,19 +39,21 @@ export default function Listing() {
 				description: res?.data.metadata.description,
 				location: res?.data.metadata.location,
 				images,
-				// TODO: implement rating
+				// TODO: implement rating (retrieve from smart contract and/or show "seller doesn't have any ratings yet!")
 				rating: 5,
 				details: [
 					{
 						name: "Offers",
-						items: res?.data.metadata.offersMade.map(
-							(address: string) => {
-								return {
-									address: address,
-									price: res?.data.metadata.price,
-								};
-							}
-						),
+						items: [],
+						// TODO: let's retrieve offers made from the smart contract
+						// items: res?.data.metadata.offersMade.map(
+						// 	(address: string) => {
+						// 		return {
+						// 			address: address,
+						// 			price: res?.data.metadata.price,
+						// 		};
+						// 	}
+						// ),
 					},
 				],
 			};
@@ -171,8 +175,11 @@ export default function Listing() {
 								<button
 									type="submit"
 									className="max-w-xs flex-1 bg-indigo-600 border border-transparent rounded-md py-3 px-8 flex items-center justify-center text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-indigo-500 sm:w-full"
+									onClick={(e) => {
+										e.preventDefault();
+										getWeb3.makeOffer(cid as string);
+									}}
 								>
-									{/* TODO: Use metamask to make an offer here */}
 									Buy
 								</button>
 
