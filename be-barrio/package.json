@@ -17,6 +17,7 @@
     "http-errors": "~1.6.3",
     "ipfs": "^0.62.3",
     "jade": "~1.11.0",
+    "js-cache": "^1.0.3",
     "morgan": "~1.9.1",
     "orbit-db": "^0.28.6",
     "web3.storage": "^3.1.0"
