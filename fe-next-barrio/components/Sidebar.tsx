@@ -9,7 +9,7 @@ import { XIcon } from "@heroicons/react/solid";
 import Link from "next/link";
 
 const navigation = [
-	{ name: "Profile", icon: UserIcon, href: "#", current: false },
+	{ name: "Profile", icon: UserIcon, href: "/profile", current: false },
 	{ name: "Search", icon: SearchIcon, href: "/listings", current: false },
 	{
 		name: "Listings",
