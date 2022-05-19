@@ -13,7 +13,7 @@ import getWeb3 from "../utils/getWeb3";
 
 export default function NewListing() {
 	// listing context to update on success
-	const { getAllProducts } = useContext(ListingsContext);
+	const { getAllProducts } = useContext<any>(ListingsContext);
 
 	// form data
 	const [title, setTitle] = useState("");

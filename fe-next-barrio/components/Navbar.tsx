@@ -1,5 +1,5 @@
-import { Fragment, useState } from "react";
-import { Menu, Popover, Transition } from "@headlessui/react";
+import { useState } from "react";
+import { Popover } from "@headlessui/react";
 import { SearchIcon } from "@heroicons/react/solid";
 import { BellIcon, MenuIcon, XIcon } from "@heroicons/react/outline";
 import Slideover from "./Slideover";
@@ -8,17 +8,12 @@ import SuccessAlert from "./SuccessAlert";
 import ErrorAlert from "./ErrorAlert";
 import Link from "next/link";
 
-const user = {
-	name: "Chelsea Hagon",
-	email: "chelsea.hagon@example.com",
-	imageUrl:
-		"https://images.unsplash.com/photo-1550525811-e5869dd03032?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-};
 const navigation = [
-	{ name: "Dashboard", href: "#", current: true },
-	{ name: "Calendar", href: "#", current: false },
-	{ name: "Teams", href: "#", current: false },
-	{ name: "Directory", href: "#", current: false },
+	{ name: "All Listings", href: "/listings", current: false },
+	{ name: "My Listings", href: "/my-listings", current: false },
+	{ name: "My Offers", href: "/my-offers", current: false },
+	{ name: "Post Ad", href: "/new-listing", current: false },
+	{ name: "Info", href: "/", current: true },
 ];
 
 function classNames(...classes: any) {
@@ -64,8 +59,8 @@ export default function Navbar() {
 										>
 											<img
 												className="block h-8 w-auto"
-												src="https://tailwindui.com/img/logos/workflow-mark.svg?color=indigo&shade=600"
-												alt="Workflow"
+												src="/logo.png"
+												alt="Barrio"
 											/>
 										</button>
 									</div>
@@ -117,19 +112,6 @@ export default function Navbar() {
 									</Popover.Button>
 								</div>
 								<div className="hidden lg:flex lg:items-center lg:justify-end xl:col-span-4">
-									<a
-										href="#"
-										className="ml-5 flex-shrink-0 bg-white rounded-full p-1 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-									>
-										<span className="sr-only">
-											View notifications
-										</span>
-										<BellIcon
-											className="h-6 w-6"
-											aria-hidden="true"
-										/>
-									</a>
-
 									<div className="flex-shrink-0 relative ml-5">
 										<button className="bg-white rounded-full flex focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
 											<span className="sr-only">
@@ -180,33 +162,12 @@ export default function Navbar() {
 							</div>
 							<div className="border-t border-gray-200 pt-4 pb-3">
 								<div className="max-w-3xl mx-auto px-4 flex items-center sm:px-6">
-									<div className="flex-shrink-0">
-										<img
-											className="h-10 w-10 rounded-full"
-											src={user.imageUrl}
-											alt=""
-										/>
-									</div>
+									<div className="flex-shrink-0"></div>
 									<div className="ml-3">
 										<div className="text-base font-medium text-gray-800">
-											{user.name}
-										</div>
-										<div className="text-sm font-medium text-gray-500">
-											{user.email}
+											{account}
 										</div>
 									</div>
-									<button
-										type="button"
-										className="ml-auto flex-shrink-0 bg-white rounded-full p-1 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-									>
-										<span className="sr-only">
-											View notifications
-										</span>
-										<BellIcon
-											className="h-6 w-6"
-											aria-hidden="true"
-										/>
-									</button>
 								</div>
 							</div>
 						</Popover.Panel>

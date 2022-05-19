@@ -21,14 +21,14 @@ const navigation = [
 		name: "Offers",
 		icon: FireIcon,
 		href: "/my-offers",
-		count: 4,
+		count: 0,
 		current: false,
 	},
 	{
 		name: "Messages",
 		icon: ChatIcon,
 		href: "/messages",
-		count: 3,
+		count: 0,
 		current: false,
 	},
 ];
@@ -42,11 +42,15 @@ export default function Sidebar({ setSidebarOpen }: any) {
 		<div className="h-full flex-1 flex flex-col min-h-0 bg-indigo-700">
 			<div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
 				<div className="flex items-start justify-between px-4">
-					<img
-						className="h-8 w-auto"
-						src="https://tailwindui.com/img/logos/workflow-logo-indigo-300-mark-white-text.svg"
-						alt="Barrio"
-					/>
+					<Link href={"/"}>
+						<button onClick={() => setSidebarOpen(false)}>
+							<img
+								className="h-14 w-auto"
+								src="/logo.png"
+								alt="Barrio"
+							/>
+						</button>
+					</Link>
 					<div>
 						<button
 							type="button"

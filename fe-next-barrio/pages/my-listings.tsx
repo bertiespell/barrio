@@ -4,14 +4,16 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import OffersModal from "../components/OffersModal";
 import { ListingsContext } from "../context/listings";
 import getWeb3 from "../utils/getWeb3";
-import { Offer } from "./listings";
+import { CardListing, Offer } from "./listings";
 
 function classNames(...classes: any) {
 	return classes.filter(Boolean).join(" ");
 }
 
 export default function MyListings() {
-	const { listings } = useContext(ListingsContext);
+	const { listings } = useContext<{ listings: CardListing[] }>(
+		ListingsContext as any
+	);
 
 	const [currentAccount, setCurrentAccount] = useState(
 		getWeb3.currentAccount

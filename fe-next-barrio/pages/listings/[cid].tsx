@@ -16,8 +16,7 @@ function classNames(...classes: any[]) {
 }
 
 export default function Listing() {
-	const { getAllProducts } = useContext(ListingsContext);
-
+	const { getAllProducts } = useContext<any>(ListingsContext);
 	const router = useRouter();
 	const { cid } = router.query;
 
