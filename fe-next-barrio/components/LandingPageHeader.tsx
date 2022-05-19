@@ -57,10 +57,12 @@ export default function LandingPageHeader() {
 								</span>
 							</h1>
 							<p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
-								An ecosystem to buy and sell used items, powered
-								by Ethereum and IPFS. Take part in building a
+								An ecosystem to buy and sell pre-loved items,
+								powered by Ethereum and IPFS. Help build a
 								blockchain based second-hand market by storing
-								data and earning credits to spend.
+								data and earning credits. By reusing and
+								recycling, together we can build sustainable
+								local economies.
 							</p>
 							<div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
 								<div className="rounded-md shadow">

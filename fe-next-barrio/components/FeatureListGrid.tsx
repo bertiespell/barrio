@@ -37,7 +37,7 @@ const features = [
 	{
 		name: "Trusted Third Party Exchanges",
 		description:
-			"Allow a trusted third party to complete the exchange. This might be a local shop, estate agent or auction house.",
+			"Allow a trusted third party such as a shop, estate agent or auction house to complete the exchange.",
 		inDevelopment: true,
 	},
 	{
@@ -55,7 +55,7 @@ const features = [
 	{
 		name: "Advances Profiles",
 		description:
-			"Build reputation quickly by linking existing social media accounts, or remain anonymous and simply use your Metamask wallet address to do business.",
+			"Build reputation quickly by linking existing social media accounts.",
 		inDevelopment: true,
 	},
 	{
@@ -67,7 +67,7 @@ const features = [
 	{
 		name: "Long-term IPFS Storage",
 		description:
-			"Store images of your rare or collectible items for the long-term, and later prove provenance",
+			"Store images of rare or collectible items for the long-term, and later prove provenance",
 		inDevelopment: true,
 	},
 ];
