@@ -13,6 +13,8 @@ contract("Listings.createListing", function (accounts) {
 		await listingContract.createListing(
 			"QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB",
 			1,
+			false,
+			false,
 			{ from: alice, gasPrice: 0 }
 		);
 	});
@@ -26,6 +28,8 @@ contract("Listings.createListing", function (accounts) {
 			await listingContract.createListing(
 				"QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB",
 				1,
+				false,
+				false,
 				{ from: alice, gasPrice: 0 }
 			);
 		} catch (error) {
@@ -46,6 +50,8 @@ contract("Listings.makeOffer", function (accounts) {
 		await listingContract.createListing(
 			"QmRAQB6YaCyidP37UdDnjFY5vQuiBrcqdyoW1CuDgwxkD4",
 			2,
+			false,
+			false,
 			{ from: alice, gasPrice: 0 }
 		);
 
@@ -82,6 +88,8 @@ contract("Listings.makeOffer", function (accounts) {
 		await listingContract.createListing(
 			"QmYA2fn8cMbVWo4v95RwcwJVyQsNtnEwHerfWR8UNtEwoE",
 			itemPrice,
+			false,
+			false,
 			{ from: alice, gasPrice: 0 }
 		);
 
@@ -114,6 +122,8 @@ contract("Listings.makeOffer", function (accounts) {
 		const listing = await listingContract.createListing(
 			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
 			2,
+			false,
+			false,
 			{ from: alice, gasPrice: 0 }
 		);
 
@@ -136,6 +146,8 @@ contract("Listings.makeOffer", function (accounts) {
 		await listingContract.createListing(
 			"QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB",
 			20,
+			false,
+			false,
 			{ from: alice, gasPrice: 0 }
 		);
 
@@ -182,6 +194,8 @@ contract("Listings.confirmBuy after it's been bought", function (accounts) {
 		await listingContract.createListing(
 			"QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB",
 			itemPrice,
+			false,
+			false,
 			{ from: alice, gasPrice: 0 }
 		);
 
@@ -257,6 +271,8 @@ contract("Listings.confirmBuy", function (accounts) {
 		await listingContract.createListing(
 			"QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB",
 			itemPrice,
+			false,
+			false,
 			{ from: alice, gasPrice: 0 }
 		);
 
@@ -305,6 +321,8 @@ contract("Listings.confirmBuy", function (accounts) {
 		await listingContract.createListing(
 			"QmRAQB6YaCyidP37UdDnjFY5vQuiBrcqdyoW1CuDgwxkD4",
 			itemPrice,
+			false,
+			false,
 			{ from: alice, gasPrice: 0 }
 		);
 
@@ -369,6 +387,8 @@ contract("Listings.confirmBuy", function (accounts) {
 		await listingContract.createListing(
 			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
 			itemPrice,
+			false,
+			false,
 			{ from: alice, gasPrice: 0 }
 		);
 
@@ -402,6 +422,8 @@ contract("Listings.checkUpkeep false", function (accounts) {
 		await listingContract.createListing(
 			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
 			itemPrice,
+			false,
+			false,
 			{ from: alice, gasPrice: 0 }
 		);
 
@@ -427,6 +449,8 @@ contract("Listings.checkUpkeep true", function (accounts) {
 		await listingContract.createListing(
 			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
 			itemPrice,
+			false,
+			false,
 			{ from: alice, gasPrice: 0 }
 		);
 
@@ -458,18 +482,24 @@ contract("Listings.checkUpkeep multiple true", function (accounts) {
 		await listingContract.createListing(
 			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
 			itemPrice,
+			false,
+			false,
 			{ from: alice, gasPrice: 0 }
 		);
 
 		await listingContract.createListing(
 			"QmRAQB6YaCyidP37UdDnjFY5vQuiBrcqdyoW1CuDgwxkD4",
 			itemPrice,
+			false,
+			false,
 			{ from: bob, gasPrice: 0 }
 		);
 
 		await listingContract.createListing(
 			"QmYA2fn8cMbVWo4v95RwcwJVyQsNtnEwHerfWR8UNtEwoE",
 			itemPrice,
+			false,
+			false,
 			{ from: charlie, gasPrice: 0 }
 		);
 
@@ -525,6 +555,8 @@ contract("Listings.getListingsArray with entries", function (accounts) {
 		await listingContract.createListing(
 			"QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB",
 			1,
+			false,
+			false,
 			{ from: alice, gasPrice: 0 }
 		);
 
@@ -555,11 +587,15 @@ contract("Listings.getListingsArray multiple", function (accounts) {
 		await listingContract.createListing(
 			"QmYA2fn8cMbVWo4v95RwcwJVyQsNtnEwHerfWR8UNtEwoE",
 			1,
+			false,
+			false,
 			{ from: alice, gasPrice: 0 }
 		);
 		await listingContract.createListing(
 			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
 			1,
+			false,
+			false,
 			{ from: bob, gasPrice: 0 }
 		);
 
@@ -584,6 +620,8 @@ contract("Listings.getSellerForListing", function (accounts) {
 		await listingContract.createListing(
 			"QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB",
 			1,
+			false,
+			false,
 			{ from: alice, gasPrice: 0 }
 		);
 
@@ -608,7 +646,7 @@ contract("Listings.getSellerForListing", function (accounts) {
 	});
 });
 
-contract("Listings.getPriceForListing", function (accounts) {
+contract("Listings.getPriceForStandardListing", function (accounts) {
 	it("should return the price of listing", async () => {
 		const alice = accounts[0];
 
@@ -616,10 +654,12 @@ contract("Listings.getPriceForListing", function (accounts) {
 		await listingContract.createListing(
 			"QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB",
 			1,
+			false,
+			false,
 			{ from: alice, gasPrice: 0 }
 		);
 
-		const price = await listingContract.getPriceForListing(
+		const price = await listingContract.getPriceForStandardListing(
 			"QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB"
 		);
 		assert.equal(price, 1);
@@ -630,7 +670,7 @@ contract("Listings.getPriceForListing", function (accounts) {
 
 		let called = false;
 		try {
-			await listingContract.getPriceForListing(
+			await listingContract.getPriceForStandardListing(
 				"QmYA2fn8cMbVWo4v95RwcwJVyQsNtnEwHerfWR8UNtEwoE"
 			);
 		} catch (e) {
@@ -650,6 +690,8 @@ contract("Listings.getBuyersForListing", function (accounts) {
 		await listingContract.createListing(
 			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
 			2,
+			false,
+			false,
 			{ from: alice, gasPrice: 0 }
 		);
 
@@ -675,7 +717,7 @@ contract("Listings.getBuyersForListing", function (accounts) {
 
 		let called = false;
 		try {
-			await listingContract.getPriceForListing(
+			await listingContract.getPriceForStandardListing(
 				"QmYA2fn8cMbVWo4v95RwcwJVyQsNtnEwHerfWR8UNtEwoE"
 			);
 		} catch (e) {
@@ -699,6 +741,8 @@ contract("Listings.performUpkeep", function (accounts) {
 		await listingContract.createListing(
 			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
 			itemPrice,
+			false,
+			false,
 			{ from: alice, gasPrice: 0 }
 		);
 
@@ -747,6 +791,8 @@ contract("Listings.performUpkeep", function (accounts) {
 		await listingContract.createListing(
 			"QmRAQB6YaCyidP37UdDnjFY5vQuiBrcqdyoW1CuDgwxkD4",
 			itemPrice,
+			false,
+			false,
 			{ from: alice, gasPrice: 0 }
 		);
 
@@ -779,4 +825,59 @@ contract("Listings.performUpkeep", function (accounts) {
 			BigInt(contractBalanceAfterOffer)
 		);
 	});
+});
+
+contract("Listings", function (accounts) {
+	it("makeOffer should let the same buyer place a new higher order", async () => {});
+
+	it("makeOffer should not let the same buyer place the same amount", async () => {});
+
+	it("should not allow buyer to confirm buy in an action before the seller has accepted their offer", async () => {
+		const alice = accounts[0];
+		const bob = accounts[1];
+		const charlie = accounts[2];
+
+		const itemPrice = 2;
+
+		const listingContract = await Listings.deployed();
+
+		await listingContract.createListing(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			itemPrice,
+			false,
+			false,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		await listingContract.makeOffer(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			{ from: bob, value: itemPrice, gasPrice: 0 }
+		);
+	});
+
+	it("should not allow buyer to confirm buy in an action if the seller has accepted a different offer", async () => {});
+
+	it("should allow bids higher than the staring price in an auction", async () => {});
+
+	it("should allow seller to accept a bid", async () => {});
+
+	it("should emit an event when accepting a bid", async () => {});
+
+	it("getIsAuction should return true for auctions", async () => {});
+
+	it("getIsAuction should return false for standard listings", async () => {});
+
+	it("getHighestOfferForAuction should return the highest offer for a listings", async () => {});
+
+	it("getOfferForBuyer should fail if the buyer isn't in the list", async () => {});
+
+	it("getOfferForBuyer should return the standard price for a buyer in a standard listing", async () => {});
+
+	it("getOfferForBuyer should return the offer the buyer made for an auction", async () => {});
+
+	it("leaveRating should allow a seller to leave a rating of a confirmed buyer", async () => {});
+
+	it("leaveRating should allow a confirmed buyer to leave a rating of a seller", async () => {});
+
+	// TODO: check all the error messages
 });

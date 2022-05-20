@@ -67,7 +67,7 @@ const features = [
 	{
 		name: "Long-term IPFS Storage",
 		description:
-			"Store images of rare or collectible items for the long-term, and later prove provenance",
+			"Store images of rare or collectible items for the long-term, and later prove provenance.",
 		inDevelopment: true,
 	},
 ];
