@@ -119,7 +119,7 @@ contract("Listings.makeOffer", function (accounts) {
 		const charlie = accounts[6];
 
 		const listingContract = await Listings.deployed();
-		const listing = await listingContract.createListing(
+		await listingContract.createListing(
 			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
 			2,
 			false,
@@ -646,7 +646,7 @@ contract("Listings.getSellerForListing", function (accounts) {
 	});
 });
 
-contract("Listings.getPriceForStandardListing", function (accounts) {
+contract("Listings.getPriceForListing", function (accounts) {
 	it("should return the price of listing", async () => {
 		const alice = accounts[0];
 
@@ -659,7 +659,7 @@ contract("Listings.getPriceForStandardListing", function (accounts) {
 			{ from: alice, gasPrice: 0 }
 		);
 
-		const price = await listingContract.getPriceForStandardListing(
+		const price = await listingContract.getPriceForListing(
 			"QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB"
 		);
 		assert.equal(price, 1);
@@ -670,7 +670,7 @@ contract("Listings.getPriceForStandardListing", function (accounts) {
 
 		let called = false;
 		try {
-			await listingContract.getPriceForStandardListing(
+			await listingContract.getPriceForListing(
 				"QmYA2fn8cMbVWo4v95RwcwJVyQsNtnEwHerfWR8UNtEwoE"
 			);
 		} catch (e) {
@@ -717,7 +717,7 @@ contract("Listings.getBuyersForListing", function (accounts) {
 
 		let called = false;
 		try {
-			await listingContract.getPriceForStandardListing(
+			await listingContract.getPriceForListing(
 				"QmYA2fn8cMbVWo4v95RwcwJVyQsNtnEwHerfWR8UNtEwoE"
 			);
 		} catch (e) {
@@ -939,11 +939,13 @@ contract("Listings.makeOffer", function (accounts) {
 
 		assert(called);
 	});
+});
 
+contract("Listings.makeOffer multiple equal offers", function (accounts) {
 	it("should not allow lower or equal bids in an auction", async () => {
-		const alice = accounts[8];
-		const bob = accounts[9];
-		const charlie = accounts[10];
+		const alice = accounts[0];
+		const bob = accounts[1];
+		const charlie = accounts[2];
 
 		const itemPrice = 2;
 
@@ -1029,7 +1031,7 @@ contract("Listings.confirmBuy", function (accounts) {
 
 		await listingContract.makeOffer(
 			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
-			{ from: charlie, value: itemPrice, gasPrice: 0 }
+			{ from: charlie, value: itemPrice + 1, gasPrice: 0 }
 		);
 
 		await listingContract.acceptOffer(
@@ -1348,6 +1350,31 @@ contract(
 		});
 	}
 );
+
+contract("Listings.getDateForListing", function (accounts) {
+	it("should return the block timestamp for when the listing was created", async () => {
+		const alice = accounts[0];
+
+		const itemPrice = 2;
+
+		const listingContract = await Listings.deployed();
+
+		await listingContract.createListing(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			itemPrice,
+			true,
+			false,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		const date = await listingContract.getDateForListing(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+
+			{ from: alice, gasPrice: 0 }
+		);
+		assert(date);
+	});
+});
 
 contract("Listings.getOfferForBuyerInAuction", function (accounts) {
 	it("getOfferForBuyerInAuction should fail if the buyer isn't in the list", async () => {

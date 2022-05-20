@@ -108,9 +108,11 @@ contract Listings is AccessControl, KeeperCompatible {
 
     function canMakeNewOffer(string memory ipfsHash) private view {
         if (listings[ipfsHash].isAuction) {
+            uint256 highestBid = highestOffer(ipfsHash);
+
             require(
-                listings[ipfsHash].buyerAddresses[msg.sender] < msg.value,
-                "To make a new offer on this listing you need to enter a higher amount than your previous offer"
+                highestBid < msg.value,
+                "To make a new offer on this listing you need to enter a higher amount than the current highest offer"
             );
         } else {
             require(
@@ -301,7 +303,7 @@ contract Listings is AccessControl, KeeperCompatible {
         return buyerAddresses;
     }
 
-    function getPriceForStandardListing(string memory ipfsHash)
+    function getPriceForListing(string memory ipfsHash)
         public
         view
         returns (uint256)
@@ -361,7 +363,15 @@ contract Listings is AccessControl, KeeperCompatible {
             "There are no buyers for this auction"
         );
 
-        uint256 highestBid = listings[ipfsHash].price;
+        return highestOffer(ipfsHash);
+    }
+
+    function highestOffer(string memory ipfsHash)
+        private
+        view
+        returns (uint256)
+    {
+        uint256 highestBid = 0;
         for (
             uint256 i = 0;
             i < listings[ipfsHash].buyerAddressesArray.length;
@@ -415,6 +425,20 @@ contract Listings is AccessControl, KeeperCompatible {
 
         address sellerAddress = listings[ipfsHash].sellerAddress;
         return sellerAddress;
+    }
+
+    function getDateForListing(string memory ipfsHash)
+        public
+        view
+        returns (uint256)
+    {
+        require(
+            listings[ipfsHash].sellerAddress != address(0x0),
+            "This listing does not exist"
+        );
+
+        uint256 date = listings[ipfsHash].date;
+        return date;
     }
 
     function getBoughtForListing(string memory ipfsHash)
