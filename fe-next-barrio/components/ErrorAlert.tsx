@@ -1,12 +1,14 @@
 import { Fragment, useRef, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { ExclamationIcon } from "@heroicons/react/outline";
+import Link from "next/link";
 
 export default function ErrorAlert({
 	open,
 	setOpen,
 	errorTitle,
 	errorMessage,
+	href,
 }: any) {
 	const cancelButtonRef = useRef(null);
 
@@ -57,21 +59,23 @@ export default function ErrorAlert({
 											{errorTitle}
 										</Dialog.Title>
 										<div className="mt-2">
-											<p className="text-sm text-gray-500">
+											<p className="text-sm text-ellipsis text-gray-500">
 												{errorMessage}
 											</p>
 										</div>
 									</div>
 								</div>
 								<div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
-									<button
-										type="button"
-										className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
-										onClick={() => setOpen(false)}
-										ref={cancelButtonRef}
-									>
-										Close
-									</button>
+									<Link href={href ? href : "#"}>
+										<button
+											type="button"
+											className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
+											onClick={() => setOpen(false)}
+											ref={cancelButtonRef}
+										>
+											Close
+										</button>
+									</Link>
 								</div>
 							</Dialog.Panel>
 						</Transition.Child>

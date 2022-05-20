@@ -1,6 +1,7 @@
 import { PlusIcon } from "@heroicons/react/solid";
 import Link from "next/link";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import ErrorAlert from "../components/ErrorAlert";
 import OffersModal from "../components/OffersModal";
 import { ListingsContext } from "../context/listings";
 import getWeb3 from "../utils/getWeb3";
@@ -21,9 +22,20 @@ export default function MyListings() {
 	const [showOffers, setShowOffers] = useState(false);
 	const [offers, setOffers] = useState<Array<Offer>>([]);
 
+	const [showMetamaskError, setShowMetamaskError] = useState(false);
+	const [metaMaskShown, setMetaMaskShown] = useState(false);
+
 	const getAccount = async () => {
-		const account = await getWeb3.getAccounts();
-		setCurrentAccount(account);
+		try {
+			const account = await getWeb3.getAccounts();
+			setCurrentAccount(account);
+		} catch (err) {
+			// we only need to tell the user once when navigating to the page
+			if (!metaMaskShown) {
+				setShowMetamaskError(true);
+				setMetaMaskShown(true);
+			}
+		}
 	};
 
 	useEffect(() => {
@@ -113,13 +125,10 @@ export default function MyListings() {
 																		1
 																	? "border-b border-gray-200"
 																	: "",
-																"whitespace-nowrap px-3 py-4 text-sm text-gray-500 hidden sm:table-cell"
+																"whitespace-nowrap text-ellipsis px-3 py-4 text-sm text-gray-500 hidden sm:table-cell"
 															)}
 														>
-															{`${listing.description.substring(
-																0,
-																40
-															)}...`}
+															{`${listing.description}`}
 														</td>
 														<td
 															className={classNames(
@@ -134,36 +143,40 @@ export default function MyListings() {
 															{listing.offersMade
 																.length ? (
 																// TODO: sort this based on offers with prices in an auction
-																<a
+																<Link
 																	href={`#`}
-																	className="text-indigo-600 hover:text-indigo-900"
-																	onClick={(
-																		e
-																	) => {
-																		e.preventDefault();
-																		setOffers(
-																			listing.offersMade.map(
-																				(
-																					offer
-																				) => ({
-																					user: offer.user,
-																					price: listing.price,
-																				})
-																			)
-																		);
-																		setShowOffers(
-																			true
-																		);
-																	}}
 																>
-																	View Offers
-																	<span className="sr-only">
-																		,{" "}
-																		{
-																			listing.name
-																		}
-																	</span>
-																</a>
+																	<a
+																		className="text-indigo-600 hover:text-indigo-900"
+																		onClick={(
+																			e
+																		) => {
+																			e.preventDefault();
+																			setOffers(
+																				listing.offersMade.map(
+																					(
+																						offer
+																					) => ({
+																						user: offer.user,
+																						price: listing.price,
+																					})
+																				)
+																			);
+																			setShowOffers(
+																				true
+																			);
+																		}}
+																	>
+																		View
+																		Offers
+																		<span className="sr-only">
+																			,{" "}
+																			{
+																				listing.name
+																			}
+																		</span>
+																	</a>
+																</Link>
 															) : (
 																"No offers received"
 															)}
@@ -246,6 +259,14 @@ export default function MyListings() {
 				open={showOffers}
 				setOpen={setShowOffers}
 				offers={offers}
+			/>
+			<ErrorAlert
+				open={showMetamaskError}
+				setOpen={setShowMetamaskError}
+				errorTitle={"Metamask Error"}
+				errorMessage={
+					"In order to view your listings, you'll need to connect your Metamask account."
+				}
 			/>
 		</div>
 	);

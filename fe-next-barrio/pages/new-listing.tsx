@@ -1,4 +1,5 @@
 import { PaperClipIcon } from "@heroicons/react/solid";
+import Link from "next/link";
 import { FormEvent, useContext, useState } from "react";
 import ErrorAlert from "../components/ErrorAlert";
 import LoadingSpinner from "../components/LoadingSpinner";
@@ -63,6 +64,8 @@ export default function NewListing() {
 				message: "You need to enable metamask in order to post an ad",
 			});
 			setShowError(true);
+			setLoading(false);
+
 			return;
 		}
 
@@ -102,7 +105,12 @@ export default function NewListing() {
 		}
 		// send the ipfs hash to smart contract
 		try {
-			await getWeb3.createListing(listing.metadata.imageFilesCID, price);
+			await getWeb3.createListing(
+				listing.metadata.imageFilesCID,
+				price,
+				auction,
+				false
+			);
 		} catch (e) {
 			try {
 				// if the smart contract fails let's clear up some data
@@ -118,6 +126,7 @@ export default function NewListing() {
 			return;
 		}
 
+		getAllProducts();
 		setNewListingCid(listing.metadata.imageFilesCID);
 		setAlert({
 			title: "Listing created!",
@@ -126,7 +135,6 @@ export default function NewListing() {
 		});
 		setShowAlert(true);
 		setLoading(false);
-		getAllProducts();
 	};
 
 	const removeSelectedFiles = (e: FormEvent, file: File) => {
@@ -668,13 +676,14 @@ export default function NewListing() {
 
 						<div className="pt-5">
 							<div className="flex justify-end">
-								<a
-									type="button"
-									className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-									href="/listings"
-								>
-									Cancel
-								</a>
+								<Link href="/listings">
+									<a
+										type="button"
+										className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+									>
+										Cancel
+									</a>
+								</Link>
 								<button
 									type="submit"
 									onClick={(e) => save(e)}

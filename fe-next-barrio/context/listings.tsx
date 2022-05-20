@@ -18,12 +18,11 @@ const ListingsProvider = ({ children }: any) => {
 		if (!listing.description) return false;
 		if (!listing.fileNames) return false;
 		if (!listing.user) return false;
-		// if (!listing.date) return false;
 
 		return true;
 	};
 
-	const getOffers = async (mappedData: any) => {
+	const getSmartContractData = async (mappedData: any) => {
 		return Promise.all(
 			mappedData.map(async (listing: CardListing) => {
 				try {
@@ -42,6 +41,9 @@ const ListingsProvider = ({ children }: any) => {
 					};
 				} catch (e) {
 					console.warn(e);
+					throw Error(
+						"(SM) Unable to get data for these listings from the Smart Contract, check that the correct contract is deployed and set in env variables"
+					);
 				}
 			})
 		);
@@ -50,7 +52,6 @@ const ListingsProvider = ({ children }: any) => {
 	const getAllProducts = async () => {
 		try {
 			const allListings = await getAllListings();
-
 			const mappedData = allListings.data
 				.filter((listing: any) => validateProduct(listing))
 				.map((listing: any) => {
@@ -72,7 +73,7 @@ const ListingsProvider = ({ children }: any) => {
 									};
 								}
 							),
-							// date: listing.date,
+							date: "",
 							user: listing.user,
 							bought: false,
 							offersMade: [],
@@ -85,9 +86,16 @@ const ListingsProvider = ({ children }: any) => {
 					}
 				});
 
-			const withOffers = await getOffers(mappedData);
-			setListings(withOffers);
-			setLoading(false);
+			try {
+				const withOffers = await getSmartContractData(mappedData);
+				setListings(withOffers);
+				setLoading(false);
+			} catch (err) {
+				console.warn(
+					"No smart contract data could be loaded, check configuration (may need to delete local orbit data as it doesn't match the ipfs hashes stored on the EVM"
+				);
+				setLoading(false);
+			}
 		} catch (err) {}
 	};
 

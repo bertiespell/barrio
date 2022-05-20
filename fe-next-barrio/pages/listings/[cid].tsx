@@ -10,21 +10,28 @@ import { CardListing, Offer } from "../listings";
 import ErrorAlert from "../../components/ErrorAlert";
 import SuccessAlert from "../../components/SuccessAlert";
 import { ListingsContext } from "../../context/listings";
+import LoadingSpinner from "../../components/LoadingSpinner";
 
 function classNames(...classes: any[]) {
 	return classes.filter(Boolean).join(" ");
 }
 
 export default function Listing() {
-	const { getAllProducts } = useContext<any>(ListingsContext);
+	const { listings, getAllProducts } = useContext<{
+		listings: CardListing[];
+		getAllProducts: any;
+	}>(ListingsContext as any);
+
 	const router = useRouter();
 	const { cid } = router.query;
 
 	const [product, setProduct] = useState<CardListing>(null as any);
-	const [isLoading, setLoading] = useState(false);
+	const [isLoading, setLoading] = useState(true);
 
 	// errors
 	const [showError, setShowError] = useState(false);
+	const [noProduct, setNoProduct] = useState(false);
+
 	const [error, setError] = useState({
 		title: "Unknown Error Occurred",
 		message: "Sorry about that...",
@@ -58,60 +65,33 @@ export default function Listing() {
 		}
 	};
 
-	const addOfferData = async (price: string) => {
-		try {
-			const ethData = await getWeb3.getListingData(cid as string);
-			product.offersMade = ethData["buyers"].map((buyer) => {
-				return {
-					user: buyer,
-					price,
-				} as Offer;
-			});
-			product.bought = ethData.bought;
-			setProduct(product as any);
-		} catch (e) {
-			console.warn(e);
-		}
-	};
-
 	useEffect(() => {
 		if (!router.isReady) return;
-		setLoading(true);
-		getListing(cid as string).then((res) => {
-			// fetch the images from ipfs
-			const images = res?.data.metadata.fileNames.map((image: string) => {
-				return {
-					id: image,
-					name: image,
-					src: makeGatewayURL(cid as string, image),
-				};
-			});
-
-			const data: CardListing = {
-				id: cid as string,
-				name: res?.data.metadata.title,
-				// date: res?.data.metadata.date,
-				user: res?.data.metadata.user,
-				price: res?.data.metadata.price,
-				description: res?.data.metadata.description,
-				location: res?.data.metadata.location,
-				images,
-				rating: -1,
-				bought: false,
-				offersMade: [],
-			};
-
-			setProduct(data as any);
-			setLoading(false);
-
-			addOfferData(res?.data.metadata.price);
-
-			return res;
-		});
+		const foundListing = listings.find((listing) => listing.id === cid);
+		if (foundListing) {
+			setProduct(foundListing);
+		}
+		setLoading(false);
 	}, [router.isReady]);
 
-	if (isLoading) return <p>Loading...</p>;
-	if (!product) return <p>No profile data</p>;
+	if (isLoading)
+		return (
+			<div className="max-w-7xl mx-auto pt-20 pb-20 px-4 sm:px-6 lg:px-8">
+				<div className="max-w-3xl mx-auto">
+					<LoadingSpinner />
+				</div>
+			</div>
+		);
+	if (!product)
+		return (
+			<ErrorAlert
+				open={true}
+				setOpen={setNoProduct}
+				errorTitle={`Listing not found`}
+				errorMessage={`We couldn't find a listing with id: ${cid}. Return to the listings page to see what's available.`}
+				href={"/listings"}
+			/>
+		);
 
 	return (
 		<div className="bg-white">

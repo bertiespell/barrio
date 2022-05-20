@@ -2,6 +2,7 @@ import { PlusIcon } from "@heroicons/react/solid";
 import Link from "next/link";
 import { useCallback, useContext, useEffect, useState } from "react";
 import ConfirmBuy from "../components/ConfirmBuy";
+import ErrorAlert from "../components/ErrorAlert";
 import { ListingsContext } from "../context/listings";
 import getWeb3 from "../utils/getWeb3";
 import { CardListing } from "./listings";
@@ -12,15 +13,28 @@ function classNames(...classes: any) {
 
 export default function MyOffers() {
 	const [openConfirmBuyModal, setOpenConfirmBuyModal] = useState(false);
-	const { listings } = useContext(ListingsContext);
+	const { listings } = useContext<{ listings: CardListing[] }>(
+		ListingsContext as any
+	);
 
 	const [currentAccount, setCurrentAccount] = useState("");
 	const [listingToConfirm, setListingToConfirm] = useState({});
 	const [offers, setOffers] = useState<Array<CardListing>>([]);
 
+	const [showMetamaskError, setShowMetamaskError] = useState(false);
+	const [metaMaskShown, setMetaMaskShown] = useState(false);
+
 	const setAccount = async () => {
-		const account = await getWeb3.getAccounts();
-		setCurrentAccount(account);
+		try {
+			const account = await getWeb3.getAccounts();
+			setCurrentAccount(account);
+		} catch (err) {
+			// we only need to tell the user once when navigating to the page
+			if (!metaMaskShown) {
+				setShowMetamaskError(true);
+				setMetaMaskShown(true);
+			}
+		}
 	};
 
 	useEffect(() => {
@@ -274,6 +288,14 @@ export default function MyOffers() {
 					open={openConfirmBuyModal}
 					setOpen={setOpenConfirmBuyModal}
 					listing={listingToConfirm}
+				/>
+				<ErrorAlert
+					open={showMetamaskError}
+					setOpen={setShowMetamaskError}
+					errorTitle={"Metamask Error"}
+					errorMessage={
+						"In order to view any offers you've made you'll need to connect your Metamask account."
+					}
 				/>
 			</div>
 		</div>

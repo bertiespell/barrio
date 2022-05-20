@@ -1,4 +1,8 @@
-export default function FeatureUnderDevelopment() {
+export default function FeatureUnderDevelopment({
+	description,
+}: {
+	description: string;
+}) {
 	return (
 		<div className="bg-white pt-16 sm:py-24">
 			<div className="relative sm:pt-16">
@@ -10,10 +14,7 @@ export default function FeatureUnderDevelopment() {
 									This feature is still being developed!
 								</h2>
 								<p className="mt-6 mx-auto max-w-2xl text-lg text-indigo-500">
-									Sign up for our newsletter to stay up to
-									date with the latest developments. We'll let
-									you know when we're ready to launch on
-									mainnet.
+									{description}
 								</p>
 							</div>
 							<form
