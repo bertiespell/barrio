@@ -827,15 +827,10 @@ contract("Listings.performUpkeep", function (accounts) {
 	});
 });
 
-contract("Listings", function (accounts) {
-	it("makeOffer should let the same buyer place a new higher order", async () => {});
-
-	it("makeOffer should not let the same buyer place the same amount", async () => {});
-
-	it("should not allow buyer to confirm buy in an action before the seller has accepted their offer", async () => {
+contract("Listings.makeOffer", function (accounts) {
+	it("should let the same buyer place a new higher order in an auction", async () => {
 		const alice = accounts[0];
 		const bob = accounts[1];
-		const charlie = accounts[2];
 
 		const itemPrice = 2;
 
@@ -844,7 +839,7 @@ contract("Listings", function (accounts) {
 		await listingContract.createListing(
 			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
 			itemPrice,
-			false,
+			true,
 			false,
 			{ from: alice, gasPrice: 0 }
 		);
@@ -853,31 +848,631 @@ contract("Listings", function (accounts) {
 			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
 			{ from: bob, value: itemPrice, gasPrice: 0 }
 		);
+
+		await listingContract.makeOffer(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			{ from: bob, value: itemPrice + 1, gasPrice: 0 }
+		);
 	});
 
-	it("should not allow buyer to confirm buy in an action if the seller has accepted a different offer", async () => {});
+	it("should not let the same buyer place the same amount in an auction", async () => {
+		const alice = accounts[3];
+		const bob = accounts[4];
 
-	it("should allow bids higher than the staring price in an auction", async () => {});
+		const itemPrice = 2;
 
-	it("should allow seller to accept a bid", async () => {});
+		const listingContract = await Listings.deployed();
 
-	it("should emit an event when accepting a bid", async () => {});
+		await listingContract.createListing(
+			"QmRAQB6YaCyidP37UdDnjFY5vQuiBrcqdyoW1CuDgwxkD4",
+			itemPrice,
+			true,
+			false,
+			{ from: alice, gasPrice: 0 }
+		);
 
-	it("getIsAuction should return true for auctions", async () => {});
+		await listingContract.makeOffer(
+			"QmRAQB6YaCyidP37UdDnjFY5vQuiBrcqdyoW1CuDgwxkD4",
+			{ from: bob, value: itemPrice, gasPrice: 0 }
+		);
 
-	it("getIsAuction should return false for standard listings", async () => {});
+		let called = false;
+		try {
+			await listingContract.makeOffer(
+				"QmRAQB6YaCyidP37UdDnjFY5vQuiBrcqdyoW1CuDgwxkD4",
+				{ from: bob, value: itemPrice, gasPrice: 0 }
+			);
+		} catch (error) {
+			called = true;
+			assert(error);
+		}
 
-	it("getHighestOfferForAuction should return the highest offer for a listings", async () => {});
+		assert(called);
+	});
 
-	it("getOfferForBuyer should fail if the buyer isn't in the list", async () => {});
+	it("should not let the same buyer make an offer again if it's not an auction", async () => {
+		const alice = accounts[6];
+		const bob = accounts[7];
 
-	it("getOfferForBuyer should return the standard price for a buyer in a standard listing", async () => {});
+		const itemPrice = 2;
 
-	it("getOfferForBuyer should return the offer the buyer made for an auction", async () => {});
+		const listingContract = await Listings.deployed();
 
+		await listingContract.createListing(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKtps",
+			itemPrice,
+			false,
+			false,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		await listingContract.makeOffer(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKtps",
+			{ from: bob, value: itemPrice, gasPrice: 0 }
+		);
+
+		// not with a higher amount
+		let called = false;
+		try {
+			await listingContract.makeOffer(
+				"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKtps",
+				{ from: bob, value: itemPrice + 1, gasPrice: 0 }
+			);
+		} catch (error) {
+			called = true;
+			assert(error);
+		}
+
+		assert(called);
+
+		// neither with the same amount
+		called = false;
+		try {
+			await listingContract.makeOffer(
+				"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKtps",
+				{ from: bob, value: itemPrice, gasPrice: 0 }
+			);
+		} catch (error) {
+			called = true;
+			assert(error);
+		}
+
+		assert(called);
+	});
+
+	it("should not allow lower or equal bids in an auction", async () => {
+		const alice = accounts[8];
+		const bob = accounts[9];
+		const charlie = accounts[10];
+
+		const itemPrice = 2;
+
+		const listingContract = await Listings.deployed();
+
+		await listingContract.createListing(
+			"QrRAQB6YaCyidP37UdDnjFY5vQuiBrcqdyoW1CuDgwxkD4",
+			itemPrice,
+			true,
+			false,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		await listingContract.makeOffer(
+			"QrRAQB6YaCyidP37UdDnjFY5vQuiBrcqdyoW1CuDgwxkD4",
+			{ from: bob, value: itemPrice, gasPrice: 0 }
+		);
+
+		let called = false;
+		try {
+			await listingContract.makeOffer(
+				"QrRAQB6YaCyidP37UdDnjFY5vQuiBrcqdyoW1CuDgwxkD4",
+				{ from: bob, value: 1, gasPrice: 0 }
+			);
+		} catch (error) {
+			called = true;
+			assert(error);
+		}
+
+		assert(called);
+
+		// charlie can't offer the same amount
+		called = false;
+		try {
+			await listingContract.makeOffer(
+				"QrRAQB6YaCyidP37UdDnjFY5vQuiBrcqdyoW1CuDgwxkD4",
+				{ from: charlie, value: itemPrice, gasPrice: 0 }
+			);
+		} catch (error) {
+			called = true;
+			assert(error);
+		}
+
+		assert(called);
+
+		// neither can bob
+		called = false;
+		try {
+			await listingContract.makeOffer(
+				"QrRAQB6YaCyidP37UdDnjFY5vQuiBrcqdyoW1CuDgwxkD4",
+				{ from: charlie, value: itemPrice, gasPrice: 0 }
+			);
+		} catch (error) {
+			called = true;
+			assert(error);
+		}
+
+		assert(called);
+	});
+});
+
+contract("Listings.confirmBuy", function (accounts) {
+	it("should not allow buyer to confirm buy in an auction if the seller has accepted a different offer", async () => {
+		const alice = accounts[0];
+		const bob = accounts[1];
+		const charlie = accounts[2];
+		const itemPrice = 2;
+
+		const listingContract = await Listings.deployed();
+
+		await listingContract.createListing(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			itemPrice,
+			true,
+			false,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		await listingContract.makeOffer(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			{ from: bob, value: itemPrice, gasPrice: 0 }
+		);
+
+		await listingContract.makeOffer(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			{ from: charlie, value: itemPrice, gasPrice: 0 }
+		);
+
+		await listingContract.acceptOffer(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			charlie,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		let called = false;
+		try {
+			await listingContract.confirmBuy(
+				"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+				{ from: bob, gasPrice: 0 }
+			);
+		} catch (error) {
+			called = true;
+			assert(error);
+		}
+
+		assert(called);
+	});
+
+	it("should not allow buyer to confirm buy in an action before the seller has accepted their offer", async () => {
+		const alice = accounts[3];
+		const bob = accounts[4];
+		const itemPrice = 2;
+
+		const listingContract = await Listings.deployed();
+
+		await listingContract.createListing(
+			"RmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			itemPrice,
+			true,
+			false,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		await listingContract.makeOffer(
+			"RmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			{ from: bob, value: itemPrice, gasPrice: 0 }
+		);
+
+		let called = false;
+		try {
+			await listingContract.confirmBuy(
+				"RmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+				{ from: bob, gasPrice: 0 }
+			);
+		} catch (error) {
+			called = true;
+			assert(error);
+		}
+
+		assert(called);
+	});
+});
+
+contract("Listings.acceptOffer", function (accounts) {
+	it("should allow seller to accept a bid", async () => {
+		const alice = accounts[0];
+		const bob = accounts[1];
+		const itemPrice = 2;
+
+		const listingContract = await Listings.deployed();
+
+		await listingContract.createListing(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			itemPrice,
+			true,
+			false,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		await listingContract.makeOffer(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			{ from: bob, value: itemPrice, gasPrice: 0 }
+		);
+
+		await listingContract.acceptOffer(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			bob,
+			{ from: alice, gasPrice: 0 }
+		);
+	});
+
+	it("should not allow seller to accept a bid that doesn't exist", async () => {
+		const alice = accounts[0];
+		const bob = accounts[1];
+		const itemPrice = 2;
+
+		const listingContract = await Listings.deployed();
+
+		await listingContract.createListing(
+			"ppV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			itemPrice,
+			true,
+			false,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		let called = false;
+		try {
+			await listingContract.acceptOffer(
+				"ppV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+				bob,
+				{ from: alice, gasPrice: 0 }
+			);
+			console.log("This was fine!");
+		} catch (error) {
+			called = true;
+			assert(error);
+		}
+
+		assert(called);
+	});
+
+	it("should not allow seller to accept a bid if it's not an auction", async () => {
+		const alice = accounts[0];
+		const bob = accounts[1];
+		const itemPrice = 2;
+
+		const listingContract = await Listings.deployed();
+
+		await listingContract.createListing(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKggg",
+			itemPrice,
+			false,
+			false,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		await listingContract.makeOffer(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKggg",
+			{ from: bob, value: itemPrice, gasPrice: 0 }
+		);
+
+		let called = false;
+		try {
+			await listingContract.acceptOffer(
+				"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKggg",
+				charlie,
+				{ from: alice, gasPrice: 0 }
+			);
+		} catch (error) {
+			called = true;
+			assert(error);
+		}
+
+		assert(called);
+	});
+
+	it("should not allow others to accept a bid in an auction", async () => {
+		const alice = accounts[0];
+		const bob = accounts[1];
+		const itemPrice = 2;
+
+		const listingContract = await Listings.deployed();
+
+		await listingContract.createListing(
+			"YmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			itemPrice,
+			true,
+			false,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		await listingContract.makeOffer(
+			"YmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			{ from: bob, value: itemPrice, gasPrice: 0 }
+		);
+
+		let called = false;
+		try {
+			await listingContract.acceptOffer(
+				"YmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+				charlie,
+				{ from: bob, gasPrice: 0 }
+			);
+		} catch (error) {
+			called = true;
+			assert(error);
+		}
+
+		assert(called);
+	});
+});
+
+contract("Listings.getIsAuction", function (accounts) {
+	it("getIsAuction should return true for auctions", async () => {
+		const alice = accounts[0];
+		const itemPrice = 2;
+
+		const listingContract = await Listings.deployed();
+
+		await listingContract.createListing(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			itemPrice,
+			true,
+			false,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		const auction = await listingContract.getIsAuction(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps"
+		);
+		assert(auction);
+	});
+
+	it("getIsAuction should return false for standard listings", async () => {
+		const alice = accounts[1];
+		const itemPrice = 2;
+
+		const listingContract = await Listings.deployed();
+
+		await listingContract.createListing(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGgg",
+			itemPrice,
+			false,
+			false,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		const auction = await listingContract.getIsAuction(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGgg"
+		);
+		assert(!auction);
+	});
+});
+
+contract(
+	"Listings.getHighestAmountForAuction and getHighestBuyerForAuction",
+	function (accounts) {
+		it("should return the highest offer and buyer for a listings", async () => {
+			const alice = accounts[0];
+			const bob = accounts[1];
+			const charlie = accounts[2];
+
+			const itemPrice = 2;
+
+			const listingContract = await Listings.deployed();
+
+			await listingContract.createListing(
+				"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+				itemPrice,
+				true,
+				false,
+				{ from: alice, gasPrice: 0 }
+			);
+
+			// fails before there are any buyers
+			let called = false;
+			try {
+				await listingContract.getHighestAmountForAuction(
+					"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps"
+				);
+			} catch (error) {
+				called = true;
+				assert(error);
+			}
+
+			assert(called);
+
+			called = false;
+			try {
+				await listingContract.getHighestBuyerForAuction(
+					"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps"
+				);
+			} catch (error) {
+				called = true;
+				assert(error);
+			}
+
+			assert(called);
+
+			await listingContract.makeOffer(
+				"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+				{ from: bob, value: itemPrice, gasPrice: 0 }
+			);
+
+			highestBid = await listingContract.getHighestAmountForAuction(
+				"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps"
+			);
+			highestBuyer = await listingContract.getHighestBuyerForAuction(
+				"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps"
+			);
+			assert.equal(BigInt(highestBid), BigInt(itemPrice));
+			assert.equal(highestBuyer, bob);
+
+			await listingContract.makeOffer(
+				"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+				{ from: charlie, value: itemPrice + 1, gasPrice: 0 }
+			);
+
+			highestBid = await listingContract.getHighestAmountForAuction(
+				"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps"
+			);
+			highestBuyer = await listingContract.getHighestBuyerForAuction(
+				"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps"
+			);
+			assert.equal(BigInt(highestBid), BigInt(itemPrice + 1));
+			assert.equal(highestBuyer, charlie);
+
+			await listingContract.makeOffer(
+				"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+				{ from: bob, value: itemPrice + 2, gasPrice: 0 }
+			);
+
+			highestBid = await listingContract.getHighestAmountForAuction(
+				"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps"
+			);
+			highestBuyer = await listingContract.getHighestBuyerForAuction(
+				"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps"
+			);
+			assert.equal(BigInt(highestBid), BigInt(itemPrice + 2));
+			assert.equal(highestBuyer, bob);
+		});
+	}
+);
+
+contract("Listings.getOfferForBuyerInAuction", function (accounts) {
+	it("getOfferForBuyerInAuction should fail if the buyer isn't in the list", async () => {
+		const alice = accounts[0];
+		const bob = accounts[1];
+
+		const itemPrice = 2;
+
+		const listingContract = await Listings.deployed();
+
+		await listingContract.createListing(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			itemPrice,
+			true,
+			false,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		// fails before there are any buyers
+		let called = false;
+		try {
+			await listingContract.getOfferForBuyerInAuction(
+				"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+				bob
+			);
+		} catch (error) {
+			called = true;
+			assert(error);
+		}
+
+		assert(called);
+	});
+
+	it("getOfferForBuyerInAuction should fail if it's a standard listing", async () => {
+		const alice = accounts[2];
+		const bob = accounts[3];
+
+		const itemPrice = 2;
+
+		const listingContract = await Listings.deployed();
+
+		await listingContract.createListing(
+			"xxx9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			itemPrice,
+			false,
+			false,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		await listingContract.makeOffer(
+			"xxx9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			{ from: bob, value: itemPrice, gasPrice: 0 }
+		);
+
+		let called = false;
+		try {
+			await listingContract.getOfferForBuyerInAuction(
+				"xxx9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+				bob
+			);
+		} catch (error) {
+			called = true;
+			assert(error);
+		}
+
+		assert(called);
+	});
+
+	it("getOfferForBuyerInAuction should return the offer the buyer made for an auction", async () => {
+		const alice = accounts[4];
+		const bob = accounts[5];
+		const charlie = accounts[6];
+
+		const itemPrice = 2;
+
+		const listingContract = await Listings.deployed();
+
+		await listingContract.createListing(
+			"tttttSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			itemPrice,
+			true,
+			false,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		await listingContract.makeOffer(
+			"tttttSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			{ from: bob, value: itemPrice, gasPrice: 0 }
+		);
+
+		let offer = await listingContract.getOfferForBuyerInAuction(
+			"tttttSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			bob
+		);
+
+		assert.equal(BigInt(offer), BigInt(itemPrice));
+
+		await listingContract.makeOffer(
+			"tttttSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			{ from: charlie, value: itemPrice + 1, gasPrice: 0 }
+		);
+
+		offer = await listingContract.getOfferForBuyerInAuction(
+			"tttttSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			charlie
+		);
+
+		assert.equal(BigInt(offer), BigInt(itemPrice + 1));
+
+		await listingContract.makeOffer(
+			"tttttSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			{ from: bob, value: itemPrice + 2, gasPrice: 0 }
+		);
+
+		offer = await listingContract.getOfferForBuyerInAuction(
+			"tttttSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			bob
+		);
+
+		assert.equal(BigInt(offer), BigInt(itemPrice + 2));
+	});
+});
+
+contract("Listings.leaveRating", function (accounts) {
 	it("leaveRating should allow a seller to leave a rating of a confirmed buyer", async () => {});
 
 	it("leaveRating should allow a confirmed buyer to leave a rating of a seller", async () => {});
-
-	// TODO: check all the error messages
 });

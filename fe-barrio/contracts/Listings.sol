@@ -173,12 +173,20 @@ contract Listings is AccessControl, KeeperCompatible {
         whenNotPaused
     {
         require(
+            listings[ipfsHash].isAuction == true,
+            "Offers can only be accepted for auctions"
+        );
+        require(
             listings[ipfsHash].sellerAddress == msg.sender,
             "Only the seller can accept an offer"
         );
         require(
             listings[ipfsHash].finalBuyer == address(0x0),
             "A final buyer already exists for this listing"
+        );
+        require(
+            listings[ipfsHash].buyerAddresses[buyerToAccept] > 0,
+            "This address has not made an offer to accept"
         );
 
         listings[ipfsHash].acceptedBuyer = buyerToAccept;
@@ -310,15 +318,17 @@ contract Listings is AccessControl, KeeperCompatible {
     function getHighestBuyerForAuction(string memory ipfsHash)
         public
         view
-        returns (address[] memory)
+        returns (address)
     {
         require(
             listings[ipfsHash].sellerAddress != address(0x0),
             "This listing does not exist"
         );
-        address[] memory highestBuyerAddresses = new address[](
-            listings[ipfsHash].buyerAddressesArray.length
+        require(
+            listings[ipfsHash].buyerAddressesArray.length > 0,
+            "There are no buyers for this auction"
         );
+        address highestBuyer;
         uint256 highestBid = getHighestAmountForAuction(ipfsHash);
 
         for (
@@ -331,11 +341,10 @@ contract Listings is AccessControl, KeeperCompatible {
                     listings[ipfsHash].buyerAddressesArray[i]
                 ] == highestBid
             ) {
-                highestBuyerAddresses[i] = listings[ipfsHash]
-                    .buyerAddressesArray[i];
+                highestBuyer = listings[ipfsHash].buyerAddressesArray[i];
             }
         }
-        return highestBuyerAddresses;
+        return highestBuyer;
     }
 
     function getHighestAmountForAuction(string memory ipfsHash)
@@ -346,6 +355,10 @@ contract Listings is AccessControl, KeeperCompatible {
         require(
             listings[ipfsHash].sellerAddress != address(0x0),
             "This listing does not exist"
+        );
+        require(
+            listings[ipfsHash].buyerAddressesArray.length > 0,
+            "There are no buyers for this auction"
         );
 
         uint256 highestBid = listings[ipfsHash].price;
@@ -367,7 +380,7 @@ contract Listings is AccessControl, KeeperCompatible {
         return highestBid;
     }
 
-    function getOfferForBuyer(string memory ipfsHash, address buyer)
+    function getOfferForBuyerInAuction(string memory ipfsHash, address buyer)
         public
         view
         returns (uint256)
@@ -376,6 +389,11 @@ contract Listings is AccessControl, KeeperCompatible {
             listings[ipfsHash].sellerAddress != address(0x0),
             "This listing does not exist"
         );
+        require(
+            listings[ipfsHash].isAuction == true,
+            "Can't get the offer price in an auction - use getPriceForStandardListing instead"
+        );
+
         require(
             listings[ipfsHash].buyerAddresses[buyer] != 0,
             "There are no offers from this address"
