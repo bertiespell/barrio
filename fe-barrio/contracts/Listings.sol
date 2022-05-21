@@ -18,6 +18,7 @@ contract Listings is AccessControl, KeeperCompatible {
         uint256 date;
         bool bought;
         bool isAuction;
+        address payable useThirdPartyAddress;
     }
 
     /// @dev stores all of the submitted Listings
@@ -53,6 +54,18 @@ contract Listings is AccessControl, KeeperCompatible {
         interval = newInterval;
     }
 
+    function createThirdPartyListing(
+        string memory ipfsHash,
+        uint256 price,
+        bool isAuction,
+        bool priceIsInUSD,
+        address payable useThirdPartyAddress
+    ) public payable whenNotPaused {
+        createListing(ipfsHash, price, isAuction, priceIsInUSD);
+
+        listings[ipfsHash].useThirdPartyAddress = useThirdPartyAddress;
+    }
+
     /// @dev List an item for sale, where the metadata is stored in IPFS
     function createListing(
         string memory ipfsHash,
@@ -71,6 +84,7 @@ contract Listings is AccessControl, KeeperCompatible {
         listings[ipfsHash].priceIsInUSD = false;
         listings[ipfsHash].isAuction = isAuction;
         listings[ipfsHash].priceIsInUSD = priceIsInUSD;
+
         listingsArray.push(ipfsHash);
 
         emit ListingSubmitted(msg.sender, ipfsHash, price);
@@ -148,15 +162,29 @@ contract Listings is AccessControl, KeeperCompatible {
             i < listings[ipfsHash].buyerAddressesArray.length;
             i++
         ) {
+            // transfer funds back to unsuccesful sellers
             if (listings[ipfsHash].buyerAddressesArray[i] != msg.sender) {
                 listings[ipfsHash].buyerAddressesArray[i].transfer(
-                    listings[ipfsHash].price
+                    listings[ipfsHash].buyerAddresses[
+                        listings[ipfsHash].buyerAddressesArray[i]
+                    ]
                 );
             } else {
-                // Send funds to seller
-                listings[ipfsHash].sellerAddress.transfer(
-                    listings[ipfsHash].price
-                );
+                // if using a third party send there instead
+                if (listings[ipfsHash].useThirdPartyAddress != address(0x0)) {
+                    listings[ipfsHash].useThirdPartyAddress.transfer(
+                        listings[ipfsHash].buyerAddresses[
+                            listings[ipfsHash].buyerAddressesArray[i]
+                        ]
+                    );
+                } else {
+                    // Send funds to seller
+                    listings[ipfsHash].sellerAddress.transfer(
+                        listings[ipfsHash].buyerAddresses[
+                            listings[ipfsHash].buyerAddressesArray[i]
+                        ]
+                    );
+                }
             }
         }
 
@@ -190,8 +218,15 @@ contract Listings is AccessControl, KeeperCompatible {
             listings[ipfsHash].buyerAddresses[buyerToAccept] > 0,
             "This address has not made an offer to accept"
         );
+        require(
+            listings[ipfsHash].acceptedBuyer == address(0x0),
+            "You've already accepted a different offer"
+        );
 
         listings[ipfsHash].acceptedBuyer = buyerToAccept;
+        listings[ipfsHash].price = listings[ipfsHash].buyerAddresses[
+            buyerToAccept
+        ];
 
         emit OfferAccepted(
             msg.sender,
@@ -453,6 +488,26 @@ contract Listings is AccessControl, KeeperCompatible {
 
         bool bought = listings[ipfsHash].bought;
         return bought;
+    }
+
+    function getIsAcceptedForListing(string memory ipfsHash)
+        public
+        view
+        returns (bool)
+    {
+        require(
+            listings[ipfsHash].isAuction,
+            "Standard listings do not need to be accepted"
+        );
+        require(
+            listings[ipfsHash].sellerAddress != address(0x0),
+            "This listing does not exist"
+        );
+
+        if (listings[ipfsHash].acceptedBuyer == address(0x0)) {
+            return false;
+        }
+        return true;
     }
 
     function getIsAuction(string memory ipfsHash) public view returns (bool) {

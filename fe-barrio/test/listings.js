@@ -1054,6 +1054,112 @@ contract("Listings.confirmBuy", function (accounts) {
 		assert(called);
 	});
 
+	it("should refund everyone properly in an auction", async () => {
+		const alice = accounts[3];
+		const bob = accounts[4];
+		const charlie = accounts[5];
+		const itemPrice = 2;
+
+		const listingContract = await Listings.deployed();
+
+		const aliceBalanceBefore = await web3.eth.getBalance(alice);
+		const bobBalanceBefore = await web3.eth.getBalance(bob);
+		const charlieBalanceBefore = await web3.eth.getBalance(charlie);
+		const contractBalanceBefore = await web3.eth.getBalance(
+			listingContract.address
+		);
+
+		await listingContract.createListing(
+			"yyyytSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			itemPrice,
+			true,
+			false,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		await listingContract.makeOffer(
+			"yyyytSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			{ from: bob, value: itemPrice, gasPrice: 0 }
+		);
+
+		const bobBalanceAfter = await web3.eth.getBalance(bob);
+
+		assert.equal(
+			BigInt(bobBalanceAfter),
+			BigInt(bobBalanceBefore) - BigInt(itemPrice)
+		);
+
+		const contractBalanceAfter = await web3.eth.getBalance(
+			listingContract.address
+		);
+
+		assert.equal(
+			BigInt(contractBalanceBefore) + BigInt(itemPrice),
+			BigInt(contractBalanceAfter)
+		);
+
+		await listingContract.makeOffer(
+			"yyyytSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			{ from: charlie, value: itemPrice + 1, gasPrice: 0 }
+		);
+
+		const charlieBalanceAfter = await web3.eth.getBalance(charlie);
+
+		assert.equal(
+			BigInt(charlieBalanceAfter),
+			BigInt(charlieBalanceBefore) - BigInt(itemPrice + 1)
+		);
+
+		const contractBalanceAfterCharlie = await web3.eth.getBalance(
+			listingContract.address
+		);
+
+		assert.equal(
+			BigInt(contractBalanceBefore) +
+				BigInt(itemPrice) +
+				BigInt(itemPrice + 1),
+			BigInt(contractBalanceAfterCharlie)
+		);
+
+		await listingContract.acceptOffer(
+			"yyyytSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			charlie,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		assert.equal(
+			BigInt(contractBalanceBefore) +
+				BigInt(itemPrice) +
+				BigInt(itemPrice + 1),
+			BigInt(contractBalanceAfterCharlie)
+		);
+
+		await listingContract.confirmBuy(
+			"yyyytSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			{ from: charlie, gasPrice: 0 }
+		);
+		const aliceBalanceAfterConfirm = await web3.eth.getBalance(alice);
+		const bobBalanceAfterConfirm = await web3.eth.getBalance(bob);
+		const charlieBalanceAfterConfirm = await web3.eth.getBalance(charlie);
+		const contractBalanceAfterConfirm = await web3.eth.getBalance(
+			listingContract.address
+		);
+
+		assert.equal(
+			BigInt(contractBalanceBefore),
+			BigInt(contractBalanceAfterConfirm)
+		);
+		assert.equal(BigInt(bobBalanceBefore), BigInt(bobBalanceAfterConfirm));
+		assert.equal(
+			BigInt(aliceBalanceBefore) + BigInt(itemPrice + 1),
+			BigInt(aliceBalanceAfterConfirm)
+		);
+		assert.equal(
+			BigInt(charlieBalanceBefore) - BigInt(itemPrice + 1),
+			BigInt(charlieBalanceAfterConfirm)
+		);
+	});
+
 	it("should not allow buyer to confirm buy in an action before the seller has accepted their offer", async () => {
 		const alice = accounts[3];
 		const bob = accounts[4];
@@ -1118,8 +1224,8 @@ contract("Listings.acceptOffer", function (accounts) {
 	});
 
 	it("should not allow seller to accept a bid that doesn't exist", async () => {
-		const alice = accounts[0];
-		const bob = accounts[1];
+		const alice = accounts[2];
+		const bob = accounts[3];
 		const itemPrice = 2;
 
 		const listingContract = await Listings.deployed();
@@ -1149,8 +1255,8 @@ contract("Listings.acceptOffer", function (accounts) {
 	});
 
 	it("should not allow seller to accept a bid if it's not an auction", async () => {
-		const alice = accounts[0];
-		const bob = accounts[1];
+		const alice = accounts[4];
+		const bob = accounts[5];
 		const itemPrice = 2;
 
 		const listingContract = await Listings.deployed();
@@ -1184,8 +1290,8 @@ contract("Listings.acceptOffer", function (accounts) {
 	});
 
 	it("should not allow others to accept a bid in an auction", async () => {
-		const alice = accounts[0];
-		const bob = accounts[1];
+		const alice = accounts[6];
+		const bob = accounts[7];
 		const itemPrice = 2;
 
 		const listingContract = await Listings.deployed();
@@ -1209,6 +1315,131 @@ contract("Listings.acceptOffer", function (accounts) {
 				"YmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
 				charlie,
 				{ from: bob, gasPrice: 0 }
+			);
+		} catch (error) {
+			called = true;
+			assert(error);
+		}
+
+		assert(called);
+	});
+
+	it("should not allow seller to accept a second offer", async () => {
+		const alice = accounts[0];
+		const bob = accounts[1];
+		const charlie = accounts[2];
+
+		const itemPrice = 2;
+
+		const listingContract = await Listings.deployed();
+
+		await listingContract.createListing(
+			"YmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKooo",
+			itemPrice,
+			true,
+			false,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		await listingContract.makeOffer(
+			"YmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKooo",
+			{ from: bob, value: itemPrice, gasPrice: 0 }
+		);
+
+		await listingContract.makeOffer(
+			"YmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKooo",
+			{ from: charlie, value: itemPrice + 1, gasPrice: 0 }
+		);
+
+		let accepted = await listingContract.getIsAcceptedForListing(
+			"YmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKooo",
+			{ from: alice, gasPrice: 0 }
+		);
+
+		assert.equal(accepted, false);
+
+		await listingContract.acceptOffer(
+			"YmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKooo",
+			bob,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		accepted = await listingContract.getIsAcceptedForListing(
+			"YmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKooo",
+			{ from: alice, gasPrice: 0 }
+		);
+
+		assert.equal(accepted, true);
+
+		let called = false;
+		try {
+			await listingContract.acceptOffer(
+				"YmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKooo",
+				charlie,
+				{ from: alice, gasPrice: 0 }
+			);
+		} catch (error) {
+			called = true;
+			assert(error);
+		}
+
+		assert(called);
+	});
+});
+
+contract("Listings.getIsAcceptedForListing", function (accounts) {
+	it("should not allow seller to accept a second offer", async () => {
+		const alice = accounts[0];
+		const bob = accounts[1];
+		const charlie = accounts[2];
+		const itemPrice = 2;
+
+		const listingContract = await Listings.deployed();
+
+		await listingContract.createListing(
+			"YmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKooo",
+			itemPrice,
+			true,
+			false,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		await listingContract.makeOffer(
+			"YmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKooo",
+			{ from: bob, value: itemPrice, gasPrice: 0 }
+		);
+
+		await listingContract.makeOffer(
+			"YmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKooo",
+			{ from: charlie, value: itemPrice + 1, gasPrice: 0 }
+		);
+
+		let accepted = await listingContract.getIsAcceptedForListing(
+			"YmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKooo",
+			{ from: alice, gasPrice: 0 }
+		);
+
+		assert.equal(accepted, false);
+
+		await listingContract.acceptOffer(
+			"YmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKooo",
+			bob,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		accepted = await listingContract.getIsAcceptedForListing(
+			"YmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKooo",
+			{ from: alice, gasPrice: 0 }
+		);
+
+		assert.equal(accepted, true);
+
+		let called = false;
+		try {
+			await listingContract.acceptOffer(
+				"YmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKooo",
+				charlie,
+				{ from: alice, gasPrice: 0 }
 			);
 		} catch (error) {
 			called = true;
@@ -1495,6 +1726,222 @@ contract("Listings.getOfferForBuyerInAuction", function (accounts) {
 		);
 
 		assert.equal(BigInt(offer), BigInt(itemPrice + 2));
+	});
+});
+
+contract("Listings using third party", function (accounts) {
+	it("should not allow buyer to confirm buy in an auction if the seller has accepted a different offer", async () => {
+		const alice = accounts[0];
+		const bob = accounts[1];
+		const charlie = accounts[2];
+		const thirdParty = accounts[3];
+
+		const itemPrice = 2;
+
+		const listingContract = await Listings.deployed();
+
+		const thirdPartyBalanceBefore = await web3.eth.getBalance(thirdParty);
+
+		await listingContract.createThirdPartyListing(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			itemPrice,
+			true,
+			false,
+			thirdParty,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		await listingContract.makeOffer(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			{ from: bob, value: itemPrice, gasPrice: 0 }
+		);
+
+		await listingContract.makeOffer(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			{ from: charlie, value: itemPrice + 1, gasPrice: 0 }
+		);
+
+		await listingContract.acceptOffer(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			charlie,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		const thirdPartyBalanceAfterwards = await web3.eth.getBalance(
+			thirdParty
+		);
+
+		// funds don't move until buyer confirms
+		assert.equal(
+			BigInt(thirdPartyBalanceBefore),
+			BigInt(thirdPartyBalanceAfterwards)
+		);
+
+		let called = false;
+		try {
+			await listingContract.confirmBuy(
+				"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+				{ from: bob, gasPrice: 0 }
+			);
+		} catch (error) {
+			called = true;
+			assert(error);
+		}
+
+		assert(called);
+
+		await listingContract.confirmBuy(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			{ from: charlie, gasPrice: 0 }
+		);
+
+		const thirdPartyBalanceAfterwardsCharlieAccepts =
+			await web3.eth.getBalance(thirdParty);
+
+		assert.equal(
+			BigInt(thirdPartyBalanceBefore) + BigInt(itemPrice + 1),
+			BigInt(thirdPartyBalanceAfterwardsCharlieAccepts)
+		);
+	});
+
+	it("should refund everyone properly in an auction", async () => {
+		const alice = accounts[4];
+		const bob = accounts[5];
+		const charlie = accounts[6];
+		const thirdParty = accounts[7];
+
+		const itemPrice = 2;
+
+		const listingContract = await Listings.deployed();
+
+		const aliceBalanceBefore = await web3.eth.getBalance(alice);
+		const bobBalanceBefore = await web3.eth.getBalance(bob);
+		const charlieBalanceBefore = await web3.eth.getBalance(charlie);
+		const contractBalanceBefore = await web3.eth.getBalance(
+			listingContract.address
+		);
+		const thirdPartyBefore = await web3.eth.getBalance(thirdParty);
+
+		await listingContract.createThirdPartyListing(
+			"yyyytSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			itemPrice,
+			true,
+			false,
+			thirdParty,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		await listingContract.makeOffer(
+			"yyyytSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			{ from: bob, value: itemPrice, gasPrice: 0 }
+		);
+
+		const bobBalanceAfter = await web3.eth.getBalance(bob);
+
+		assert.equal(
+			BigInt(bobBalanceAfter),
+			BigInt(bobBalanceBefore) - BigInt(itemPrice)
+		);
+
+		const thirdPartyAfterBobsOffer = await web3.eth.getBalance(thirdParty);
+		assert.equal(
+			BigInt(thirdPartyBefore),
+			BigInt(thirdPartyAfterBobsOffer)
+		);
+
+		const contractBalanceAfter = await web3.eth.getBalance(
+			listingContract.address
+		);
+
+		assert.equal(
+			BigInt(contractBalanceBefore) + BigInt(itemPrice),
+			BigInt(contractBalanceAfter)
+		);
+
+		await listingContract.makeOffer(
+			"yyyytSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			{ from: charlie, value: itemPrice + 1, gasPrice: 0 }
+		);
+
+		const thirdPartyAfterCharliesOffer = await web3.eth.getBalance(
+			thirdParty
+		);
+		assert.equal(
+			BigInt(thirdPartyBefore),
+			BigInt(thirdPartyAfterCharliesOffer)
+		);
+
+		const charlieBalanceAfter = await web3.eth.getBalance(charlie);
+
+		assert.equal(
+			BigInt(charlieBalanceAfter),
+			BigInt(charlieBalanceBefore) - BigInt(itemPrice + 1)
+		);
+
+		const contractBalanceAfterCharlie = await web3.eth.getBalance(
+			listingContract.address
+		);
+
+		assert.equal(
+			BigInt(contractBalanceBefore) +
+				BigInt(itemPrice) +
+				BigInt(itemPrice + 1),
+			BigInt(contractBalanceAfterCharlie)
+		);
+
+		await listingContract.acceptOffer(
+			"yyyytSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			charlie,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		const thirdPartyAfterSellerAcceptsCharliesOffer =
+			await web3.eth.getBalance(thirdParty);
+		assert.equal(
+			BigInt(thirdPartyBefore),
+			BigInt(thirdPartyAfterSellerAcceptsCharliesOffer)
+		);
+
+		assert.equal(
+			BigInt(contractBalanceBefore) +
+				BigInt(itemPrice) +
+				BigInt(itemPrice + 1),
+			BigInt(contractBalanceAfterCharlie)
+		);
+
+		await listingContract.confirmBuy(
+			"yyyytSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			{ from: charlie, gasPrice: 0 }
+		);
+		const aliceBalanceAfterConfirm = await web3.eth.getBalance(alice);
+		const bobBalanceAfterConfirm = await web3.eth.getBalance(bob);
+		const charlieBalanceAfterConfirm = await web3.eth.getBalance(charlie);
+		const contractBalanceAfterConfirm = await web3.eth.getBalance(
+			listingContract.address
+		);
+
+		assert.equal(
+			BigInt(contractBalanceBefore),
+			BigInt(contractBalanceAfterConfirm)
+		);
+		assert.equal(BigInt(bobBalanceBefore), BigInt(bobBalanceAfterConfirm));
+		// alice stays the same as funds are transferred to a third party
+		assert.equal(
+			BigInt(aliceBalanceBefore),
+			BigInt(aliceBalanceAfterConfirm)
+		);
+		assert.equal(
+			BigInt(charlieBalanceBefore) - BigInt(itemPrice + 1),
+			BigInt(charlieBalanceAfterConfirm)
+		);
+
+		const thirdPartyAfterCharlieConfirms = await web3.eth.getBalance(
+			thirdParty
+		);
+		assert.equal(
+			BigInt(thirdPartyBefore) + BigInt(itemPrice + 1),
+			BigInt(thirdPartyAfterCharlieConfirms)
+		);
 	});
 });
 
