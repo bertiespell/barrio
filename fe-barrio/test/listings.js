@@ -708,6 +708,7 @@ contract("Listings.getBuyersForListing", function (accounts) {
 		const buyers = await listingContract.getBuyersForListing(
 			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps"
 		);
+
 		assert.equal(buyers[0], bob);
 		assert.equal(buyers[1], charlie);
 	});
@@ -959,12 +960,24 @@ contract("Listings.makeOffer multiple equal offers", function (accounts) {
 			{ from: alice, gasPrice: 0 }
 		);
 
+		let called = false;
+		try {
+			await listingContract.getThirdPartyForListing(
+				"yyyytSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps"
+			);
+		} catch (error) {
+			called = true;
+			assert(error);
+		}
+
+		assert(called);
+
 		await listingContract.makeOffer(
 			"QrRAQB6YaCyidP37UdDnjFY5vQuiBrcqdyoW1CuDgwxkD4",
 			{ from: bob, value: itemPrice, gasPrice: 0 }
 		);
 
-		let called = false;
+		called = false;
 		try {
 			await listingContract.makeOffer(
 				"QrRAQB6YaCyidP37UdDnjFY5vQuiBrcqdyoW1CuDgwxkD4",
@@ -1603,6 +1616,7 @@ contract("Listings.getDateForListing", function (accounts) {
 
 			{ from: alice, gasPrice: 0 }
 		);
+
 		assert(date);
 	});
 });
@@ -1751,6 +1765,12 @@ contract("Listings using third party", function (accounts) {
 			{ from: alice, gasPrice: 0 }
 		);
 
+		const thirdPartyFromContract =
+			await listingContract.getThirdPartyForListing(
+				"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps"
+			);
+		assert.equal(thirdParty, thirdPartyFromContract);
+
 		await listingContract.makeOffer(
 			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
 			{ from: bob, value: itemPrice, gasPrice: 0 }
@@ -1830,6 +1850,12 @@ contract("Listings using third party", function (accounts) {
 			thirdParty,
 			{ from: alice, gasPrice: 0 }
 		);
+
+		const thirdPartyFromContract =
+			await listingContract.getThirdPartyForListing(
+				"yyyytSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps"
+			);
+		assert.equal(thirdParty, thirdPartyFromContract);
 
 		await listingContract.makeOffer(
 			"yyyytSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
@@ -1943,10 +1969,4 @@ contract("Listings using third party", function (accounts) {
 			BigInt(thirdPartyAfterCharlieConfirms)
 		);
 	});
-});
-
-contract("Listings.leaveRating", function (accounts) {
-	it("leaveRating should allow a seller to leave a rating of a confirmed buyer", async () => {});
-
-	it("leaveRating should allow a confirmed buyer to leave a rating of a seller", async () => {});
 });

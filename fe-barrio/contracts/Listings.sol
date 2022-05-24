@@ -2,6 +2,7 @@
 pragma solidity >=0.4.22 <0.9.0;
 
 import "@chainlink/contracts/src/v0.8/KeeperCompatible.sol";
+
 import "./AccessControl.sol";
 
 /// @title Listings manages buying and selling of listed items
@@ -91,7 +92,6 @@ contract Listings is AccessControl, KeeperCompatible {
     }
 
     /// @dev Make an offer to buy a listing
-    /// This works equally for both standard and auction listings
     function makeOffer(string memory ipfsHash) public payable whenNotPaused {
         require(
             listings[ipfsHash].sellerAddress != msg.sender,
@@ -137,8 +137,6 @@ contract Listings is AccessControl, KeeperCompatible {
     }
 
     /// @dev Confirm a buy has taken place and transfer funds
-    /// If the listing is just a standard price, the buyer can confirm the buy straight away
-    /// If a listing is an auction, the buy can only be confirmed after a seller accepts
     function confirmBuy(string memory ipfsHash) public whenNotPaused {
         require(
             listings[ipfsHash].buyerAddresses[msg.sender] > 0,
@@ -162,7 +160,6 @@ contract Listings is AccessControl, KeeperCompatible {
             i < listings[ipfsHash].buyerAddressesArray.length;
             i++
         ) {
-            // transfer funds back to unsuccesful sellers
             if (listings[ipfsHash].buyerAddressesArray[i] != msg.sender) {
                 listings[ipfsHash].buyerAddressesArray[i].transfer(
                     listings[ipfsHash].buyerAddresses[
@@ -170,7 +167,6 @@ contract Listings is AccessControl, KeeperCompatible {
                     ]
                 );
             } else {
-                // if using a third party send there instead
                 if (listings[ipfsHash].useThirdPartyAddress != address(0x0)) {
                     listings[ipfsHash].useThirdPartyAddress.transfer(
                         listings[ipfsHash].buyerAddresses[
@@ -178,7 +174,6 @@ contract Listings is AccessControl, KeeperCompatible {
                         ]
                     );
                 } else {
-                    // Send funds to seller
                     listings[ipfsHash].sellerAddress.transfer(
                         listings[ipfsHash].buyerAddresses[
                             listings[ipfsHash].buyerAddressesArray[i]
@@ -229,7 +224,7 @@ contract Listings is AccessControl, KeeperCompatible {
         ];
 
         emit OfferAccepted(
-            msg.sender,
+            buyerToAccept,
             ipfsHash,
             listings[ipfsHash].buyerAddresses[buyerToAccept]
         );
@@ -260,9 +255,7 @@ contract Listings is AccessControl, KeeperCompatible {
         listings[ipfsHash].bought = true;
     }
 
-    function checkUpkeep(
-        bytes calldata /* checkData */
-    )
+    function checkUpkeep(bytes calldata)
         external
         view
         override
@@ -462,6 +455,25 @@ contract Listings is AccessControl, KeeperCompatible {
         return sellerAddress;
     }
 
+    function getThirdPartyForListing(string memory ipfsHash)
+        public
+        view
+        returns (address)
+    {
+        require(
+            listings[ipfsHash].sellerAddress != address(0x0),
+            "This listing does not exist"
+        );
+
+        require(
+            listings[ipfsHash].useThirdPartyAddress != address(0x0),
+            "This listing isn't using a third party"
+        );
+
+        address useThirdPartyAddress = listings[ipfsHash].useThirdPartyAddress;
+        return useThirdPartyAddress;
+    }
+
     function getDateForListing(string memory ipfsHash)
         public
         view
@@ -488,6 +500,25 @@ contract Listings is AccessControl, KeeperCompatible {
 
         bool bought = listings[ipfsHash].bought;
         return bought;
+    }
+
+    function getFinalBuyertForListing(string memory ipfsHash)
+        public
+        view
+        returns (address)
+    {
+        require(
+            listings[ipfsHash].sellerAddress != address(0x0),
+            "This listing does not exist"
+        );
+
+        require(
+            listings[ipfsHash].finalBuyer != address(0x0),
+            "There is no final buyer for this contract"
+        );
+
+        address finalBuyer = listings[ipfsHash].finalBuyer;
+        return finalBuyer;
     }
 
     function getIsAcceptedForListing(string memory ipfsHash)
