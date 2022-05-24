@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function NewsLetter() {
 	return (
 		<div className="bg-white pt-16 sm:py-24">
@@ -33,14 +35,16 @@ export default function NewsLetter() {
 										placeholder="Enter your email"
 									/>
 								</div>
-								<div className="mt-4 sm:mt-0 sm:ml-3">
-									<button
-										type="submit"
-										className="block w-full rounded-md border border-transparent px-5 py-3 bg-indigo-500 text-base font-medium text-white shadow hover:bg-indigo-400 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-600 sm:px-10"
-									>
-										Notify me
-									</button>
-								</div>
+								<Link href="/">
+									<div className="mt-4 sm:mt-0 sm:ml-3">
+										<button
+											type="submit"
+											className="block w-full rounded-md border border-transparent px-5 py-3 bg-indigo-500 text-base font-medium text-white shadow hover:bg-indigo-400 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-600 sm:px-10"
+										>
+											Notify me
+										</button>
+									</div>
+								</Link>
 							</form>
 						</div>
 					</div>

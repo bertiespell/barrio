@@ -46,7 +46,7 @@ export default function MyListings() {
 
 	useEffect(() => {
 		getAccount();
-	});
+	}, [listings]);
 
 	return (
 		<div className="max-w-7xl mx-auto pt-20 pb-20 px-4 sm:px-6 lg:px-8">

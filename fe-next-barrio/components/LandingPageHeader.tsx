@@ -29,7 +29,10 @@ export default function LandingPageHeader() {
 						preserveAspectRatio="none"
 						aria-hidden="true"
 					>
-						<polygon points="50,0 100,0 50,100 0,100" />
+						<polygon
+							className="z-30"
+							points="50,0 100,0 50,100 0,100"
+						/>
 					</svg>
 					<div className="relative pt-6 px-4 sm:px-6 lg:px-8"></div>
 
@@ -56,13 +59,13 @@ export default function LandingPageHeader() {
 									classified ads
 								</span>
 							</h1>
-							<p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
+							<p className="mt-3 z-50 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
 								An ecosystem to buy and sell pre-loved items,
 								powered by Ethereum and IPFS. Help build a
-								blockchain based second-hand market by storing
-								data and earning credits. By reusing and
-								recycling, together we can build sustainable
-								local economies.
+								blockchain based second-hand market by listing
+								items, storing data and earning credits. By
+								reusing items, together we can build sustainable
+								economies.
 							</p>
 							<div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
 								<div className="rounded-md shadow">

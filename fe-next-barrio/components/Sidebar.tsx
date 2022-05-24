@@ -12,15 +12,20 @@ import getWeb3 from "../utils/getWeb3";
 
 const navigation = [
 	{ name: "Profile", icon: UserIcon, href: "/profile", current: false },
-	{ name: "Search", icon: SearchIcon, href: "/listings", current: false },
 	{
-		name: "Listings",
+		name: "All Listings",
+		icon: SearchIcon,
+		href: "/listings",
+		current: false,
+	},
+	{
+		name: "My Listings",
 		icon: ClipboardIcon,
 		href: "/my-listings",
 		current: false,
 	},
 	{
-		name: "Offers",
+		name: "My Offers",
 		icon: FireIcon,
 		href: "/my-offers",
 		count: 0,

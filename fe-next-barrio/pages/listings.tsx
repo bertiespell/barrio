@@ -28,6 +28,7 @@ export type CardListing = {
 	isAuction: boolean;
 	auctionData: AuctionData | undefined;
 	useThirdPartyAddress: string;
+	canBeReviewed: boolean;
 };
 
 export default function Listing() {

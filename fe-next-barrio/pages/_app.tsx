@@ -3,15 +3,18 @@ import type { AppContext, AppProps } from "next/app";
 import Layout from "../components/Layout";
 import ListingsProvider from "../context/listings";
 import App from "next/app";
+import AccountsProvider from "../context/accounts";
 
 function MyApp({ Component, pageProps }: AppProps) {
 	return (
 		<>
-			<Layout>
+			<AccountsProvider>
 				<ListingsProvider>
-					<Component {...pageProps} />
+					<Layout>
+						<Component {...pageProps} />
+					</Layout>
 				</ListingsProvider>
-			</Layout>
+			</AccountsProvider>
 		</>
 	);
 }

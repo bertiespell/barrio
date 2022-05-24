@@ -13,12 +13,19 @@ import { ListingsContext } from "../../context/listings";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import ListingCard from "../../components/ListingCard";
 import AuctionListingCard from "../../components/AuctionListingCard";
+import { AccountsContext } from "../../context/accounts";
 
 export default function Listing() {
-	const { listings } = useContext<{
+	const { listings, getAllProducts } = useContext<{
 		listings: CardListing[];
 		getAllProducts: any;
 	}>(ListingsContext as any);
+
+	const { account } = useContext(AccountsContext as any);
+
+	useEffect(() => {
+		getAllProducts();
+	}, [account]);
 
 	const router = useRouter();
 	const { cid } = router.query;
@@ -29,14 +36,21 @@ export default function Listing() {
 	// errors
 	const [_noProduct, setNoProduct] = useState(false);
 
-	useEffect(() => {
-		if (!router.isReady) return;
+	const setListing = () => {
 		const foundListing = listings.find((listing) => listing.id === cid);
 		if (foundListing) {
 			setProduct(foundListing);
 		}
 		setLoading(false);
+	};
+
+	useEffect(() => {
+		if (!router.isReady) return;
 	}, [router.isReady]);
+
+	useEffect(() => {
+		setListing();
+	}, [listings]);
 
 	if (isLoading)
 		return (

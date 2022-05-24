@@ -1,11 +1,16 @@
-import { Fragment, useRef, useState } from "react";
+import { Fragment, useContext, useRef, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { ExclamationIcon } from "@heroicons/react/outline";
 import getWeb3 from "../utils/getWeb3";
 import ErrorAlert from "./ErrorAlert";
 import SuccessAlert from "./SuccessAlert";
+import { ListingsContext } from "../context/listings";
 
 export default function ConfirmBuy({ open, setOpen, listing }: any) {
+	const { getAllProducts } = useContext<{
+		getAllProducts: any;
+	}>(ListingsContext as any);
+
 	const cancelButtonRef = useRef(null);
 
 	// errors
@@ -31,6 +36,7 @@ export default function ConfirmBuy({ open, setOpen, listing }: any) {
 				message: "You've paid for your item!",
 			});
 			setShowAlert(true);
+			getAllProducts();
 		} catch (err) {
 			setError({
 				title: "Payment Failed",

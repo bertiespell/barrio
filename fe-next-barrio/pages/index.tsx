@@ -1,5 +1,6 @@
 import type { NextPage } from "next";
 import Head from "next/head";
+import FAQs from "../components/Faqs";
 import FeatureListGrid from "../components/FeatureListGrid";
 import LandingPageHeader from "../components/LandingPageHeader";
 import MarketStats from "../components/MarketStats";
@@ -19,6 +20,7 @@ const Home: NextPage = () => {
 			<LandingPageHeader />
 			<FeatureListGrid />
 			<MarketStats />
+			<FAQs />
 			<NewsLetter />
 			<footer className={styles.footer}>
 				<p>Copyright &copy; 2022 Barrio</p>

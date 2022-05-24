@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useCallback, useContext, useEffect, useState } from "react";
 import ConfirmBuy from "../components/ConfirmBuy";
 import ErrorAlert from "../components/ErrorAlert";
+import RatingModal from "../components/RatingModal";
 import { ListingsContext } from "../context/listings";
 import getWeb3 from "../utils/getWeb3";
 import { CardListing } from "./listings";
@@ -24,6 +25,10 @@ export default function MyOffers() {
 	const [showMetamaskError, setShowMetamaskError] = useState(false);
 	const [metaMaskShown, setMetaMaskShown] = useState(false);
 
+	// leave review
+	const [listingToReview, setListingToReview] = useState({});
+	const [openReviewModal, setOpenReviewModal] = useState(false);
+
 	const setAccount = async () => {
 		try {
 			const account = await getWeb3.getAccounts();
@@ -39,7 +44,7 @@ export default function MyOffers() {
 
 	useEffect(() => {
 		setAccount();
-	}, []);
+	}, [listings]);
 
 	useEffect(() => {
 		const filteredListings = listings?.filter((product) =>
@@ -48,7 +53,6 @@ export default function MyOffers() {
 					offer.buyer.toLowerCase() === currentAccount.toLowerCase()
 			)
 		);
-
 		setOffers(filteredListings);
 	}, [currentAccount, listings]);
 
@@ -253,34 +257,95 @@ export default function MyOffers() {
 																</Link>
 															</td>
 
-															<td
-																className={classNames(
-																	listingIdx !==
-																		listings.length -
-																			1
-																		? "border-b border-gray-200"
-																		: "",
-																	"relative whitespace-nowrap py-4 pr-4 pl-3 text-right text-sm font-medium sm:pr-6 lg:pr-8"
-																)}
-															>
-																<button
-																	type="button"
-																	className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-																	onClick={(
-																		e
-																	) => {
-																		e.preventDefault();
-																		setListingToConfirm(
-																			listing
-																		);
-																		setOpenConfirmBuyModal(
-																			true
-																		);
-																	}}
-																>
-																	Confirm Buy
-																</button>
-															</td>
+															{listing.bought ? (
+																<>
+																	{listing.canBeReviewed ? (
+																		<>
+																			<td
+																				className={classNames(
+																					listingIdx !==
+																						listings.length -
+																							1
+																						? "border-b border-gray-200"
+																						: "",
+																					"relative whitespace-nowrap py-4 pr-4 pl-3 text-right text-sm font-medium sm:pr-6 lg:pr-8"
+																				)}
+																			>
+																				<button
+																					type="button"
+																					className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm bg-yellow-100 text-yellow-800 hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-200"
+																					onClick={(
+																						e
+																					) => {
+																						e.preventDefault();
+																						setListingToReview(
+																							listing
+																						);
+																						setOpenReviewModal(
+																							true
+																						);
+																					}}
+																				>
+																					Leave
+																					rating
+																				</button>
+																			</td>
+																		</>
+																	) : (
+																		<>
+																			<td
+																				className={classNames(
+																					listingIdx !==
+																						listings.length -
+																							1
+																						? "border-b border-gray-200"
+																						: "",
+																					"relative whitespace-nowrap py-4 pr-4 pl-3 text-right text-sm font-medium sm:pr-6 lg:pr-8"
+																				)}
+																			>
+																				<button
+																					type="button"
+																					className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm bg-green-100 text-green-800 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-200"
+																				>
+																					Completed!
+																				</button>
+																			</td>
+																		</>
+																	)}
+																</>
+															) : (
+																<>
+																	<td
+																		className={classNames(
+																			listingIdx !==
+																				listings.length -
+																					1
+																				? "border-b border-gray-200"
+																				: "",
+																			"relative whitespace-nowrap py-4 pr-4 pl-3 text-right text-sm font-medium sm:pr-6 lg:pr-8"
+																		)}
+																	>
+																		<button
+																			type="button"
+																			className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+																			onClick={(
+																				e
+																			) => {
+																				e.preventDefault();
+																				setListingToConfirm(
+																					listing
+																				);
+																				setOpenConfirmBuyModal(
+																					true
+																				);
+																			}}
+																		>
+																			Confirm
+																			Buy
+																		</button>
+																	</td>
+																</>
+															)}
 														</tr>
 													)
 												)}
@@ -331,6 +396,12 @@ export default function MyOffers() {
 					open={openConfirmBuyModal}
 					setOpen={setOpenConfirmBuyModal}
 					listing={listingToConfirm}
+				/>
+
+				<RatingModal
+					open={openReviewModal}
+					setOpen={setOpenReviewModal}
+					listing={listingToReview}
 				/>
 				<ErrorAlert
 					open={showMetamaskError}

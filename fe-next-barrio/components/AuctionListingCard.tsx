@@ -23,7 +23,7 @@ export default function AuctionListingCard({
 	product: CardListing;
 	cid: string;
 }) {
-	const { getAllProducts } = useContext<{
+	const { listings, getAllProducts } = useContext<{
 		listings: CardListing[];
 		getAllProducts: any;
 	}>(ListingsContext as any);
@@ -43,6 +43,32 @@ export default function AuctionListingCard({
 		title: "Wow something happened!",
 		message: "Congrats",
 	});
+
+	// current account
+	const [currentAccount, setCurrentAccount] = useState("");
+
+	const setAccount = async () => {
+		try {
+			const account = await getWeb3.getAccounts();
+			setCurrentAccount(account);
+		} catch (err) {}
+	};
+
+	useEffect(() => {
+		setAccount();
+	}, [listings]);
+
+	// ratings
+	const [ratings, setRatings] = useState(-1);
+
+	const getRatings = async () => {
+		const ratings = await getWeb3.getRatingsForSeller(product.user);
+		setRatings(ratings);
+	};
+
+	useEffect(() => {
+		getRatings();
+	}, []);
 
 	const makeOfferInMetamask = async (listingId: string) => {
 		try {
@@ -154,7 +180,7 @@ export default function AuctionListingCard({
 											<StarIcon
 												key={rating}
 												className={classNames(
-													product.rating > rating
+													ratings > rating
 														? "text-indigo-500"
 														: "text-gray-300",
 													"h-5 w-5 flex-shrink-0"
@@ -162,7 +188,7 @@ export default function AuctionListingCard({
 												aria-hidden="true"
 											/>
 										))}
-										{product.rating > 0 ? (
+										{ratings > 0 ? (
 											""
 										) : (
 											<p className="text-s text-gray-500">
@@ -172,7 +198,7 @@ export default function AuctionListingCard({
 										)}
 									</div>
 									<p className="sr-only">
-										{product.rating} out of 5 stars
+										{ratings} out of 5 stars
 									</p>
 								</div>
 							</div>
@@ -200,50 +226,85 @@ export default function AuctionListingCard({
 									) : (
 										<>
 											<div>
-												<div>
-													<label
-														htmlFor="email"
-														className="block text-sm font-medium text-gray-700"
-													>
-														Enter your bid
-													</label>
-													<div className="mt-1">
-														<input
-															type="text"
-															name="price"
-															id="price"
-															className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md"
-															placeholder="0.00"
-															aria-describedby="price-currency"
-															onChange={(e) =>
-																setNewOfferPrice(
-																	e.target
-																		.value
-																)
-															}
-														/>
-													</div>
-													<p
-														className="mt-2 text-sm text-gray-500"
-														id="email-description"
-													>
-														You'll need to offer a
-														higher amount that the
-														current bid.
-													</p>
-												</div>
-												<button
-													type="submit"
-													className="max-w-xs mt-3 bg-indigo-600 border border-transparent rounded-md py-3 px-8 flex items-center justify-center text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-indigo-500"
-													onClick={(e) => {
-														e.preventDefault();
-														makeOfferInMetamask(
-															cid as string
-														);
-													}}
-												>
-													Buy
-												</button>
+												{product.user.toLowerCase() ===
+												currentAccount.toLowerCase() ? (
+													<>
+														<span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-gray-100 text-gray-800">
+															This is your listing
+														</span>
+													</>
+												) : (
+													<>
+														{product.bought ? (
+															<>
+																<span className="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+																	This item
+																	has been
+																	bought
+																	already!
+																</span>
+															</>
+														) : (
+															<>
+																<div>
+																	<label
+																		htmlFor="email"
+																		className="block text-sm font-medium text-gray-700"
+																	>
+																		Enter
+																		your bid
+																	</label>
+																	<div className="mt-1">
+																		<input
+																			type="text"
+																			name="price"
+																			id="price"
+																			className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md"
+																			placeholder="0.00"
+																			aria-describedby="price-currency"
+																			onChange={(
+																				e
+																			) =>
+																				setNewOfferPrice(
+																					e
+																						.target
+																						.value
+																				)
+																			}
+																		/>
+																	</div>
+																	<p
+																		className="mt-2 text-sm text-gray-500"
+																		id="email-description"
+																	>
+																		You'll
+																		need to
+																		offer a
+																		higher
+																		amount
+																		that the
+																		current
+																		bid.
+																	</p>
+																</div>
+																<button
+																	type="submit"
+																	className="max-w-xs mt-3 bg-indigo-600 border border-transparent rounded-md py-3 px-8 flex items-center justify-center text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-indigo-500"
+																	onClick={(
+																		e
+																	) => {
+																		e.preventDefault();
+																		makeOfferInMetamask(
+																			cid as string
+																		);
+																	}}
+																>
+																	Buy
+																</button>
+															</>
+														)}
+													</>
+												)}
 											</div>
 										</>
 									)}

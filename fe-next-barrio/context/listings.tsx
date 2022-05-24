@@ -27,7 +27,9 @@ const ListingsProvider = ({ children }: any) => {
 			mappedData.map(async (listing: CardListing) => {
 				try {
 					const ethData = await getWeb3.getListingData(listing.id);
-
+					const canBeReviewed = await getWeb3.canBeReviewed(
+						listing.id
+					);
 					const isAuction = ethData.isAuction;
 					let offersMade = [];
 					if (!isAuction) {
@@ -52,6 +54,7 @@ const ListingsProvider = ({ children }: any) => {
 						timestamp,
 						auctionData,
 						useThirdPartyAddress,
+						canBeReviewed,
 					};
 				} catch (e) {
 					console.warn(e);
@@ -111,7 +114,9 @@ const ListingsProvider = ({ children }: any) => {
 				);
 				setLoading(false);
 			}
-		} catch (err) {}
+		} catch (err) {
+			console.error(err, "Error getting all products");
+		}
 	};
 
 	useEffect(() => {

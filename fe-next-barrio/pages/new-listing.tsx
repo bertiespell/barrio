@@ -105,12 +105,22 @@ export default function NewListing() {
 		}
 		// send the ipfs hash to smart contract
 		try {
-			await getWeb3.createListing(
-				listing.metadata.imageFilesCID,
-				price,
-				auction,
-				false
-			);
+			if (useThirdParty) {
+				await getWeb3.createThirdPartyListing(
+					listing.metadata.imageFilesCID,
+					thirdPartyEthAddress,
+					price,
+					auction,
+					false
+				);
+			} else {
+				await getWeb3.createListing(
+					listing.metadata.imageFilesCID,
+					price,
+					auction,
+					false
+				);
+			}
 		} catch (e) {
 			try {
 				// if the smart contract fails let's clear up some data
@@ -553,7 +563,7 @@ export default function NewListing() {
 													</p>
 												</div>
 											</div>
-											<div className="relative flex items-start">
+											{/* <div className="relative flex items-start">
 												<div className="flex items-center h-5">
 													<input
 														id="ipfs"
@@ -593,7 +603,7 @@ export default function NewListing() {
 														antiques)
 													</p>
 												</div>
-											</div>
+											</div> */}
 
 											<div className="relative flex items-start">
 												<div className="flex items-center h-5">

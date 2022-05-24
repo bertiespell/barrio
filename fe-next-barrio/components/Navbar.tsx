@@ -1,12 +1,15 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Popover } from "@headlessui/react";
-import { SearchIcon } from "@heroicons/react/solid";
+import { DotsVerticalIcon, SearchIcon } from "@heroicons/react/solid";
 import { BellIcon, MenuIcon, XIcon } from "@heroicons/react/outline";
 import Slideover from "./Slideover";
 import getWeb3 from "../utils/getWeb3";
 import SuccessAlert from "./SuccessAlert";
 import ErrorAlert from "./ErrorAlert";
 import Link from "next/link";
+import { CardListing } from "../pages/listings";
+import { ListingsContext } from "../context/listings";
+import { AccountsContext } from "../context/accounts";
 
 const navigation = [
 	{ name: "All Listings", href: "/listings", current: false },
@@ -21,17 +24,22 @@ function classNames(...classes: any) {
 }
 
 export default function Navbar() {
+	const { getAllProducts } = useContext<{
+		getAllProducts: any;
+	}>(ListingsContext as any);
+
+	const { account, getAccounts } = useContext(AccountsContext as any);
+
 	const [sidebarOpen, setSidebarOpen] = useState(false);
-	const [account, setAccount] = useState("");
 
 	const [showMetamaskEnabled, setShowMetamaskEnabled] = useState(false);
 	const [showMetamaskError, setShowMetamaskError] = useState(false);
 
 	const enableMetamask = async () => {
 		try {
-			const newAccount = await getWeb3.getAccounts();
-			setAccount(newAccount);
+			getAccounts();
 			setShowMetamaskEnabled(true);
+			getAllProducts();
 		} catch (err) {
 			setShowMetamaskError(true);
 		}
@@ -50,25 +58,34 @@ export default function Navbar() {
 			>
 				{({ open }) => (
 					<>
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 pb-5">
 							<div className="relative flex justify-between xl:grid xl:grid-cols-12 lg:gap-8">
+								<div className="flex md:absolute md:left-0 md:inset-y-0 lg:static xl:col-span-2">
+									<div className="flex-shrink-0 flex items-center">
+										<Link href="/">
+											<button>
+												<img
+													className="block h-8 w-auto"
+													src="/logo.png"
+													alt="Barrio"
+												/>
+											</button>
+										</Link>
+									</div>
+								</div>
 								<div className="flex md:absolute md:left-0 md:inset-y-0 lg:static xl:col-span-2">
 									<div className="flex-shrink-0 flex items-center">
 										<button
 											onClick={() => setSidebarOpen(true)}
 										>
-											<img
-												className="block h-8 w-auto"
-												src="/logo.png"
-												alt="Barrio"
-											/>
+											<DotsVerticalIcon className="block h-8 w-auto focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 text-indigo-800"></DotsVerticalIcon>
 										</button>
 									</div>
 								</div>
 								<div className="min-w-0 flex-1 md:px-8 lg:px-0 xl:col-span-6">
 									<div className="flex items-center px-6 py-4 md:max-w-3xl md:mx-auto lg:max-w-none lg:mx-0 xl:px-0">
 										<div className="w-full">
-											<label
+											{/* <label
 												htmlFor="search"
 												className="sr-only"
 											>
@@ -88,7 +105,7 @@ export default function Navbar() {
 													placeholder="Search"
 													type="search"
 												/>
-											</div>
+											</div> */}
 										</div>
 									</div>
 								</div>

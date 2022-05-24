@@ -23,7 +23,7 @@ export default function ListingCard({
 	product: CardListing;
 	cid: string;
 }) {
-	const { getAllProducts } = useContext<{
+	const { listings, getAllProducts } = useContext<{
 		listings: CardListing[];
 		getAllProducts: any;
 	}>(ListingsContext as any);
@@ -62,6 +62,32 @@ export default function ListingCard({
 			setShowError(true);
 		}
 	};
+
+	// current account
+	const [currentAccount, setCurrentAccount] = useState("");
+
+	const setAccount = async () => {
+		try {
+			const account = await getWeb3.getAccounts();
+			setCurrentAccount(account);
+		} catch (err) {}
+	};
+
+	useEffect(() => {
+		setAccount();
+	}, [listings]);
+
+	// ratings
+	const [ratings, setRatings] = useState(-1);
+
+	const getRatings = async () => {
+		const ratings = await getWeb3.getRatingsForSeller(product.user);
+		setRatings(ratings);
+	};
+
+	useEffect(() => {
+		getRatings();
+	}, []);
 
 	return (
 		<>
@@ -141,7 +167,7 @@ export default function ListingCard({
 											<StarIcon
 												key={rating}
 												className={classNames(
-													product.rating > rating
+													ratings > rating
 														? "text-indigo-500"
 														: "text-gray-300",
 													"h-5 w-5 flex-shrink-0"
@@ -149,7 +175,7 @@ export default function ListingCard({
 												aria-hidden="true"
 											/>
 										))}
-										{product.rating > 0 ? (
+										{ratings > 0 ? (
 											""
 										) : (
 											<p className="text-s text-gray-500">
@@ -159,7 +185,7 @@ export default function ListingCard({
 										)}
 									</div>
 									<p className="sr-only">
-										{product.rating} out of 5 stars
+										{ratings} out of 5 stars
 									</p>
 								</div>
 							</div>
@@ -177,28 +203,56 @@ export default function ListingCard({
 
 							<form className="mt-6">
 								<div className="mt-10 flex sm:flex-col1">
-									{product.bought ? (
+									{product.user.toLowerCase() ===
+									currentAccount.toLowerCase() ? (
 										<>
-											<span className="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
-												This item has been bought
-												already!
+											<span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-gray-100 text-gray-800">
+												This is your listing
 											</span>
 										</>
 									) : (
 										<>
-											<button
-												type="submit"
-												className="max-w-xs flex-1 bg-indigo-600 border border-transparent rounded-md py-3 px-8 flex items-center justify-center text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-indigo-500 sm:w-full"
-												onClick={(e) => {
-													e.preventDefault();
-													makeOfferInMetamask(
-														cid as string
-													);
-												}}
-											>
-												Buy
-											</button>
-											<button
+											{product.bought ? (
+												<>
+													<span className="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+														This item has been
+														bought already!
+													</span>
+												</>
+											) : (
+												<>
+													{product.offersMade.find(
+														(offer) =>
+															offer.buyer.toLowerCase() ===
+															currentAccount.toLowerCase()
+													) ? (
+														<>
+															<span className="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+																You've already
+																made an offer on
+																this listing!
+															</span>
+														</>
+													) : (
+														<>
+															<button
+																type="submit"
+																className="max-w-xs flex-1 bg-indigo-600 border border-transparent rounded-md py-3 px-8 flex items-center justify-center text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-indigo-500 sm:w-full"
+																onClick={(
+																	e
+																) => {
+																	e.preventDefault();
+																	makeOfferInMetamask(
+																		cid as string
+																	);
+																}}
+															>
+																Buy
+															</button>
+														</>
+													)}
+
+													{/* <button
 												type="button"
 												className="ml-4 py-3 px-3 rounded-md flex items-center justify-center text-gray-400 hover:bg-gray-100 hover:text-gray-500"
 											>
@@ -209,9 +263,12 @@ export default function ListingCard({
 												<span className="sr-only">
 													Add to favorites
 												</span>
-											</button>
+											</button> */}
+												</>
+											)}
 										</>
 									)}
+
 									{/* <button
 									type="submit"
 									className="max-w-xs flex-1 bg-indigo-600 border border-transparent rounded-md py-3 px-8 flex items-center justify-center text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-indigo-500 sm:w-full"
@@ -223,6 +280,16 @@ export default function ListingCard({
 									Buy
 								</button> */}
 								</div>
+								{product.useThirdPartyAddress ? (
+									<>
+										<span className="inline-flex items-center mt-2 px-3 py-0.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+											Third party:{" "}
+											{product.useThirdPartyAddress}
+										</span>
+									</>
+								) : (
+									""
+								)}
 							</form>
 
 							<section
@@ -278,15 +345,15 @@ export default function ListingCard({
 																(offer) => (
 																	<li
 																		key={
-																			offer.user
+																			offer.buyer
 																		}
 																	>
 																		{
-																			offer.user
+																			offer.buyer
 																		}{" "}
 																		<b>
 																			{
-																				offer.price
+																				offer.offer
 																			}{" "}
 																			ETH
 																		</b>
@@ -301,7 +368,12 @@ export default function ListingCard({
 									) : product.bought ? (
 										""
 									) : (
-										"No buyers yet, be the first and make an offer!"
+										<div>
+											{product.user.toLowerCase() ===
+											currentAccount.toLowerCase()
+												? ""
+												: "No buyers yet, be the first and make an offer!"}
+										</div>
 									)}
 								</div>
 							</section>

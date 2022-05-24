@@ -1,10 +1,11 @@
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useContext, useEffect, useRef, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { CreditCardIcon } from "@heroicons/react/solid";
 import { CardListing, Offer } from "../pages/listings";
 import ErrorAlert from "./ErrorAlert";
 import SuccessAlert from "./SuccessAlert";
 import getWeb3 from "../utils/getWeb3";
+import { ListingsContext } from "../context/listings";
 
 export default function OffersModal({
 	open,
@@ -15,6 +16,10 @@ export default function OffersModal({
 	setOpen: any;
 	listing: CardListing;
 }) {
+	const { getAllProducts } = useContext<{
+		getAllProducts: any;
+	}>(ListingsContext as any);
+
 	const [showMetamaskError, setShowMetamaskError] = useState(false);
 	const [showAlert, setShowAlert] = useState(false);
 
@@ -26,6 +31,7 @@ export default function OffersModal({
 		try {
 			await getWeb3.acceptOffer(listing, buyer);
 			setShowAlert(true);
+			getAllProducts();
 		} catch (err) {
 			setShowMetamaskError(true);
 		}
@@ -172,26 +178,30 @@ export default function OffersModal({
 																				</a>
 																			</td>
 
-																			<td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 md:pr-0">
-																				<a
-																					href="#"
-																					className="text-indigo-600 hover:text-indigo-900"
-																				>
-																					<button
-																						type="button"
-																						className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-																						onClick={() =>
-																							acceptOffer(
-																								listing.id,
-																								offer.buyer
-																							)
-																						}
+																			{listing.isAuction ? (
+																				<td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 md:pr-0">
+																					<a
+																						href="#"
+																						className="text-indigo-600 hover:text-indigo-900"
 																					>
-																						Accept
-																						Offer
-																					</button>
-																				</a>
-																			</td>
+																						<button
+																							type="button"
+																							className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+																							onClick={() =>
+																								acceptOffer(
+																									listing.id,
+																									offer.buyer
+																								)
+																							}
+																						>
+																							Accept
+																							Offer
+																						</button>
+																					</a>
+																				</td>
+																			) : (
+																				""
+																			)}
 																		</tr>
 																	)
 																)}
