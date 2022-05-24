@@ -3,7 +3,7 @@ import Ratings from "../public/abi/Ratings.json";
 import { BigNumber, ethers } from "ethers";
 
 const listingsContractAddress: string = (process.env.NEXT_PUBLIC_LISTINGS_CONTRACT_ADDRESS as string);
-const ratingsContractAddress: string = (process.env.NEXT_PUBLIC_RATINGS_CONTRACT as string);
+const ratingsContractAddress: string = (process.env.NEXT_PUBLIC_RATINGS_CONTRACT_ADDRESS as string);
 
 export type AuctionData = {
 	highestOfferAmount: string;
@@ -99,16 +99,100 @@ class Web3Connection {
 		}
 	}
 
-	async getRatingsForSeller(address: string) {
+	async createThirdPartyListing(listing: string, thirdPartyAddress: string, price: string, isAuction: boolean, isPriceInUsd: boolean) {
+		const listingContract = new ethers.Contract(
+			listingsContractAddress,
+			Listings.abi,
+			this.provider
+		);
+
+		const listingWithSigner = listingContract.connect(
+			this.provider.getSigner()
+		);
+
+		try {
+			const smartContractListing =  await listingWithSigner.createThirdPartyListing(
+				listing,
+				ethers.utils.parseEther(price),
+				isAuction,
+				isPriceInUsd,
+				thirdPartyAddress
+			);
+
+			return await smartContractListing.wait();
+		} catch (err) {
+			console.error(err, "err");
+			throw Error("(SM) Unable to create listing");
+		}
+	}
+
+	async getRatingsForSeller(sellerAddress: string): Promise<number> {
 		try {
 			const ratingsContract = new ethers.Contract(
 				ratingsContractAddress,
 				Ratings.abi,
 				this.provider
 			);
+
+			const ratings =  await ratingsContract.getSellerRatings(
+				sellerAddress
+			);
+
+			const avgRating = (ratings.reduce((a: number, b: number) => a + b, 0) / ratings.length) || 0;
+
+			return  (ratings.length ? avgRating : -1);
 		} catch (err) {
 			console.error(err);
-			throw Error(`(SM) Unable to get rating for address ${address}`);
+			throw Error(`(SM) Unable to get rating for address ${sellerAddress}`);
+		}	
+	}
+
+	async rateSeller(ipfsHash: string, rating: number) {
+		try {
+			const ratingsContract = new ethers.Contract(
+				ratingsContractAddress,
+				Ratings.abi,
+				this.provider
+			);
+
+			const ratingWithSigner = ratingsContract.connect(
+				this.provider.getSigner()
+			);
+
+			return await ratingWithSigner.leaveSellerRating(
+				ipfsHash,
+				rating
+			);
+		} catch (err) {
+			console.error(err);
+			throw Error(`(SM) Unable to get rate seller`);
+		}	
+	}
+
+	async getRatingsForBuyer(buyerAddress: string) {
+		try {
+			const ratingsContract = new ethers.Contract(
+				ratingsContractAddress,
+				Ratings.abi,
+				this.provider
+			);
+
+			const ratingWithSigner = ratingsContract.connect(
+				this.provider.getSigner()
+			);
+
+			const ratings =  await ratingWithSigner.getBuyerRatings(
+				buyerAddress
+			);
+
+			await ratings.wait()
+
+			const avgRating = (ratings.reduce((a: number, b: number) => a + b, 0) / ratings.length) || 0;
+
+			return  (ratings.length ? avgRating : -1);
+		} catch (err) {
+			console.error(err);
+			throw Error(`(SM) Unable to get rating for address ${buyerAddress}`);
 		}	
 	}
 
@@ -125,6 +209,27 @@ class Web3Connection {
 			console.error(err, "err");
 			throw Error("(SM) Unable to get all listings");
 		}
+	}
+
+	async canBeReviewed(listing: string): Promise<boolean> {
+		try {
+			const ratingsContract = new ethers.Contract(
+				ratingsContractAddress,
+				Ratings.abi,
+				this.provider
+			);
+
+			const ratingWithSigner = ratingsContract.connect(
+				this.provider.getSigner()
+			);
+
+			return await ratingWithSigner.sellerRatingAvailable(
+				listing
+			);
+		} catch (err) {
+			console.error(err, "Error fetching whether seller it can be reviewed")
+			return false;
+		}	
 	}
 
 	async getListingData(listing: string): Promise<EthListingData> {
@@ -185,9 +290,13 @@ class Web3Connection {
 
 			let useThirdPartyAddress;
 			try {
-				useThirdPartyAddress = await listingContract.getThirdPartyForListing(listing);
-
-			} catch (e) {}
+				const isThirdPartyListing = await listingContract.getIsThirdParty(listing);
+				if (isThirdPartyListing) {
+					useThirdPartyAddress = await listingContract.getThirdPartyForListing(listing);
+				}
+			} catch (err) {
+				console.error("Error getting third party data", err)
+			}
 
 			return {
 				buyers,
@@ -217,10 +326,12 @@ class Web3Connection {
 				this.provider.getSigner()
 			);
 	
-				return await listingWithSigner.makeOffer(listing, {
-					value: BigNumber.from(ethers.utils.parseUnits(price)),
-				});
-			
+			const offer = await listingWithSigner.makeOffer(listing, {
+				value: BigNumber.from(ethers.utils.parseUnits(price)),
+			});
+
+			await offer.wait()
+			return offer;
 		} catch (err) {
 			console.error(err);
 			throw Error("(SM) Unable to get make offer");
@@ -239,18 +350,20 @@ class Web3Connection {
 				this.provider.getSigner()
 			);
 	
-	
-				// Ether amount to send
-				let price;
-				try {
-					price = await listingContract.getPriceForListing(listing);
-				} catch (err) {
-					console.error(err);
-					throw Error("(SM) Unable to get listing price");
-				}
-				return await listingWithSigner.makeOffer(listing, {
-					value: BigNumber.from(price),
-				});
+			// Ether amount to send
+			let price;
+			try {
+				price = await listingContract.getPriceForListing(listing);
+			} catch (err) {
+				console.error(err);
+				throw Error("(SM) Unable to get listing price");
+			}
+			const offer = await listingWithSigner.makeOffer(listing, {
+				value: BigNumber.from(price),
+			});
+
+			await offer.wait()
+			return offer;
 		} catch (err) {
 			console.error(err);
 			throw Error("(SM) Unable to get make offer");
@@ -269,7 +382,9 @@ class Web3Connection {
 		);
 
 		try {
-			return await listingWithSigner.acceptOffer(listing, buyer);
+			const offer =  await listingWithSigner.acceptOffer(listing, buyer);
+			await offer.wait()
+			return offer;
 		} catch (err) {
 			console.error(err, "err");
 			throw Error("(SM) Unable to accept offer");
@@ -288,11 +403,15 @@ class Web3Connection {
 		);
 
 		try {
-			return await listingWithSigner.confirmBuy(listing);
+			const buy =  await listingWithSigner.confirmBuy(listing);
+			await buy.wait()
+			return buy;
 		} catch (err) {
 			console.error(err, "err");
 			throw Error("(SM) Unable to confirm buy");
 		}
 	}
 }
-export default new Web3Connection();
+
+
+export default new Web3Connection();;
