@@ -7,6 +7,8 @@ import {
 } from "@heroicons/react/outline";
 import { XIcon } from "@heroicons/react/solid";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import getWeb3 from "../utils/getWeb3";
 
 const navigation = [
 	{ name: "Profile", icon: UserIcon, href: "/profile", current: false },
@@ -38,6 +40,19 @@ function classNames(...classes: any) {
 }
 
 export default function Sidebar({ setSidebarOpen }: any) {
+	const [currentAccount, setCurrentAccount] = useState("");
+
+	const setAccount = async () => {
+		try {
+			const account = await getWeb3.getAccounts();
+			setCurrentAccount(account);
+		} catch (err) {}
+	};
+
+	useEffect(() => {
+		setAccount();
+	}, []);
+
 	return (
 		<div className="h-full flex-1 flex flex-col min-h-0 bg-indigo-700">
 			<div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
@@ -105,17 +120,26 @@ export default function Sidebar({ setSidebarOpen }: any) {
 						<div>
 							<img
 								className="inline-block h-9 w-9 rounded-full"
-								src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+								src="/jazzicon.png"
 								alt=""
 							/>
 						</div>
 						<div className="ml-3">
 							<p className="text-sm font-medium text-white">
-								Tom Cook
+								{currentAccount.substring(0, 5) +
+									"..." +
+									currentAccount.substring(
+										currentAccount.length - 4,
+										currentAccount.length
+									)}
 							</p>
-							<p className="text-xs font-medium text-indigo-200 group-hover:text-white">
-								View profile
-							</p>
+							<Link href="/profile">
+								<button onClick={() => setSidebarOpen(false)}>
+									<p className="text-xs font-medium text-indigo-200 group-hover:text-white">
+										View profile
+									</p>
+								</button>
+							</Link>
 						</div>
 					</div>
 				</a>
