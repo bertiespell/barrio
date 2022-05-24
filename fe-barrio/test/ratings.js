@@ -378,3 +378,224 @@ contract("Ratings.leaveRating", function (accounts) {
 		assert(called);
 	});
 });
+
+contract("Ratings.leaveRating", function (accounts) {
+	it("returns an empty array when there are no ratings", async () => {
+		const alice = accounts[0];
+
+		const ratingContract = await Ratings.deployed();
+
+		const allBuyerRatings = await ratingContract.getBuyerRatings(alice, {
+			from: alice,
+			gasPrice: 0,
+		});
+		assert.equal(BigInt(allBuyerRatings), []);
+	});
+
+	it("returns true in an auction for sellerRatingAvailable and buyerRatingAvailable until the seller and buyer has rated", async () => {
+		const alice = accounts[1];
+		const bob = accounts[2];
+
+		const itemPrice = 2;
+
+		const listingContract = await Listings.deployed();
+		const ratingContract = await Ratings.deployed();
+
+		let buyerCanRate = await ratingContract.sellerRatingAvailable(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTvvvvv",
+			{ from: alice, gasPrice: 0 }
+		);
+		let sellerCanRate = await ratingContract.buyerRatingAvailable(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTvvvvv",
+			{ from: alice, gasPrice: 0 }
+		);
+		assert(!sellerCanRate);
+		assert(!buyerCanRate);
+
+		await listingContract.createListing(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTvvvvv",
+			itemPrice,
+			true,
+			false,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		buyerCanRate = await ratingContract.sellerRatingAvailable(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTvvvvv",
+			{ from: alice, gasPrice: 0 }
+		);
+		sellerCanRate = await ratingContract.buyerRatingAvailable(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTvvvvv",
+			{ from: alice, gasPrice: 0 }
+		);
+		assert(!sellerCanRate);
+		assert(!buyerCanRate);
+
+		await listingContract.makeOffer(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTvvvvv",
+			{ from: bob, value: itemPrice, gasPrice: 0 }
+		);
+
+		buyerCanRate = await ratingContract.sellerRatingAvailable(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTvvvvv",
+			{ from: alice, gasPrice: 0 }
+		);
+		sellerCanRate = await ratingContract.buyerRatingAvailable(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTvvvvv",
+			{ from: alice, gasPrice: 0 }
+		);
+		assert(!sellerCanRate);
+		assert(!buyerCanRate);
+
+		await listingContract.acceptOffer(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTvvvvv",
+			bob,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		buyerCanRate = await ratingContract.sellerRatingAvailable(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTvvvvv",
+			{ from: alice, gasPrice: 0 }
+		);
+		sellerCanRate = await ratingContract.buyerRatingAvailable(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTvvvvv",
+			{ from: alice, gasPrice: 0 }
+		);
+		assert(!sellerCanRate);
+		assert(!buyerCanRate);
+
+		await listingContract.confirmBuy(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTvvvvv",
+			{ from: bob, gasPrice: 0 }
+		);
+
+		buyerCanRate = await ratingContract.sellerRatingAvailable(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTvvvvv",
+			{ from: alice, gasPrice: 0 }
+		);
+		sellerCanRate = await ratingContract.buyerRatingAvailable(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTvvvvv",
+			{ from: alice, gasPrice: 0 }
+		);
+		assert(sellerCanRate);
+		assert(buyerCanRate);
+
+		// after they leave a rating then they can't rate again
+		await ratingContract.leaveBuyerRating(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTvvvvv",
+			3,
+			{ from: alice, gasPrice: 0 }
+		);
+		await ratingContract.leaveSellerRating(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTvvvvv",
+			3,
+			{ from: bob, gasPrice: 0 }
+		);
+
+		buyerCanRate = await ratingContract.sellerRatingAvailable(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTvvvvv",
+			{ from: alice, gasPrice: 0 }
+		);
+		sellerCanRate = await ratingContract.buyerRatingAvailable(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTvvvvv",
+			{ from: alice, gasPrice: 0 }
+		);
+		assert(!sellerCanRate);
+		assert(!buyerCanRate);
+	});
+
+	it("returns true in an standard listing for sellerRatingAvailable and buyerRatingAvailable until the seller and buyer has rated", async () => {
+		const alice = accounts[1];
+		const bob = accounts[2];
+
+		const itemPrice = 2;
+
+		const listingContract = await Listings.deployed();
+		const ratingContract = await Ratings.deployed();
+
+		let buyerCanRate = await ratingContract.sellerRatingAvailable(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTbbbbb",
+			{ from: alice, gasPrice: 0 }
+		);
+		let sellerCanRate = await ratingContract.buyerRatingAvailable(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTbbbbb",
+			{ from: alice, gasPrice: 0 }
+		);
+		assert(!sellerCanRate);
+		assert(!buyerCanRate);
+
+		await listingContract.createListing(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTbbbbb",
+			itemPrice,
+			false,
+			false,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		buyerCanRate = await ratingContract.sellerRatingAvailable(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTbbbbb",
+			{ from: alice, gasPrice: 0 }
+		);
+		sellerCanRate = await ratingContract.buyerRatingAvailable(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTbbbbb",
+			{ from: alice, gasPrice: 0 }
+		);
+		assert(!sellerCanRate);
+		assert(!buyerCanRate);
+
+		await listingContract.makeOffer(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTbbbbb",
+			{ from: bob, value: itemPrice, gasPrice: 0 }
+		);
+
+		buyerCanRate = await ratingContract.sellerRatingAvailable(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTbbbbb",
+			{ from: alice, gasPrice: 0 }
+		);
+		sellerCanRate = await ratingContract.buyerRatingAvailable(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTbbbbb",
+			{ from: alice, gasPrice: 0 }
+		);
+		assert(!sellerCanRate);
+		assert(!buyerCanRate);
+
+		await listingContract.confirmBuy(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTbbbbb",
+			{ from: bob, gasPrice: 0 }
+		);
+
+		buyerCanRate = await ratingContract.sellerRatingAvailable(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTbbbbb",
+			{ from: alice, gasPrice: 0 }
+		);
+		sellerCanRate = await ratingContract.buyerRatingAvailable(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTbbbbb",
+			{ from: alice, gasPrice: 0 }
+		);
+		assert(sellerCanRate);
+		assert(buyerCanRate);
+
+		// after they leave a rating then they can't rate again
+		await ratingContract.leaveBuyerRating(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTbbbbb",
+			3,
+			{ from: alice, gasPrice: 0 }
+		);
+		await ratingContract.leaveSellerRating(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTbbbbb",
+			3,
+			{ from: bob, gasPrice: 0 }
+		);
+
+		buyerCanRate = await ratingContract.sellerRatingAvailable(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTbbbbb",
+			{ from: alice, gasPrice: 0 }
+		);
+		sellerCanRate = await ratingContract.buyerRatingAvailable(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTbbbbb",
+			{ from: alice, gasPrice: 0 }
+		);
+		assert(!sellerCanRate);
+		assert(!buyerCanRate);
+	});
+});

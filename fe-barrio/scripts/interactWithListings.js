@@ -5,7 +5,7 @@ const Web3 = require("web3");
 
 const { abi, bytecode } = JSON.parse(
 	fs.readFileSync(
-		"/Users/berniesnell/Blockchain/barrio/fe-barrio/build/contracts/Listings.json"
+		"/Users/berniesnell/Blockchain/barrio/fe-barrio/build/contracts/Ratings.json"
 	)
 );
 
@@ -86,12 +86,36 @@ async function main() {
 	web3.eth.accounts.wallet.add(signer);
 
 	const address = process.env.LISTINGS_CONTRACT;
-	const listings = new web3.eth.Contract(abi, address);
+	// const listings = new web3.eth.Contract(abi, address);
+	const rating = new web3.eth.Contract(
+		abi,
+		"0xF787A55d2cA8EDe397443D258aFa7ED1b5036e8c"
+	);
 
 	// uncomment to use these methods on the smart contract
 	// await setInterval(604800);
 	// await createListing("QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps", 1);
-	await getAllListings();
+	// await getAllListings();
+
+	const sellerRatingAvailable = rating.methods
+		.sellerRatingAvailable(
+			"bafybeiencqnh3jee27xlau5yr2rcoyo46hkc5til4s6q3t6bxgnbwupnqi"
+		)
+		.encodeABI();
+
+	const tx = await web3.eth.sendTransaction(
+		{
+			from: signer.address,
+			to: "0xF787A55d2cA8EDe397443D258aFa7ED1b5036e8c",
+			gas: 30000000,
+			data: sellerRatingAvailable,
+		},
+		function (err, res) {
+			if (err) console.log(err, "ERR:sellerRatingAvailable");
+			if (res) console.log(res, "RES:sellerRatingAvailable");
+		}
+	);
+	console.log(tx, "TX:getListingsArray");
 }
 
 main();

@@ -1,30 +1,30 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.4.22 <0.9.0;
+pragma solidity 0.8.7;
 
 import "../contracts/AccessControl.sol";
 import "./Listings.sol";
 
 contract Ratings is AccessControl {
-    mapping(address => uint8[]) public sellerRatings;
-    mapping(address => uint8[]) public buyerRatings;
+    mapping(address => uint256[]) public sellerRatings;
+    mapping(address => uint256[]) public buyerRatings;
 
     mapping(string => bool) public ratedSellerListings;
     mapping(string => bool) public ratedBuyerListings;
 
     Listings public listingsContract;
 
-    event SellerRatingsUpdated(uint8[] ratings, address seller);
-    event BuyerRatingsUpdated(uint8[] ratings, address buyer);
+    event SellerRatingsUpdated(uint256[] ratings, address seller);
+    event BuyerRatingsUpdated(uint256[] ratings, address buyer);
 
-    event RatingRecieved(uint8 rating);
+    event RatingRecieved(uint256 rating);
 
     constructor(address _listingsContract) {
         listingsContract = Listings(_listingsContract);
     }
 
-    function leaveSellerRating(string memory ipfsHash, uint8 rating)
+    function leaveSellerRating(string memory ipfsHash, uint256 rating)
         public
-        returns (uint8[] memory)
+        returns (uint256[] memory)
     {
         (
             address payable sellerAddress,
@@ -48,10 +48,6 @@ contract Ratings is AccessControl {
             "A different final buyer exists for this listing"
         );
         require(
-            finalBuyer == msg.sender,
-            "A different final buyer exists for this listing"
-        );
-        require(
             ratedSellerListings[ipfsHash] == false,
             "A rating has already been left for the seller of this listing"
         );
@@ -65,11 +61,11 @@ contract Ratings is AccessControl {
         // if they used a third party, the reviews go to them
         if (useThirdPartyAddress != address(0x0)) {
             sellerRatings[useThirdPartyAddress].push(rating);
-            uint8[] memory ratings = new uint8[](
+            uint256[] memory ratings = new uint256[](
                 sellerRatings[useThirdPartyAddress].length
             );
             for (
-                uint8 i = 0;
+                uint256 i = 0;
                 i < sellerRatings[useThirdPartyAddress].length;
                 i++
             ) {
@@ -79,10 +75,10 @@ contract Ratings is AccessControl {
             return ratings;
         } else {
             sellerRatings[sellerAddress].push(rating);
-            uint8[] memory ratings = new uint8[](
+            uint256[] memory ratings = new uint256[](
                 sellerRatings[sellerAddress].length
             );
-            for (uint8 i = 0; i < sellerRatings[sellerAddress].length; i++) {
+            for (uint256 i = 0; i < sellerRatings[sellerAddress].length; i++) {
                 ratings[i] = sellerRatings[sellerAddress][i];
             }
             emit SellerRatingsUpdated(ratings, sellerAddress);
@@ -91,9 +87,9 @@ contract Ratings is AccessControl {
         }
     }
 
-    function leaveBuyerRating(string memory ipfsHash, uint8 rating)
+    function leaveBuyerRating(string memory ipfsHash, uint256 rating)
         public
-        returns (uint8[] memory)
+        returns (uint256[] memory)
     {
         (
             address payable sellerAddress,
@@ -125,8 +121,10 @@ contract Ratings is AccessControl {
 
         buyerRatings[finalBuyer].push(rating);
 
-        uint8[] memory ratings = new uint8[](buyerRatings[finalBuyer].length);
-        for (uint8 i = 0; i < buyerRatings[finalBuyer].length; i++) {
+        uint256[] memory ratings = new uint256[](
+            buyerRatings[finalBuyer].length
+        );
+        for (uint256 i = 0; i < buyerRatings[finalBuyer].length; i++) {
             ratings[i] = buyerRatings[finalBuyer][i];
         }
         emit BuyerRatingsUpdated(ratings, finalBuyer);
@@ -135,13 +133,33 @@ contract Ratings is AccessControl {
         return ratings;
     }
 
+    function sellerRatingAvailable(string memory ipfsHash)
+        public
+        view
+        returns (bool)
+    {
+        (, , , , , , bool bought, , ) = listingsContract.listings(ipfsHash);
+
+        return !ratedSellerListings[ipfsHash] && bought;
+    }
+
+    function buyerRatingAvailable(string memory ipfsHash)
+        public
+        view
+        returns (bool)
+    {
+        (, , , , , , bool bought, , ) = listingsContract.listings(ipfsHash);
+
+        return !ratedBuyerListings[ipfsHash] && bought;
+    }
+
     function getSellerRatings(address seller)
         public
         view
-        returns (uint8[] memory)
+        returns (uint256[] memory)
     {
-        uint8[] memory ratings = new uint8[](sellerRatings[seller].length);
-        for (uint8 i = 0; i < sellerRatings[seller].length; i++) {
+        uint256[] memory ratings = new uint256[](sellerRatings[seller].length);
+        for (uint256 i = 0; i < sellerRatings[seller].length; i++) {
             ratings[i] = sellerRatings[seller][i];
         }
         return ratings;
@@ -150,10 +168,10 @@ contract Ratings is AccessControl {
     function getBuyerRatings(address seller)
         public
         view
-        returns (uint8[] memory)
+        returns (uint256[] memory)
     {
-        uint8[] memory ratings = new uint8[](buyerRatings[seller].length);
-        for (uint8 i = 0; i < buyerRatings[seller].length; i++) {
+        uint256[] memory ratings = new uint256[](buyerRatings[seller].length);
+        for (uint256 i = 0; i < buyerRatings[seller].length; i++) {
             ratings[i] = buyerRatings[seller][i];
         }
         return ratings;

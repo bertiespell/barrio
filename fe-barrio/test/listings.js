@@ -1621,6 +1621,50 @@ contract("Listings.getDateForListing", function (accounts) {
 	});
 });
 
+contract("Listings.getIsThirdParty", function (accounts) {
+	it("should return whether the listing uses a third party", async () => {
+		const alice = accounts[0];
+		const bob = accounts[1];
+
+		const itemPrice = 2;
+
+		const listingContract = await Listings.deployed();
+
+		await listingContract.createListing(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			itemPrice,
+			true,
+			false,
+			{ from: alice, gasPrice: 0 }
+		);
+
+		await listingContract.createThirdPartyListing(
+			"ccccccSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+			itemPrice,
+			false,
+			false,
+			alice,
+			{ from: bob, gasPrice: 0 }
+		);
+
+		const isNotThirdPartyListing = await listingContract.getIsThirdParty(
+			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+
+			{ from: alice, gasPrice: 0 }
+		);
+
+		assert(!isNotThirdPartyListing);
+
+		const isThirdPartyListing = await listingContract.getIsThirdParty(
+			"ccccccSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
+
+			{ from: alice, gasPrice: 0 }
+		);
+
+		assert(isThirdPartyListing);
+	});
+});
+
 contract("Listings.getOfferForBuyerInAuction", function (accounts) {
 	it("getOfferForBuyerInAuction should fail if the buyer isn't in the list", async () => {
 		const alice = accounts[0];
