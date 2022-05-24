@@ -27,17 +27,31 @@ const ListingsProvider = ({ children }: any) => {
 			mappedData.map(async (listing: CardListing) => {
 				try {
 					const ethData = await getWeb3.getListingData(listing.id);
-					const offersMade = ethData["buyers"].map((buyer) => {
-						return {
-							user: buyer,
-							price: ethData.price,
-						};
-					});
+
+					const isAuction = ethData.isAuction;
+					let offersMade = [];
+					if (!isAuction) {
+						offersMade = ethData["buyers"].map((buyer) => {
+							return {
+								buyer,
+								price: ethData.price,
+							};
+						});
+					} else {
+						offersMade = ethData.auctionData?.offers;
+					}
 					const bought = ethData.bought;
+					const timestamp = ethData.timestamp;
+					const auctionData = ethData.auctionData;
+					const useThirdPartyAddress = ethData.useThirdPartyAddress;
 					return {
 						...listing,
 						offersMade,
 						bought,
+						isAuction,
+						timestamp,
+						auctionData,
+						useThirdPartyAddress,
 					};
 				} catch (e) {
 					console.warn(e);
@@ -88,6 +102,7 @@ const ListingsProvider = ({ children }: any) => {
 
 			try {
 				const withOffers = await getSmartContractData(mappedData);
+
 				setListings(withOffers);
 				setLoading(false);
 			} catch (err) {

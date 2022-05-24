@@ -15,16 +15,10 @@ const features = [
 	{
 		name: "Auction",
 		description: "Get the best deal by participating in an auction.",
-		inDevelopment: true,
+		inDevelopment: false,
 	},
 	{
-		name: "Pay in USD",
-		description:
-			"Buy and sell with confidence by listing the sale price in USD.",
-		inDevelopment: true,
-	},
-	{
-		name: "IPFS Image data",
+		name: "Filecoin Image data",
 		description: "Listing images are stored securely in IPFS.",
 		inDevelopment: false,
 	},
@@ -38,6 +32,18 @@ const features = [
 		name: "Trusted Third Party Exchanges",
 		description:
 			"Allow a trusted third party such as a shop, estate agent or auction house to complete the exchange.",
+		inDevelopment: false,
+	},
+	{
+		name: "Chainlink Keeper Refunds",
+		description:
+			"Ensure your unsuccessful bids are always refunded after the sale window ends.",
+		inDevelopment: false,
+	},
+	{
+		name: "Pay in USD",
+		description:
+			"Buy and sell with confidence by listing the sale price in USD.",
 		inDevelopment: true,
 	},
 	{

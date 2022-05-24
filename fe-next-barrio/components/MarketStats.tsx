@@ -19,10 +19,10 @@ export default function MarketStats() {
 					<p className="mt-6 text-lg text-gray-500">
 						Every time we buy a new item we leave a small footprint
 						on the planet. We must find ways to reuse what we
-						already have, to avoid wasting resourses that just end
+						already have, to avoid wasting resources that just end
 						up in landfill. Buying pre-loved items reduces the
 						impact we have on the planet, and encourages a more
-						resillient local economy. For the global adoption of
+						resilient local economy. For the global adoption of
 						cryptocurrencies, we need to build paths towards
 						sustainable spending.
 					</p>

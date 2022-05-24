@@ -45,7 +45,7 @@ export default function MyOffers() {
 		const filteredListings = listings?.filter((product) =>
 			product.offersMade.find(
 				(offer) =>
-					offer.user.toLowerCase() === currentAccount.toLowerCase()
+					offer.buyer.toLowerCase() === currentAccount.toLowerCase()
 			)
 		);
 
@@ -98,16 +98,27 @@ export default function MyOffers() {
 														scope="col"
 														className="sticky top-0 z-10 hidden border-b border-gray-300 bg-gray-50 bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter lg:table-cell"
 													>
-														Seller
+														<span className="sr-only">
+															Seller
+														</span>
 													</th>
 													<th
 														scope="col"
 														className="sticky top-0 z-10 hidden border-b border-gray-300 bg-gray-50 bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter lg:table-cell"
 													>
 														<span className="sr-only">
-															Seller
+															Highest Bid
 														</span>
 													</th>
+
+													{/* <th
+														scope="col"
+														className="sticky top-0 z-10 hidden border-b border-gray-300 bg-gray-50 bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter lg:table-cell"
+													>
+														<span className="sr-only">
+															Send Message
+														</span>
+													</th> */}
 													<th
 														scope="col"
 														className="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 pr-4 pl-3 backdrop-blur backdrop-filter sm:pr-6 lg:pr-8"
@@ -179,10 +190,42 @@ export default function MyOffers() {
 																	"whitespace-nowrap px-3 py-4 text-sm text-gray-500 hidden lg:table-cell"
 																)}
 															>
-																<button className="text-indigo-600 hover:text-indigo-900">
-																	Send Message
-																</button>
+																{listing.isAuction ? (
+																	<>
+																		{listing.auctionData?.highestBidder.toLowerCase() ===
+																		currentAccount.toLowerCase() ? (
+																			<>
+																				<span className="m-3 inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800">
+																					Highest
+																					bid!
+																				</span>
+																			</>
+																		) : (
+																			<span className="pl-3 inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-red-100 text-red-800">
+																				Low
+																				Offer
+																			</span>
+																		)}
+																	</>
+																) : (
+																	""
+																)}
 															</td>
+
+															{/* <td
+																className={classNames(
+																	listingIdx !==
+																		listings.length -
+																			1
+																		? "border-b border-gray-200"
+																		: "",
+																	"whitespace-nowrap px-3 py-4 text-sm text-gray-500 hidden lg:table-cell"
+																)}
+															>
+																<button className="text-indigo-600 hover:text-indigo-900">
+																	Message
+																</button>
+															</td> */}
 
 															<td
 																className={classNames(

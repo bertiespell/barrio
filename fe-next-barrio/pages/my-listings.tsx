@@ -20,7 +20,8 @@ export default function MyListings() {
 		getWeb3.currentAccount
 	);
 	const [showOffers, setShowOffers] = useState(false);
-	const [offers, setOffers] = useState<Array<Offer>>([]);
+	const [showOffersForListing, setShowOffersForListing] =
+		useState<CardListing>();
 
 	const [showMetamaskError, setShowMetamaskError] = useState(false);
 	const [metaMaskShown, setMetaMaskShown] = useState(false);
@@ -36,6 +37,11 @@ export default function MyListings() {
 				setMetaMaskShown(true);
 			}
 		}
+	};
+
+	const showOffersModal = (listing: CardListing) => {
+		if (!listing.auctionData && listing.offersMade.length) return true;
+		return !listing.auctionData?.isAccepted;
 	};
 
 	useEffect(() => {
@@ -140,9 +146,23 @@ export default function MyListings() {
 																"whitespace-nowrap px-3 py-4 text-sm text-gray-500 hidden lg:table-cell"
 															)}
 														>
-															{listing.offersMade
-																.length ? (
-																// TODO: sort this based on offers with prices in an auction
+															{listing.isAuction ? (
+																<>
+																	{listing
+																		.auctionData
+																		?.isAccepted ? (
+																		"Accepted offer Check"
+																	) : (
+																		<></>
+																	)}
+																</>
+															) : (
+																<></>
+															)}
+
+															{showOffersModal(
+																listing
+															) ? (
 																<Link
 																	href={`#`}
 																>
@@ -152,18 +172,11 @@ export default function MyListings() {
 																			e
 																		) => {
 																			e.preventDefault();
-																			setOffers(
-																				listing.offersMade.map(
-																					(
-																						offer
-																					) => ({
-																						user: offer.user,
-																						price: listing.price,
-																					})
-																				)
-																			);
 																			setShowOffers(
 																				true
+																			);
+																			setShowOffersForListing(
+																				listing
 																			);
 																		}}
 																	>
@@ -179,6 +192,13 @@ export default function MyListings() {
 																</Link>
 															) : (
 																"No offers received"
+															)}
+															{listing.isAuction ? (
+																<span className="ml-5 inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+																	Auction
+																</span>
+															) : (
+																<></>
 															)}
 														</td>
 
@@ -258,7 +278,7 @@ export default function MyListings() {
 			<OffersModal
 				open={showOffers}
 				setOpen={setShowOffers}
-				offers={offers}
+				listing={showOffersForListing as CardListing}
 			/>
 			<ErrorAlert
 				open={showMetamaskError}

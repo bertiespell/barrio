@@ -125,9 +125,10 @@ export default function NewListing() {
 			setLoading(false);
 			return;
 		}
+		await getAllProducts();
 
-		getAllProducts();
 		setNewListingCid(listing.metadata.imageFilesCID);
+
 		setAlert({
 			title: "Listing created!",
 			message:
