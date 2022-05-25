@@ -25,9 +25,7 @@ class DatabaseConnection {
 		const orbitdb = await OrbitDB.createInstance(ipfs);
 
 		// Connect to a DB instance
-		const db = await orbitdb.open(
-			"/orbitdb/zdpuAx3sv6CNRJwcPkdpsR3HQzpaFN8DuvySWsUEsgm63zPqu/listings-database"
-		);
+		const db = await orbitdb.open(process.env.ORBIT_DB_ADDRESS);
 
 		await db.load();
 

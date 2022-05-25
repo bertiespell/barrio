@@ -26,6 +26,7 @@ async function main() {
 	const db = await orbitdb.keyvalue("listings-database", options);
 	console.log(db.address.toString(), "Db address");
 	const identity = db.identity;
+	process.env.ORBIT_DB_ADDRESS = db.address.toString();
 	console.log(identity.toJSON(), "DB identity");
 	process.exit();
 }
