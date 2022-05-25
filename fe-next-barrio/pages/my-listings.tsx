@@ -39,14 +39,29 @@ export default function MyListings() {
 		}
 	};
 
-	const showOffersModal = (listing: CardListing) => {
-		if (
-			!listing.auctionData &&
-			listing.offersMade.length &&
-			!listing.bought
-		)
+	const showListingState = (listing: CardListing) => {
+		const shouldShowOffersForAuction = (listing: CardListing) => {
+			if (listing.isAuction) return !listing.auctionData?.isAccepted;
 			return true;
-		return !listing.auctionData?.isAccepted;
+		};
+
+		const showOffers =
+			!listing.bought &&
+			listing.offersMade.length &&
+			shouldShowOffersForAuction(listing);
+		const showCompleted = listing.bought;
+		const showNoOffersRecieved =
+			!listing.bought && !listing.offersMade.length;
+		const showAuctionLabel = listing.isAuction;
+		const showOfferAlreadyAccepted =
+			!shouldShowOffersForAuction(listing) && listing.isAuction;
+		return {
+			showAuctionLabel,
+			showNoOffersRecieved,
+			showOfferAlreadyAccepted,
+			showCompleted,
+			showOffers,
+		};
 	};
 
 	useEffect(() => {
@@ -127,7 +142,10 @@ export default function MyListings() {
 																"whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8"
 															)}
 														>
-															{listing.name}
+															{`${listing.name.substring(
+																0,
+																20
+															)}...`}
 														</td>
 														<td
 															className={classNames(
@@ -154,10 +172,14 @@ export default function MyListings() {
 																"whitespace-nowrap px-3 py-4 text-sm text-gray-500 hidden lg:table-cell"
 															)}
 														>
-															{!listing.bought ? (
+															{!showListingState(
+																listing
+															).showCompleted ? (
 																<>
-																	{listing.isAuction &&
-																	!listing.bought ? (
+																	{showListingState(
+																		listing
+																	)
+																		.showOfferAlreadyAccepted ? (
 																		<>
 																			{listing
 																				.auctionData
@@ -173,9 +195,10 @@ export default function MyListings() {
 																		<></>
 																	)}
 
-																	{showOffersModal(
+																	{showListingState(
 																		listing
-																	) ? (
+																	)
+																		.showOffers ? (
 																		<Link
 																			href={`#`}
 																		>
@@ -197,16 +220,26 @@ export default function MyListings() {
 																				Offers
 																				<span className="sr-only">
 																					,{" "}
-																					{
-																						listing.name
-																					}
+																					{`${listing.name.substring(
+																						0,
+																						20
+																					)}...`}
 																				</span>
 																			</a>
 																		</Link>
 																	) : (
-																		"No offers received"
+																		""
 																	)}
-																	{listing.isAuction ? (
+																	{showListingState(
+																		listing
+																	)
+																		.showNoOffersRecieved
+																		? "No offers received"
+																		: ""}
+																	{showListingState(
+																		listing
+																	)
+																		.showAuctionLabel ? (
 																		<span className="ml-5 inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
 																			Auction
 																		</span>
@@ -240,9 +273,10 @@ export default function MyListings() {
 																	View
 																	<span className="sr-only">
 																		,{" "}
-																		{
-																			listing.name
-																		}
+																		{`${listing.name.substring(
+																			0,
+																			20
+																		)}...`}
 																	</span>
 																</a>
 															</Link>

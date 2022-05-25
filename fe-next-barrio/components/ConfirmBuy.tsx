@@ -100,10 +100,14 @@ export default function ConfirmBuy({ open, setOpen, listing }: any) {
 													you or your trusted third
 													party are in possession of
 													this item (
-													<b>{listing.name}</b>). This
-													action transfers funds to
-													the seller&rsquo;s ethereum
-													wallet and cannot be undone.
+													<b>{`${listing?.name?.substring(
+														0,
+														20
+													)}...`}</b>
+													). This action transfers
+													funds to the seller&rsquo;s
+													ethereum wallet and cannot
+													be undone.
 												</p>
 											</div>
 										</div>

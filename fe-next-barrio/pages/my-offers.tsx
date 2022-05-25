@@ -155,7 +155,10 @@ export default function MyOffers() {
 																	"whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8"
 																)}
 															>
-																{listing.name}
+																{`${listing.name.substring(
+																	0,
+																	20
+																)}...`}
 															</td>
 															<td
 																className={classNames(
@@ -249,9 +252,10 @@ export default function MyOffers() {
 																		Listing
 																		<span className="sr-only">
 																			,{" "}
-																			{
-																				listing.name
-																			}
+																			{`${listing.name.substring(
+																				0,
+																				20
+																			)}...`}
 																		</span>
 																	</a>
 																</Link>
