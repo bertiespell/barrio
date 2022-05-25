@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import LoadingSpinner from "../components/LoadingSpinner";
 
 import getWeb3 from "../utils/getWeb3";
 
@@ -27,15 +26,7 @@ const AccountsProvider = ({ children }: any) => {
 				getAccounts,
 			}}
 		>
-			{loading ? (
-				<div className="max-w-7xl mx-auto pt-20 pb-20 px-4 sm:px-6 lg:px-8">
-					<div className="px-4 sm:px-6 lg:px-8">
-						<LoadingSpinner />
-					</div>
-				</div>
-			) : (
-				children
-			)}
+			{children}
 		</AccountsContext.Provider>
 	);
 };

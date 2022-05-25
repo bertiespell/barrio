@@ -1,23 +1,33 @@
 import Link from "next/link";
-import { useState } from "react";
-import getWeb3 from "../utils/getWeb3";
+import { useContext, useEffect, useState } from "react";
+import { AccountsContext } from "../context/accounts";
+import { ListingsContext } from "../context/listings";
+
 import ErrorAlert from "./ErrorAlert";
 import SuccessAlert from "./SuccessAlert";
 
 export default function LandingPageHeader() {
+	const { getAllProducts } = useContext<{
+		getAllProducts: any;
+	}>(ListingsContext as any);
+
 	const [showMetamaskEnabled, setShowMetamaskEnabled] = useState(false);
 	const [showMetamaskError, setShowMetamaskError] = useState(false);
-	const [account, setAccount] = useState("");
+	const { account, getAccounts } = useContext(AccountsContext as any);
 
 	const enableMetamask = async () => {
 		try {
-			const newAccount = await getWeb3.getAccounts();
-			setAccount(newAccount);
+			await getAccounts();
 			setShowMetamaskEnabled(true);
 		} catch (err) {
 			setShowMetamaskError(true);
 		}
 	};
+
+	useEffect(() => {
+		getAllProducts();
+	}, []);
+
 	return (
 		<div className="relative bg-white overflow-hidden">
 			<div className="max-w-7xl mx-auto">
