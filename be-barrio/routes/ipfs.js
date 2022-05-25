@@ -10,6 +10,7 @@ var listingsCache = new cache();
 const cacheTime = 726000000; // two hours
 
 const storage = new Web3Storage({ token: process.env.WEB3STORAGE_TOKEN });
+const orbitAuth = process.env.ORBIT_AUTH;
 
 /* Get a listing from web3.storage ipfs */
 router.get("/", async function (req, res, next) {
@@ -21,15 +22,55 @@ router.get("/:cid", async function (req, res, next) {
 	await retrieveFilesFromIpfs(req, res);
 });
 
-/* Get a listing from web3.storage ipfs */
-router.delete("/:cid", async function (req, res, next) {
-	await deleteFiles(req, res);
-});
-
 /* Store a new listing in web3.storage ipfs */
 router.post("/", async function (req, res, next) {
 	await storeFilesInIpfs(req, res);
 });
+
+/* Delete a listing from web3.storage ipfs */
+router.delete("/:cid", async function (req, res, next) {
+	if (!req.headers.authorization) {
+		return res.status(403).json({ error: "No credentials sent!" });
+	} else {
+		if (req.headers.authorization !== orbitAuth) {
+			return res.status(403).json({ error: "Wrong password" });
+		} else {
+			if (!req.params.cid) {
+				res.send({
+					status: false,
+					message: "No CID provided",
+				});
+			} else {
+				await deleteFiles(res, req.params.cid);
+				res.send("Record deleted");
+			}
+		}
+	}
+});
+
+/* Delete all listings */
+router.delete("/all/records", async function (req, res, next) {
+	if (!req.headers.authorization) {
+		return res.status(403).json({ error: "No credentials sent!" });
+	} else {
+		if (req.headers.authorization !== orbitAuth) {
+			return res.status(403).json({ error: "Wrong password" });
+		} else {
+			await deleteAll();
+			res.send("All records deleted");
+		}
+	}
+});
+
+async function deleteAll() {
+	const db = await getDb();
+	const allListings = await db.all;
+	return await Promise.all(
+		Object.keys(allListings).map(async (key) => {
+			await deleteWithCid(key);
+		})
+	);
+}
 
 async function storeFilesInIpfs(req, res) {
 	try {
@@ -61,10 +102,11 @@ async function storeFilesInIpfs(req, res) {
 					// move photo to uploads directory
 					const path = "./uploads/" + file.name;
 
-					file.mv(path);
+					await file.mv(path);
 
 					try {
 						const pathFiles = await getFilesFromPath(path);
+
 						fileData.push(...pathFiles);
 					} catch (err) {
 						console.error(err);
@@ -84,9 +126,6 @@ async function storeFilesInIpfs(req, res) {
 				// Add to OrbitDB - using key-value store, where cid is the key
 				const db = await getDb();
 
-				const currentDate = new Date();
-				const timestamp = currentDate.getTime();
-
 				try {
 					const metadata = {
 						price: req.body.price,
@@ -97,8 +136,8 @@ async function storeFilesInIpfs(req, res) {
 						fileNames,
 						user: req.body.user,
 						preferences: req.body.preferences,
-						date: timestamp,
 					};
+
 					// save the listing data in orbitDB using the ipfs image hash as a unique identifier
 					await db.put(cid, metadata);
 
@@ -106,10 +145,6 @@ async function storeFilesInIpfs(req, res) {
 						files: fileData,
 						metadata,
 					};
-					console.log(
-						"Saving data in cache, then returning",
-						listingData
-					);
 
 					// cache the data
 					listingsCache.set(cid, listingData, cacheTime);
@@ -152,22 +187,17 @@ async function retrieveFilesFromIpfs(req, res) {
 const getAndCacheFile = async (req, cid) => {
 	const cachedValue = listingsCache.get(cid);
 	if (cachedValue) {
-		console.log("Cached value found: ", cachedValue);
 		return cachedValue;
 	}
 
 	try {
 		const result = await storage.get(cid);
-		console.log(`Got a response! [${result.status}] ${result.statusText}`);
 		if (!result.ok) {
 			throw new Error(`failed to get ${cid}`);
 		}
 
 		// unpack File objects from the response
 		const files = await result.files();
-		for (const file of files) {
-			console.log(`${file.cid} -- ${file.name} -- ${file.size}`);
-		}
 
 		// Also send the metadata from OrbitDB
 		const db = await getDb();
@@ -201,54 +231,50 @@ async function retrieveAllFiles(req, res) {
 	}
 }
 
-async function deleteFiles(req, res) {
-	// TODO: need to validate/authorise this properly
-	const cid = req.params.cid;
-
-	if (!cid) {
-		res.send({
-			status: false,
-			message: "No CID provided",
-		});
-	} else {
-		try {
-			let error;
-			// delete from db
-			try {
-				const db = await getDb();
-				await db.del(cid);
-			} catch (err) {
-				console.error(err);
-				error = err;
-			}
-
-			// delete from cache
-			try {
-				await listingsCache.del(cid);
-			} catch (err) {
-				console.error(err);
-				error = err;
-			}
-
-			// delete from ipfs
-			try {
-				// delete isn't implemented in storage yet
-				// await storage.delete(cid);
-			} catch (err) {
-				console.error(err);
-				error = err;
-			}
-			if (error) {
-				res.status(500).send(error);
-			} else {
-				res.status(200).send("Record deleted");
-			}
-		} catch (err) {
-			console.error(err);
-			res.status(500).send(err);
+async function deleteFiles(res, cid) {
+	try {
+		const error = await deleteWithCid(cid);
+		if (error) {
+			res.status(500).send(error);
+		} else {
+			res.status(200).send("Record deleted");
 		}
+	} catch (err) {
+		console.error(err);
+		res.status(500).send(err);
 	}
 }
+
+const deleteWithCid = async (cid) => {
+	let error;
+	// delete from db
+	try {
+		const db = await getDb();
+		await db.del(cid);
+	} catch (err) {
+		console.error(err);
+		error = err;
+	}
+
+	// delete from cache
+	try {
+		await listingsCache.del(cid);
+	} catch (err) {
+		console.error(err);
+		error = err;
+	}
+
+	// delete from ipfs
+	try {
+		// delete isn't implemented in storage yet
+		// await storage.delete(cid);
+	} catch (err) {
+		console.error(err);
+		error = err;
+	}
+
+	return error;
+};
 
 const validateRequest = (req) => {
 	const validated = {
