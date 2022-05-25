@@ -40,7 +40,12 @@ export default function MyListings() {
 	};
 
 	const showOffersModal = (listing: CardListing) => {
-		if (!listing.auctionData && listing.offersMade.length) return true;
+		if (
+			!listing.auctionData &&
+			listing.offersMade.length &&
+			!listing.bought
+		)
+			return true;
 		return !listing.auctionData?.isAccepted;
 	};
 
@@ -134,7 +139,10 @@ export default function MyListings() {
 																"whitespace-nowrap text-ellipsis px-3 py-4 text-sm text-gray-500 hidden sm:table-cell"
 															)}
 														>
-															{`${listing.description}`}
+															{`${listing.description.substring(
+																0,
+																40
+															)}...`}
 														</td>
 														<td
 															className={classNames(
@@ -146,7 +154,8 @@ export default function MyListings() {
 																"whitespace-nowrap px-3 py-4 text-sm text-gray-500 hidden lg:table-cell"
 															)}
 														>
-															{listing.isAuction ? (
+															{listing.isAuction &&
+															!listing.bought ? (
 																<>
 																	{listing
 																		.auctionData
