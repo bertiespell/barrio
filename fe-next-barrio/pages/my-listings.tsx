@@ -154,60 +154,72 @@ export default function MyListings() {
 																"whitespace-nowrap px-3 py-4 text-sm text-gray-500 hidden lg:table-cell"
 															)}
 														>
-															{listing.isAuction &&
-															!listing.bought ? (
+															{!listing.bought ? (
 																<>
-																	{listing
-																		.auctionData
-																		?.isAccepted ? (
-																		"Accepted offer Check"
+																	{listing.isAuction &&
+																	!listing.bought ? (
+																		<>
+																			{listing
+																				.auctionData
+																				?.isAccepted ? (
+																				"Offer accepted"
+																			) : (
+																				<>
+
+																				</>
+																			)}
+																		</>
+																	) : (
+																		<></>
+																	)}
+
+																	{showOffersModal(
+																		listing
+																	) ? (
+																		<Link
+																			href={`#`}
+																		>
+																			<a
+																				className="text-indigo-600 hover:text-indigo-900"
+																				onClick={(
+																					e
+																				) => {
+																					e.preventDefault();
+																					setShowOffers(
+																						true
+																					);
+																					setShowOffersForListing(
+																						listing
+																					);
+																				}}
+																			>
+																				View
+																				Offers
+																				<span className="sr-only">
+																					,{" "}
+																					{
+																						listing.name
+																					}
+																				</span>
+																			</a>
+																		</Link>
+																	) : (
+																		"No offers received"
+																	)}
+																	{listing.isAuction ? (
+																		<span className="ml-5 inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+																			Auction
+																		</span>
 																	) : (
 																		<></>
 																	)}
 																</>
 															) : (
-																<></>
-															)}
-
-															{showOffersModal(
-																listing
-															) ? (
-																<Link
-																	href={`#`}
-																>
-																	<a
-																		className="text-indigo-600 hover:text-indigo-900"
-																		onClick={(
-																			e
-																		) => {
-																			e.preventDefault();
-																			setShowOffers(
-																				true
-																			);
-																			setShowOffersForListing(
-																				listing
-																			);
-																		}}
-																	>
-																		View
-																		Offers
-																		<span className="sr-only">
-																			,{" "}
-																			{
-																				listing.name
-																			}
-																		</span>
+																<>
+																	<a className="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800">
+																		Completed
 																	</a>
-																</Link>
-															) : (
-																"No offers received"
-															)}
-															{listing.isAuction ? (
-																<span className="ml-5 inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
-																	Auction
-																</span>
-															) : (
-																<></>
+																</>
 															)}
 														</td>
 
