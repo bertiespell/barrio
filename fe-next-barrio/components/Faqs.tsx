@@ -4,11 +4,80 @@ import { ChevronDownIcon } from "@heroicons/react/outline";
 const faqs = [
 	{
 		question: "Why use Barrio?",
-		answer: "We produce a colossal amount of goods every year, rather than ending up in landfill it is better for the planet to provide ways to re-sell and re-use items. Barrio leverages the escrow functionality of smart contracts with a blockchain based reputational proof to allow people to exchange goods with confidence. The second hand market is huge, but there is currently no way to buy and sell individual goods (or handcraft items) with crypto. Since our smart contracts store the ipfs hash of the image of the item, it also provides the dual functionality of showing proof of purchase (which may be useful later for insurance claims) as well as proof of provenance which can be useful in the reselling of art, antiques or collectibles.",
+		answer: (
+			<div>
+				<p className="pt-3 pb-3">
+					We produce a colossal amount of goods every year, rather
+					than ending up in landfill it is better for the planet to
+					provide ways to re-sell and re-use items. Barrio leverages
+					the escrow functionality of smart contracts with a
+					blockchain based reputational proof to allow people to
+					exchange goods with confidence.
+				</p>
+				<p className="pt-3 pb-3">
+					The second hand market is huge, but there is currently no
+					way to buy and sell individual goods (or handcraft items)
+					with crypto. Since our smart contracts store the ipfs hash
+					of the image of the item, it also provides the dual
+					functionality of showing proof of purchase (which may be
+					useful later for insurance claims) as well as proof of
+					provenance which can be useful in the reselling of art,
+					antiques or collectibles.
+				</p>
+			</div>
+		),
 	},
 	{
 		question: "How does Barrio work?",
-		answer: "TODO.",
+		answer: (
+			<div>
+				<p className="pt-3 pb-3">
+					Barrio allows users to list items or services for sale, and
+					to make offers on these items.
+				</p>
+				<p className="pt-3 pb-3">
+					It provides two ways of doing this: either a standard
+					listing or an auction.
+				</p>
+				<p className="pt-3 pb-3">
+					In a standard listing the price is set, and after making an
+					offer, buyers arrange with the seller to organize the
+					exchange. During the exchange, when the buyer is in
+					possession of the items they can &ldquo;Confirm the
+					purchase&rdquo; in the app - which the buyer can then verify
+					before parting ways. Once a purchase is confirmed, any
+					unsuccessful offers are refunded.
+				</p>
+				<p className="pt-3 pb-3">
+					Listings are currently kept for seven days - if nobody
+					confirms a buy in this time, Chainlink Keepers are used to
+					refund all buyers.
+				</p>
+				<p className="pt-3 pb-3">
+					In an auction, the listed price is a minimum, and buyers are
+					able to offer any amount above this. For the seller, there
+					is an additional step since they must accept an offer before
+					the buyer can confirm the purchase.
+				</p>
+				<p className="pt-3 pb-3">
+					For any type of listing, the seller may provide the Ethereum
+					wallet address of a trusted third party, such as an estate
+					agent, auction house or possibly a local shop. They leave
+					their item with the third party, who handles the rest of the
+					transactions for them. Usually, the buyer will pick somebody
+					a seller is also likely to trust, so that the goods can be
+					exchanged easily.
+				</p>
+				<p className="pt-3 pb-3">
+					After a purchase is confirmed, the buyer and seller are now
+					able to leave a review of each other. Over time, users
+					increase their reputation by accumulating positive ratings,
+					which facilitates new types of trade, such as exchange via
+					post. With a high enough rating, a buyer may feel confident
+					enough to confirm a purchase before receiving the goods.
+				</p>
+			</div>
+		),
 	},
 	{
 		question:
@@ -21,7 +90,26 @@ const faqs = [
 	},
 	{
 		question: 'What\'s a "third party" listing?',
-		answer: "Sometimes you may want to use a trusted third party to complete the sale for you. In these cases, rather than the buyer and seller meeting up directly to exchange the goods, the physical items are held in escrow by a trusted third party. This is especially useful for estate agents or auction houses, who may be the intermediary in possession of an item. Alternatively, you may choose to leave your item with a local shop, or a third party service provider. In the future, we'd love to see an decentralized IoT Amazon-style locker, which is able to securely hold the goods, and trigger smart contract fund releases.",
+		answer: (
+			<div>
+				<p className="pt-3 pb-3">
+					Sometimes you may want to use a trusted third party to
+					complete the sale for you. In these cases, rather than the
+					buyer and seller meeting up directly to exchange the goods,
+					the physical items are held in escrow by a trusted third
+					party.
+				</p>
+				<p className="pt-3 pb-3">
+					This is especially useful for estate agents or auction
+					houses, who may be the intermediary in possession of an
+					item. Alternatively, you may choose to leave your item with
+					a local shop, or a third party service provider. In the
+					future, we&quot;d love to see an decentralized IoT
+					Amazon-style locker, which is able to securely hold the
+					goods, and trigger smart contract fund releases.
+				</p>
+			</div>
+		),
 	},
 	{
 		question: "What if I get outbid?",
@@ -85,9 +173,9 @@ export default function FAQs() {
 											as="dd"
 											className="mt-2 pr-12"
 										>
-											<p className="text-base text-gray-500">
+											<div className="text-base text-gray-500">
 												{faq.answer}
-											</p>
+											</div>
 										</Disclosure.Panel>
 									</>
 								)}

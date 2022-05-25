@@ -44,7 +44,7 @@ contract Listings is AccessControl, KeeperCompatible {
     event BuyConfirmed(address buyerAddress, string ipfsHash, uint256 amount);
 
     uint256 public lastTimeStamp;
-    uint256 public interval = 604800;
+    uint256 public interval = 604800000;
 
     constructor() {
         lastTimeStamp = block.timestamp;
