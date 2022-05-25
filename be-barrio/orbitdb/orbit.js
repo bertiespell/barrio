@@ -1,5 +1,8 @@
 const IPFS = require("ipfs");
 const OrbitDB = require("orbit-db");
+const fs = require("fs");
+
+const creds = fs.readFileSync("creds.json");
 
 // Uses a singleton pattern to construct, load and get database
 class DatabaseConnection {
@@ -25,7 +28,8 @@ class DatabaseConnection {
 		const orbitdb = await OrbitDB.createInstance(ipfs);
 
 		// Connect to a DB instance
-		const db = await orbitdb.open(process.env.ORBIT_DB_ADDRESS);
+		console.log("Connecting...", JSON.parse(creds.toString()).address);
+		const db = await orbitdb.open(JSON.parse(creds.toString()).address);
 
 		await db.load();
 

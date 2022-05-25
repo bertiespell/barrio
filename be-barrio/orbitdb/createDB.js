@@ -1,5 +1,6 @@
 const IPFS = require("ipfs");
 const OrbitDB = require("orbit-db");
+const fs = require("fs");
 
 // This just needs to be run once to create the DB locally
 // Otherwise we connect to an existing one
@@ -19,15 +20,13 @@ async function main() {
 				orbitdb.identity.id,
 			],
 		},
-		// overwrite: true,
-		// replicate: false,
-		// meta: { hello: "meta hello" },
 	};
 	const db = await orbitdb.keyvalue("listings-database", options);
-	console.log(db.address.toString(), "Db address");
-	const identity = db.identity;
+	fs.writeFileSync(
+		"creds.json",
+		JSON.stringify({ address: db.address.toString() })
+	);
 	process.env.ORBIT_DB_ADDRESS = db.address.toString();
-	console.log(identity.toJSON(), "DB identity");
 	process.exit();
 }
 

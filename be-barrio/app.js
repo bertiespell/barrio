@@ -10,6 +10,7 @@ var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 var ipfsRouter = require("./routes/ipfs");
 const rateLimit = require("express-rate-limit");
+const fs = require("fs");
 
 const limiter = rateLimit({
 	windowMs: 10000, // 10 seconds
