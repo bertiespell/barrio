@@ -102,8 +102,8 @@ export default function ConfirmBuy({ open, setOpen, listing }: any) {
 													this item (
 													<b>{listing.name}</b>). This
 													action transfers funds to
-													the seller's ethereum wallet
-													and cannot be undone.
+													the seller&rsquo;s ethereum
+													wallet and cannot be undone.
 												</p>
 											</div>
 										</div>

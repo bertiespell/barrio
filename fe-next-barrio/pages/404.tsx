@@ -26,10 +26,10 @@ export default function NotFoundPage() {
 								Page not found.
 							</h1>
 							<p className="mt-2 text-base text-gray-500 pt-5">
-								Sorry, we couldn’t find the page you’re looking.
-								This website is under heavy development, the
-								page you're after is probably not implemented
-								yet. for.
+								Sorry, we couldn&rsquo;t find the page
+								you&rsquo;re looking. This website is under
+								heavy development, the page you&rsquo;re after
+								is probably not implemented yet.
 							</p>
 							<div className="mt-6">
 								<Link href="/listings">

@@ -66,12 +66,12 @@ export default function MyOffers() {
 								Your Offers
 							</h1>
 							<p className="mt-2 text-sm text-gray-700">
-								View everything that you've made an offer on.
-								Once you've made an offer, you'll need to
-								coordinate with the seller to finalize the
-								exchange. You can either meet up in person, or
-								leave the funds and goods with a trusted third
-								party.
+								View everything that you&rsquo;ve made an offer
+								on. Once you&rsquo;ve made an offer,
+								you&rsquo;ll need to coordinate with the seller
+								to finalize the exchange. You can either meet up
+								in person, or leave the funds and goods with a
+								trusted third party.
 							</p>
 						</div>
 					</div>

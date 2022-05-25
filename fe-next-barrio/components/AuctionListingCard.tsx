@@ -192,8 +192,8 @@ export default function AuctionListingCard({
 											""
 										) : (
 											<p className="text-s text-gray-500">
-												This seller hasn't recieved any
-												ratings yet
+												This seller hasn&rsquo;t
+												recieved any ratings yet
 											</p>
 										)}
 									</div>
@@ -277,7 +277,7 @@ export default function AuctionListingCard({
 																		className="mt-2 text-sm text-gray-500"
 																		id="email-description"
 																	>
-																		You'll
+																		You&rsquo;ll
 																		need to
 																		offer a
 																		higher

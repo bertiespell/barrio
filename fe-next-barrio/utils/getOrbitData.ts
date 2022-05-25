@@ -1,10 +1,12 @@
 import axios from "axios";
 
+const orbitURL: string = process.env.NEXT_PUBLIC_API_ADDRESS as string;
+
 export const getListing = async (listingCID: string) => {
 	try {
 		return await axios({
 			method: "get",
-			url: "http://localhost:3001/ipfs/" + listingCID,
+			url: orbitURL + listingCID,
 		});
 	} catch (err) {
 		console.error("(OrbitDB) Couldn't getListing data from orbit: ", err);
@@ -16,7 +18,7 @@ export const getAllListings = async () => {
 	try {
 		return await axios({
 			method: "get",
-			url: "http://localhost:3001/ipfs/",
+			url: orbitURL,
 		});
 	} catch (err) {
 		console.error("(OrbitDB) Couldn't getAllListing data from orbit: ", err);
@@ -84,7 +86,7 @@ export const createListing = async (listing: ListingFormData): Promise<OrbitList
 
 	try {
 		const orbitData = await axios.post(
-			"http://localhost:3001/ipfs/",
+			orbitURL,
 			formData,
 			{
 				headers: {
@@ -104,7 +106,7 @@ export const deleteListing = async (listingCID: string): Promise<any> => {
 	try {
 		return await axios({
 			method: "delete",
-			url: "http://localhost:3001/ipfs/" + listingCID,
+			url: orbitURL + listingCID,
 		});
 	} catch (err) {
 		console.error("(OrbitDB) Couldn't getListing data from orbit: ", err);

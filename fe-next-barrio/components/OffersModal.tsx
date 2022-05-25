@@ -86,20 +86,23 @@ export default function OffersModal({
 											</Dialog.Title>
 											<div className="mt-2">
 												<p className="text-sm text-gray-500">
-													You've received the
+													You&rsquo;ve received the
 													following offers on your
 													items. These funds are held
 													in a smart contract until
 													the buyer confirms they have
 													received your item. In order
-													to complete a sale, you'll
-													need to coordinate with the
-													buyer to exchange the item,
-													and ensure that they select
-													"Confirm Purchase" in the
-													app. Once they've done this,
-													the funds will be released
-													into your ethereum wallet.
+													to complete a sale,
+													you&rsquo;ll need to
+													coordinate with the buyer to
+													exchange the item, and
+													ensure that they select
+													&ldquo;Confirm
+													Purchase&rdquo in the app.
+													Once they&rsquo;ve done
+													this, the funds will be
+													released into your ethereum
+													wallet.
 												</p>
 											</div>
 										</div>
@@ -214,8 +217,8 @@ export default function OffersModal({
 									) : (
 										<div className="mt-3 text-center sm:mt-5">
 											<p className="text-sm text-gray-500">
-												You haven't received any offers
-												yet.
+												You haven&rsquo;t received any
+												offers yet.
 											</p>
 										</div>
 									)}

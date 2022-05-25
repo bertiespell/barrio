@@ -93,11 +93,11 @@ export default function RatingModal({ open, setOpen, listing }: any) {
 													<div className="flex items-center">
 														{[0, 1, 2, 3, 4].map(
 															(rating) => (
-																<div className="pt-1">
+																<div
+																	className="pt-1"
+																	key={rating}
+																>
 																	<StarIcon
-																		key={
-																			rating
-																		}
 																		className={classNames(
 																			ratings >
 																				rating
@@ -126,7 +126,8 @@ export default function RatingModal({ open, setOpen, listing }: any) {
 										{listing && listing.user ? (
 											<>
 												<p className="pt-3">
-													You're leaving a rating of{" "}
+													You&rsquo;re leaving a
+													rating of{" "}
 													{ratings >= 0 ? ratings : 0}{" "}
 													for seller{" "}
 													{listing.user.substring(

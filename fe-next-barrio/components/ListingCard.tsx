@@ -179,8 +179,8 @@ export default function ListingCard({
 											""
 										) : (
 											<p className="text-s text-gray-500">
-												This seller hasn't recieved any
-												ratings yet
+												This seller hasn&rsquo;t
+												recieved any ratings yet
 											</p>
 										)}
 									</div>
@@ -228,9 +228,10 @@ export default function ListingCard({
 													) ? (
 														<>
 															<span className="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
-																You've already
-																made an offer on
-																this listing!
+																You&rsquo;ve
+																already made an
+																offer on this
+																listing!
 															</span>
 														</>
 													) : (

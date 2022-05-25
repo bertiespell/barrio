@@ -87,8 +87,8 @@ export default function FeatureListGrid() {
 						A Feature Rich Ecosystem
 					</h2>
 					<p className="mt-4 text-lg text-gray-500">
-						We're building a decentralized exchange of goods and
-						services to empower people and save the planet.
+						We&rsquo;re building a decentralized exchange of goods
+						and services to empower people and save the planet.
 					</p>
 				</div>
 				<dl className="mt-12 space-y-10 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-12 lg:grid-cols-4 lg:gap-x-8">

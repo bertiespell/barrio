@@ -3,7 +3,7 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import { CardListing } from "../pages/listings";
 import { makeGatewayURL } from "../utils/getIpfs";
 import { getAllListings } from "../utils/getOrbitData";
-import getWeb3 from "../utils/getWeb3";
+import getWeb3, { Offer } from "../utils/getWeb3";
 
 export const ListingsContext = React.createContext({});
 
@@ -41,7 +41,7 @@ const ListingsProvider = ({ children }: any) => {
 							};
 						});
 					} else {
-						offersMade = ethData.auctionData?.offers;
+						offersMade = ethData.auctionData?.offers as Offer[];
 					}
 					const bought = ethData.bought;
 					const timestamp = ethData.timestamp;
@@ -74,7 +74,7 @@ const ListingsProvider = ({ children }: any) => {
 				.filter((listing: any) => validateProduct(listing))
 				.map((listing: any) => {
 					try {
-						const newListings: CardListing = {
+						const newListings = {
 							id: listing.imageFilesCID,
 							name: listing.title,
 							description: listing.description,

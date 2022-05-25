@@ -170,11 +170,12 @@ export default function NewListing() {
 									Uploading Listing
 								</h3>
 								<p className="text-center mt-1 text-sm text-gray-500">
-									We're uploading your listing data to IPFS.
-									Once it's uploaded you'll need to confirm
-									the transaction in metamask to list your
-									item for sale on the blockchain. We'll let
-									you know when your item is ready to view!
+									We&rsquo;re uploading your listing data to
+									IPFS. Once it&rsquo;s uploaded you&rsquo;ll
+									need to confirm the transaction in metamask
+									to list your item for sale on the
+									blockchain. We&rsquo;ll let you know when
+									your item is ready to view!
 								</p>
 							</div>
 						</div>
@@ -256,8 +257,8 @@ export default function NewListing() {
 														className="focus:ring-indigo-500 focus:border-indigo-500 h-full py-0 pl-2 pr-7 border-transparent bg-transparent text-gray-500 sm:text-sm rounded-md"
 													>
 														<option>ETH</option>
-														<option>USD</option>
-														<option>EUR</option>
+														{/* <option>USD</option>
+														<option>EUR</option> */}
 													</select>
 												</div>
 											</div>
@@ -394,13 +395,40 @@ export default function NewListing() {
 											Location
 										</h3>
 										<p className="mt-1 text-sm text-gray-500">
-											Let people know where you're selling
-											the item. You'll need to meet up in
-											person to finalize the exchange.
+											Let people know where you&rsquo;re
+											selling the item. You&rsquo;ll need
+											to meet up in person to finalize the
+											exchange.
 										</p>
 									</div>
 									<div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-										<div className="sm:col-span-3">
+										<div className="sm:col-span-4">
+											<div className="sm:col-span-3">
+												<label
+													htmlFor="country-name"
+													className="block text-sm font-medium text-gray-700"
+												>
+													Country
+												</label>
+												<div className="mt-1">
+													<input
+														type="text"
+														name="country"
+														id="country"
+														autoComplete="country-name"
+														value={country}
+														onChange={(e) =>
+															setCountry(
+																e.target.value
+															)
+														}
+														className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+													/>
+												</div>
+											</div>
+										</div>
+
+										{/* <div className="sm:col-span-3">
 											<label
 												htmlFor="country"
 												className="block text-sm font-medium text-gray-700"
@@ -426,7 +454,7 @@ export default function NewListing() {
 													<option>Mexico</option>
 												</select>
 											</div>
-										</div>
+										</div> */}
 
 										<div className="sm:col-span-6">
 											<label
@@ -529,8 +557,9 @@ export default function NewListing() {
 										Ad Preferences
 									</h3>
 									<p className="mt-1 text-sm text-gray-500">
-										Decide whether you'd like to configure
-										more advanced options for your listing.
+										Decide whether you&rsquo;d like to
+										configure more advanced options for your
+										listing.
 									</p>
 								</div>
 								<div className="mt-6">
@@ -628,14 +657,14 @@ export default function NewListing() {
 														Exchange
 													</label>
 													<p className="text-gray-500">
-														If you'd like to leave
-														your item with a trusted
-														third party to complete
-														and finalize the
-														exchange, you can enter
-														their ETH address here.
-														This is usually the
-														address of a shop,
+														If you&rsquo;d like to
+														leave your item with a
+														trusted third party to
+														complete and finalize
+														the exchange, you can
+														enter their ETH address
+														here. This is usually
+														the address of a shop,
 														auction house or estate
 														agent, but it can be any
 														third party that you
