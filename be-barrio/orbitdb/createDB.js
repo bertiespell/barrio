@@ -24,9 +24,9 @@ async function main() {
 		// meta: { hello: "meta hello" },
 	};
 	const db = await orbitdb.keyvalue("listings-database", options);
-	console.log(db.address.toString());
+	console.log(db.address.toString(), "Db address");
 	const identity = db.identity;
-	console.log(identity.toJSON());
+	console.log(identity.toJSON(), "DB identity");
 	process.exit();
 }
 

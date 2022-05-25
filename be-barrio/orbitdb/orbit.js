@@ -26,7 +26,7 @@ class DatabaseConnection {
 
 		// Connect to a DB instance
 		const db = await orbitdb.open(
-			"/orbitdb/zdpuAmFYJz3JQaqPcApEPfGDHeq8TwGM5fBoyHaMxqQXmfQU5/listings-database"
+			"/orbitdb/zdpuAx3sv6CNRJwcPkdpsR3HQzpaFN8DuvySWsUEsgm63zPqu/listings-database"
 		);
 
 		await db.load();
@@ -50,7 +50,7 @@ class DatabaseConnection {
 							counter++;
 							checkDB();
 						}
-					}, 1000);
+					}, 5000);
 				}
 			};
 
