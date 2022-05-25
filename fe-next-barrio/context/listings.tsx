@@ -27,9 +27,10 @@ const ListingsProvider = ({ children }: any) => {
 			mappedData.map(async (listing: CardListing) => {
 				try {
 					const ethData = await getWeb3.getListingData(listing.id);
-					const canBeReviewed = await getWeb3.canBeReviewed(
+					const canBeReviewed = await getWeb3.sellerCanBeReviewed(
 						listing.id
 					);
+
 					const isAuction = ethData.isAuction;
 					let offersMade = [];
 					if (!isAuction) {

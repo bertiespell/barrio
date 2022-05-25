@@ -159,10 +159,11 @@ class Web3Connection {
 				this.provider.getSigner()
 			);
 
-			return await ratingWithSigner.leaveSellerRating(
+			const smartContractRating =  await ratingWithSigner.leaveSellerRating(
 				ipfsHash,
 				rating
 			);
+			return await smartContractRating.wait()
 		} catch (err) {
 			console.error(err);
 			throw Error(`(SM) Unable to get rate seller`);
@@ -211,7 +212,7 @@ class Web3Connection {
 		}
 	}
 
-	async canBeReviewed(listing: string): Promise<boolean> {
+	async sellerCanBeReviewed(listing: string): Promise<boolean> {
 		try {
 			const ratingsContract = new ethers.Contract(
 				ratingsContractAddress,
