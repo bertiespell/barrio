@@ -259,7 +259,7 @@ export default function AuctionListingCard({
 																			type="text"
 																			name="price"
 																			id="price"
-																			className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md"
+																			className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-3 pr-12 sm:text-sm border-gray-300 rounded-md"
 																			placeholder="0.00"
 																			aria-describedby="price-currency"
 																			onChange={(

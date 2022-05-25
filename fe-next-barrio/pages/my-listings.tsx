@@ -15,7 +15,6 @@ export default function MyListings() {
 	const { listings } = useContext<{ listings: CardListing[] }>(
 		ListingsContext as any
 	);
-
 	const [currentAccount, setCurrentAccount] = useState(
 		getWeb3.currentAccount
 	);
