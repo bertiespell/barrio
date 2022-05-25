@@ -98,7 +98,7 @@ async function main() {
 	// await getAllListings();
 
 	const sellerRatingAvailable = rating.methods
-		.sellerRatingAvailable(
+		.leaveSellerRating(
 			"bafybeiencqnh3jee27xlau5yr2rcoyo46hkc5til4s6q3t6bxgnbwupnqi"
 		)
 		.encodeABI();

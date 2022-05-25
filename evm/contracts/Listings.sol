@@ -502,7 +502,7 @@ contract Listings is AccessControl, KeeperCompatible {
         return bought;
     }
 
-    function getFinalBuyertForListing(string memory ipfsHash)
+    function getFinalBuyerForListing(string memory ipfsHash)
         public
         view
         returns (address)

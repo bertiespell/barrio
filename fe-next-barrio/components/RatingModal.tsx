@@ -27,6 +27,7 @@ export default function RatingModal({ open, setOpen, listing }: any) {
 			getAllProducts();
 			setRatings(5);
 		} catch (err) {
+			console.error(err);
 			setShowMetamaskError(true);
 		}
 	};

@@ -130,13 +130,11 @@ contract("Ratings.leaveRating", function (accounts) {
 			{ from: bob, gasPrice: 0 }
 		);
 
-		const sellerRating = await ratingContract.leaveSellerRating(
+		await ratingContract.leaveSellerRating(
 			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTwwwww",
 			4,
 			{ from: bob, gasPrice: 0 }
 		);
-
-		assert.equal(BigInt(sellerRating.logs[0].args[0]), BigInt(4));
 
 		const allRatings = await ratingContract.getSellerRatings(alice, {
 			from: bob,
@@ -177,13 +175,11 @@ contract("Ratings.leaveRating", function (accounts) {
 
 		assert(called);
 
-		const buyerRating = await ratingContract.leaveBuyerRating(
+		await ratingContract.leaveBuyerRating(
 			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTwwwww",
 			4,
 			{ from: alice, gasPrice: 0 }
 		);
-
-		assert.equal(BigInt(buyerRating.logs[0].args[0]), BigInt(4));
 
 		const allBuyerRatings = await ratingContract.getBuyerRatings(bob, {
 			from: bob,
@@ -286,13 +282,11 @@ contract("Ratings.leaveRating", function (accounts) {
 
 		assert(called);
 
-		const sellerRating = await ratingContract.leaveSellerRating(
+		await ratingContract.leaveSellerRating(
 			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
 			4,
 			{ from: bob, gasPrice: 0 }
 		);
-
-		assert.equal(BigInt(sellerRating.logs[0].args[0]), BigInt(4));
 
 		const allRatings = await ratingContract.getSellerRatings(thirdParty, {
 			from: bob,
@@ -348,13 +342,11 @@ contract("Ratings.leaveRating", function (accounts) {
 
 		assert(called);
 
-		const buyerRating = await ratingContract.leaveBuyerRating(
+		await ratingContract.leaveBuyerRating(
 			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
 			4,
 			{ from: alice, gasPrice: 0 }
 		);
-
-		assert.equal(BigInt(buyerRating.logs[0].args[0]), BigInt(4));
 
 		const allBuyerRatings = await ratingContract.getBuyerRatings(bob, {
 			from: bob,
