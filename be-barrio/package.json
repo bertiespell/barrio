@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "nodemon": "nodemon DEBUG=be-barrio:* npm start"
+    "nodemon": "nodemon DEBUG=be-barrio:* npm start",
+    "create-db": "node ./orbitdb/createDB.js && node ./bin/www",
+    "run": "npm start"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",

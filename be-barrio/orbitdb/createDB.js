@@ -27,6 +27,7 @@ async function main() {
 	console.log(db.address.toString());
 	const identity = db.identity;
 	console.log(identity.toJSON());
+	process.exit();
 }
 
 main();
