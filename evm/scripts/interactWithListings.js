@@ -5,7 +5,7 @@ const Web3 = require("web3");
 
 const { abi, bytecode } = JSON.parse(
 	fs.readFileSync(
-		"/Users/berniesnell/Blockchain/barrio/fe-barrio/build/contracts/Ratings.json"
+		"/Users/berniesnell/Blockchain/barrio/evm/build/contracts/Listings.json"
 	)
 );
 

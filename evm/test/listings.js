@@ -1258,7 +1258,6 @@ contract("Listings.acceptOffer", function (accounts) {
 				bob,
 				{ from: alice, gasPrice: 0 }
 			);
-			console.log("This was fine!");
 		} catch (error) {
 			called = true;
 			assert(error);

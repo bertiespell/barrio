@@ -12,6 +12,8 @@ var ipfsRouter = require("./routes/ipfs");
 const rateLimit = require("express-rate-limit");
 const fs = require("fs");
 
+require("./utils/heroku-ping");
+
 const limiter = rateLimit({
 	windowMs: 10000, // 10 seconds
 	max: 10, // Limit each IP to 10 requests per `window` (here, per 10 seconds)

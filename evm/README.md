@@ -1,76 +1,41 @@
-# Getting Started with Create React App
+# Barrio Smart Contracts
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This folder contains all the smart contract logic for Barrio, along with a detailed testing. It uses truffle for deployment, and web3 for deployment.
 
-## Available Scripts
+The main contract is `contracts/Listing.sol`. This allows users to create listings and auctions, and to accept and confirm offers. The rating of sellers after a purchase is confirmed happens inside `contracts/Ratings.sol`. This also releases utility token funds to both the buyer and seller, which can later be used on the platform.
 
-In the project directory, you can run:
+# Deployment
 
-### `npm start`
+There's a node script to deploy to the Ethereum network. In order to deploy, you'll need to create a `.env` file in this directory. It should have the following variables set
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```
+ETHEREUM_NETWORK (the network you'd liek to connect to)
+SIGNER_PRIVATE_KEY (to sign the contract create calls)
+INFURA_PROJECT_ID (it uses infura for deployment)
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Once you've set these variables, to deploy the smart contracts
 
-### `npm test`
+`node scripts/deploy.js`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+This will print to the console the address of the `Listings` and `Ratings` contract. These addresses should be used to update the `.env` file inside `fe-next-barrio` so that the FE client knows where the contracts are.
 
-### `npm run build`
+There's also a script with some scaffolding to interact with the contracts
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+`node scripts/interactWithListings.js`
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Note that if you change the contracts and you'd like to build the FE to work with these new changes, you'll need to compile them (`truffle compile`), and then copy the relevant contract JSON (i.e. from `build/Listings.json`) into the FE public folder (so that the ABI is available at runtime) - this should be copied into: `../fe-next-barrio/public/abi`.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+# Truffle Testing
 
-### `npm run eject`
+To compile the contracts
 
-# Truffle
+`truffle compile`
+
+To migrate the contracts to a test network
+
+`truffle migrate`
 
 Compile the contracts and run the tests
 
 `truffle test`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
