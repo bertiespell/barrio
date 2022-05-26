@@ -454,7 +454,7 @@ contract("Listings.checkUpkeep true", function (accounts) {
 			{ from: alice, gasPrice: 0 }
 		);
 
-		await increase(604801);
+		await increase(1814400001);
 
 		const upkeep = await listingContract.checkUpkeep([]);
 
@@ -503,7 +503,7 @@ contract("Listings.checkUpkeep multiple true", function (accounts) {
 			{ from: charlie, gasPrice: 0 }
 		);
 
-		await increase(604801);
+		await increase(1814400001);
 
 		const upkeep = await listingContract.checkUpkeep([]);
 
@@ -761,7 +761,7 @@ contract("Listings.performUpkeep", function (accounts) {
 			BigInt(contractBalanceBefore) + BigInt(itemPrice)
 		);
 
-		await increase(604801);
+		await increase(1814400001);
 
 		await listingContract.performUpkeep(
 			web3.eth.abi.encodeParameter("string[]", [
