@@ -1,6 +1,6 @@
 # Barrio
 
-Welcome to Barrio! A decentralized classified ads dApp.
+Welcome to Barrio! A decentralized classified ads dApp. A multipurpose ecosystem Where you can list pre-loved items for sale, services, collectibles, antiques, rare items, NFTs and more!
 
 We produce a colossal amount of goods every year, rather than ending up in landfill it is better reuse. Every time we buy a new item we leave a small footprint on the planet. It's estimated that in textile waste alone, 92 million tons are created globally each year! Apps like Gumtree, Wallapop and Depop are hugely popular and the second hand market valuation is huge, yet no blockchain based versions of these apps exist.
 
