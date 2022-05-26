@@ -76,6 +76,18 @@ const features = [
 			"Store images of rare or collectible items for the long-term, and later prove provenance.",
 		inDevelopment: true,
 	},
+	{
+		name: "Collaborative Data Integrity",
+		description:
+			"Help prevent against spam and misuse by up/down voting on listings.",
+		inDevelopment: true,
+	},
+	{
+		name: "Multimedia Content Support",
+		description:
+			"Instead of storing an image in IPFS, we'll add support for any file upload, meaning you can buy and sell software, games, music and more.",
+		inDevelopment: true,
+	},
 ];
 
 export default function FeatureListGrid() {

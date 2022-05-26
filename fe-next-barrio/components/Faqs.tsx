@@ -12,7 +12,9 @@ const faqs = [
 					provide ways to re-sell and re-use items. Barrio leverages
 					the escrow functionality of smart contracts with a
 					blockchain based reputational proof to allow people to
-					exchange goods with confidence.
+					exchange goods with confidence. It puts users in control of
+					their own data, and creates a collaborative ecosystem to be
+					a part of.
 				</p>
 				<p className="pt-3 pb-3">
 					The second hand market is huge, but there is currently no
@@ -23,6 +25,16 @@ const faqs = [
 					useful later for insurance claims) as well as proof of
 					provenance which can be useful in the reselling of art,
 					antiques or collectibles.
+				</p>
+				<p className="pt-3 pb-3">
+					Since the IPFS image hash is stored in the smart contract
+					data, Barrio can be used for a wide range of applications.
+					It can be used to for standard listings and auctions, or you
+					could get more creative and use the platform to store any
+					kind of digital asset (including NFTs!) Since the image data
+					is stored securely in IPFS, you can use this as proof of
+					purchase in insurance claims, as well as making provenance
+					easier when reselling art, antiques or other collectibles.
 				</p>
 			</div>
 		),
@@ -104,7 +116,7 @@ const faqs = [
 					houses, who may be the intermediary in possession of an
 					item. Alternatively, you may choose to leave your item with
 					a local shop, or a third party service provider. In the
-					future, we&quot;d love to see an decentralized IoT
+					future, we&rsquo;d love to see an decentralized IoT
 					Amazon-style locker, which is able to securely hold the
 					goods, and trigger smart contract fund releases.
 				</p>
@@ -126,7 +138,56 @@ const faqs = [
 	},
 	{
 		question: "What other uses are there for Barrio?",
-		answer: "It's also possible to non-physical items such as services, and build up a reputation for a service that you offer. Barrio can also be used for the service economy, useful for freelancers, teachers and creatives.",
+		answer: "It's also possible to non-physical items such as services and NFTs and other digital assets, and build up a reputation for a service that you offer. Since the IPFS hash is stored in the smart contract, it can be used to buy and sell any digital or physical item. Barrio can also be used for the service economy, making it useful for freelancers, teachers and creatives.",
+	},
+	{
+		question: "How will Barrio's Tokenomics work?",
+		answer: (
+			<div>
+				<p className="pt-3 pb-3">
+					Currently, both buyers and sellers are rewarded in Barrio
+					after completing a purchase and leaving a review.
+					We&rsquo;re working on ways to use these tokens in order
+					later spend them in the app, as well as providing tokens to
+					anybody securing Barrio&rsquo;s data.
+				</p>
+				<p className="pt-3 pb-3">
+					At the moment, the smart contracts simply store the funds
+					without taking a commission. In the future, the contract
+					will retain a small amount of Ether from the listing, which
+					can be used by holders of Barrio to make further purchases.
+					These will be done through a reward mechanism, where users
+					have a chance to enter a raffle with their tokens, and if
+					they win, they can use these credits for new purchases.
+				</p>
+			</div>
+		),
+	},
+	{
+		question: "What's next for Barrio?",
+		answer: (
+			<div>
+				<p className="pt-3 pb-3">
+					There are so many features we&rsquo;d like to build to make
+					this a great collaborative platform and ecosystem for our
+					users. Some of them are mentioned in the features list grid
+					above. For the planned improvements to the Tokenomics you
+					can also read the question above too.
+				</p>
+				<p className="pt-3 pb-3">
+					In addition to all of that, we&rsquo;d like to create ways
+					for Barrio users to secure and vet their data together. In
+					the future, we&rsquo;d like to add the ability to
+					down/upvote listings by users and potentially block sales,
+					to prevent spam and other misuses. We believe that
+					communities can secure their own data, and should be
+					rewarded for doing so. As users gain greater ratings on the
+					platform, their votes on content will be given more weight.
+					Ensuring that together, we can build a collaborative
+					platform where users control and secure their own data.
+				</p>
+			</div>
+		),
 	},
 ];
 
