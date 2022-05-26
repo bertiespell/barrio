@@ -1,5 +1,6 @@
 const Listings = artifacts.require("Listings");
 const Ratings = artifacts.require("Ratings");
+const Barrio = artifacts.require("Barrio");
 
 contract("Ratings.leaveRating", function (accounts) {
 	it("leaveRating should not allow a seller to leave a rating if the buy isn't confirmed", async () => {
@@ -11,6 +12,7 @@ contract("Ratings.leaveRating", function (accounts) {
 
 		const listingContract = await Listings.deployed();
 		const ratingContract = await Ratings.deployed();
+		const barrioContract = await Barrio.deployed();
 
 		let called = false;
 		try {
@@ -97,6 +99,7 @@ contract("Ratings.leaveRating", function (accounts) {
 
 		const listingContract = await Listings.deployed();
 		const ratingContract = await Ratings.deployed();
+		const barrioContract = await Barrio.deployed();
 
 		await listingContract.createListing(
 			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTwwwww",
@@ -212,6 +215,7 @@ contract("Ratings.leaveRating", function (accounts) {
 
 		const listingContract = await Listings.deployed();
 		const ratingContract = await Ratings.deployed();
+		const barrioContract = await Barrio.deployed();
 
 		await listingContract.createThirdPartyListing(
 			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps",
@@ -376,6 +380,7 @@ contract("Ratings.leaveRating", function (accounts) {
 		const alice = accounts[0];
 
 		const ratingContract = await Ratings.deployed();
+		const barrioContract = await Barrio.deployed();
 
 		const allBuyerRatings = await ratingContract.getBuyerRatings(alice, {
 			from: alice,
@@ -392,6 +397,7 @@ contract("Ratings.leaveRating", function (accounts) {
 
 		const listingContract = await Listings.deployed();
 		const ratingContract = await Ratings.deployed();
+		const barrioContract = await Barrio.deployed();
 
 		let buyerCanRate = await ratingContract.sellerRatingAvailable(
 			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTvvvvv",
@@ -504,6 +510,7 @@ contract("Ratings.leaveRating", function (accounts) {
 
 		const listingContract = await Listings.deployed();
 		const ratingContract = await Ratings.deployed();
+		const barrioContract = await Barrio.deployed();
 
 		let buyerCanRate = await ratingContract.sellerRatingAvailable(
 			"QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTbbbbb",

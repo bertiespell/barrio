@@ -3,6 +3,7 @@ pragma solidity 0.8.7;
 
 import "../contracts/AccessControl.sol";
 import "./Listings.sol";
+import "./Barrio.sol";
 
 contract Ratings is AccessControl {
     mapping(address => uint256[]) public sellerRatings;
@@ -12,11 +13,13 @@ contract Ratings is AccessControl {
     mapping(string => bool) public ratedIpfsListingsListingsForBuyer;
 
     Listings public listingsContract;
+    Barrio public barrioContract;
 
     event RatingRecieved(string ipfsHash, uint256 rating);
 
-    constructor(address _listingsContract) {
+    constructor(address _listingsContract, address _barrioContract) {
         listingsContract = Listings(_listingsContract);
+        barrioContract = Barrio(_barrioContract);
     }
 
     function leaveSellerRating(string memory ipfsHash, uint256 rating) public {
@@ -58,6 +61,8 @@ contract Ratings is AccessControl {
         } else {
             sellerRatings[sellerAddress].push(rating);
         }
+
+        barrioContract.provideRewards(msg.sender);
     }
 
     function leaveBuyerRating(string memory ipfsHash, uint256 rating) public {
@@ -98,6 +103,8 @@ contract Ratings is AccessControl {
         buyerRatings[finalBuyer].push(rating);
 
         emit RatingRecieved(ipfsHash, rating);
+
+        barrioContract.provideRewards(msg.sender);
     }
 
     function sellerRatingAvailable(string memory ipfsHash)
