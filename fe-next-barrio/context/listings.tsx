@@ -1,3 +1,5 @@
+import axios from "axios";
+import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { CardListing } from "../pages/listings";
@@ -8,6 +10,14 @@ import getWeb3, { Offer } from "../utils/getWeb3";
 export const ListingsContext = React.createContext({});
 
 const ListingsProvider = ({ children }: any) => {
+	const router = useRouter();
+	const [route, setRoute] = useState("");
+
+	useEffect(() => {
+		if (!router.isReady) return;
+		setRoute(router.route);
+	}, [router.isReady]);
+
 	const [listings, setListings] = useState<any[]>([]);
 	const [loading, setLoading] = useState(true);
 
@@ -67,6 +77,16 @@ const ListingsProvider = ({ children }: any) => {
 		);
 	};
 
+	const fetchAllImages = (allListings: any) => {
+		setTimeout(() => {
+			try {
+				allListings.map((listing: any) =>
+					listing.images.map((image: any) => axios.get(image.src))
+				);
+			} catch (e) {}
+		});
+	};
+
 	const getAllProducts = async () => {
 		try {
 			const allListings = await getAllListings();
@@ -109,6 +129,7 @@ const ListingsProvider = ({ children }: any) => {
 
 				setListings(withOffers);
 				setLoading(false);
+				fetchAllImages(mappedData);
 			} catch (err) {
 				console.warn(
 					"No smart contract data could be loaded, check configuration (may need to delete local orbit data as it doesn't match the ipfs hashes stored on the EVM"
@@ -133,7 +154,7 @@ const ListingsProvider = ({ children }: any) => {
 				getAllProducts,
 			}}
 		>
-			{loading ? (
+			{loading && route !== "/" ? (
 				<div className="max-w-7xl mx-auto pt-20 pb-20 px-4 sm:px-6 lg:px-8">
 					<div className="px-4 sm:px-6 lg:px-8">
 						<LoadingSpinner />

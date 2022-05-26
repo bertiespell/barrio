@@ -60,7 +60,7 @@ export default function Listing() {
 										{product.name}
 									</h3>
 									<p className="mt-1 text-lg font-medium text-gray-900">
-										{product.price}
+										{product.price} ETH
 									</p>
 								</a>
 							</Link>
