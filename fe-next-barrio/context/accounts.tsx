@@ -13,6 +13,7 @@ const AccountsProvider = ({ children }: any) => {
 		const newAccount = await getWeb3.getAccounts();
 		if (newAccount) setAccount(newAccount);
 		setLoading(false);
+		return newAccount;
 	};
 
 	useEffect(() => {
