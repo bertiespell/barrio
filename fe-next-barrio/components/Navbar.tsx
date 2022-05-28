@@ -37,9 +37,13 @@ export default function Navbar() {
 
 	const enableMetamask = async () => {
 		try {
-			await getAccounts();
-			setShowMetamaskEnabled(true);
-			getAllProducts();
+			const accounts = await getAccounts();
+			if (accounts) {
+				setShowMetamaskEnabled(true);
+				getAllProducts();
+			} else {
+				setShowMetamaskError(true);
+			}
 		} catch (err) {
 			setShowMetamaskError(true);
 		}

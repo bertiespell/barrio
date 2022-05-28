@@ -69,7 +69,6 @@ class Web3Connection {
 			return this.currentAccount;
 		} catch (err) {
 			console.error(err, "err");
-			throw Error("(SM) Unable to link metamask");
 		}
 	}
 

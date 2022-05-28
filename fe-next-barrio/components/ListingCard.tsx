@@ -204,7 +204,8 @@ export default function ListingCard({
 							<form className="mt-6">
 								<div className="mt-10 flex sm:flex-col1">
 									{product.user.toLowerCase() ===
-									currentAccount.toLowerCase() ? (
+									(currentAccount &&
+										currentAccount.toLowerCase()) ? (
 										<>
 											<span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-gray-100 text-gray-800">
 												This is your listing
@@ -224,7 +225,8 @@ export default function ListingCard({
 													{product.offersMade.find(
 														(offer) =>
 															offer.buyer.toLowerCase() ===
-															currentAccount.toLowerCase()
+															(currentAccount &&
+																currentAccount.toLowerCase())
 													) ? (
 														<>
 															<span className="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
@@ -371,7 +373,8 @@ export default function ListingCard({
 									) : (
 										<div>
 											{product.user.toLowerCase() ===
-											currentAccount.toLowerCase()
+											(currentAccount &&
+												currentAccount.toLowerCase())
 												? ""
 												: "No buyers yet, be the first and make an offer!"}
 										</div>

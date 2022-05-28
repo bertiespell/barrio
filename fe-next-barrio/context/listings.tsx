@@ -32,48 +32,48 @@ const ListingsProvider = ({ children }: any) => {
 		return true;
 	};
 
+	const getDataForIndividualListings = async (listing: CardListing) => {
+		try {
+			const ethData = await getWeb3.getListingData(listing.id);
+			const canBeReviewed = await getWeb3.sellerCanBeReviewed(listing.id);
+
+			const isAuction = ethData.isAuction;
+			let offersMade = [];
+			if (!isAuction) {
+				offersMade = ethData["buyers"].map((buyer) => {
+					return {
+						buyer,
+						price: ethData.price,
+					};
+				});
+			} else {
+				offersMade = ethData.auctionData?.offers as Offer[];
+			}
+			const bought = ethData.bought;
+			const timestamp = ethData.timestamp;
+			const auctionData = ethData.auctionData;
+			const useThirdPartyAddress = ethData.useThirdPartyAddress;
+			const listingWithOffer = {
+				...listing,
+				offersMade,
+				bought,
+				isAuction,
+				timestamp,
+				auctionData,
+				useThirdPartyAddress,
+				canBeReviewed,
+			};
+			return listingWithOffer;
+		} catch (e) {
+			console.warn(e);
+		}
+	};
+
 	const getSmartContractData = async (mappedData: any) => {
 		return Promise.all(
-			mappedData.map(async (listing: CardListing) => {
-				try {
-					const ethData = await getWeb3.getListingData(listing.id);
-					const canBeReviewed = await getWeb3.sellerCanBeReviewed(
-						listing.id
-					);
-
-					const isAuction = ethData.isAuction;
-					let offersMade = [];
-					if (!isAuction) {
-						offersMade = ethData["buyers"].map((buyer) => {
-							return {
-								buyer,
-								price: ethData.price,
-							};
-						});
-					} else {
-						offersMade = ethData.auctionData?.offers as Offer[];
-					}
-					const bought = ethData.bought;
-					const timestamp = ethData.timestamp;
-					const auctionData = ethData.auctionData;
-					const useThirdPartyAddress = ethData.useThirdPartyAddress;
-					return {
-						...listing,
-						offersMade,
-						bought,
-						isAuction,
-						timestamp,
-						auctionData,
-						useThirdPartyAddress,
-						canBeReviewed,
-					};
-				} catch (e) {
-					console.warn(e);
-					throw Error(
-						"(SM) Unable to get data for these listings from the Smart Contract, check that the correct contract is deployed and set in env variables"
-					);
-				}
-			})
+			mappedData.map(async (listing: CardListing) =>
+				getDataForIndividualListings(listing)
+			)
 		);
 	};
 
@@ -125,10 +125,11 @@ const ListingsProvider = ({ children }: any) => {
 				});
 
 			try {
-				const withOffers = await getSmartContractData(mappedData);
-
-				setListings(withOffers);
+				setListings(mappedData);
 				setLoading(false);
+				const withOffers = await getSmartContractData(mappedData);
+				setListings(withOffers.filter((item) => item !== undefined));
+
 				fetchAllImages(mappedData);
 			} catch (err) {
 				console.warn(

@@ -227,7 +227,8 @@ export default function AuctionListingCard({
 										<>
 											<div>
 												{product.user.toLowerCase() ===
-												currentAccount.toLowerCase() ? (
+												(currentAccount &&
+													currentAccount.toLowerCase()) ? (
 													<>
 														<span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-gray-100 text-gray-800">
 															This is your listing

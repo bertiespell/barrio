@@ -50,7 +50,8 @@ export default function MyOffers() {
 		const filteredListings = listings?.filter((product) =>
 			product.offersMade.find(
 				(offer) =>
-					offer.buyer.toLowerCase() === currentAccount.toLowerCase()
+					offer.buyer.toLowerCase() ===
+					(currentAccount && currentAccount.toLowerCase())
 			)
 		);
 		setOffers(filteredListings);
@@ -200,7 +201,8 @@ export default function MyOffers() {
 																{listing.isAuction ? (
 																	<>
 																		{listing.auctionData?.highestBidder.toLowerCase() ===
-																		currentAccount.toLowerCase() ? (
+																		(currentAccount &&
+																			currentAccount.toLowerCase()) ? (
 																			<>
 																				<span className="m-3 inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800">
 																					Highest

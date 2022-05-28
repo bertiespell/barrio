@@ -131,12 +131,16 @@ export default function Sidebar({ setSidebarOpen }: any) {
 						</div>
 						<div className="ml-3">
 							<p className="text-sm font-medium text-white">
-								{currentAccount.substring(0, 5) +
+								{currentAccount ? (
+									currentAccount.substring(0, 5) +
 									"..." +
 									currentAccount.substring(
 										currentAccount.length - 4,
 										currentAccount.length
-									)}
+									)
+								) : (
+									<></>
+								)}
 							</p>
 							<Link href="/profile">
 								<button onClick={() => setSidebarOpen(false)}>
