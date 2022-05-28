@@ -17,8 +17,12 @@ export default function LandingPageHeader() {
 
 	const enableMetamask = async () => {
 		try {
-			await getAccounts();
-			setShowMetamaskEnabled(true);
+			const account = await getAccounts();
+			if (account) {
+				setShowMetamaskEnabled(true);
+			} else {
+				throw Error("Metamask can't be enabled");
+			}
 		} catch (err) {
 			setShowMetamaskError(true);
 		}
