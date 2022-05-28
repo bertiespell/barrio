@@ -28,7 +28,7 @@ export default function MyListings() {
 	const getAccount = async () => {
 		try {
 			const account = await getWeb3.getAccounts();
-			setCurrentAccount(account);
+			if (account) setCurrentAccount(account);
 		} catch (err) {
 			// we only need to tell the user once when navigating to the page
 			if (!metaMaskShown) {

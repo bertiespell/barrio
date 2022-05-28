@@ -50,7 +50,7 @@ export default function AuctionListingCard({
 	const setAccount = async () => {
 		try {
 			const account = await getWeb3.getAccounts();
-			setCurrentAccount(account);
+			if (account) setCurrentAccount(account);
 		} catch (err) {}
 	};
 

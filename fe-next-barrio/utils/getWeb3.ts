@@ -57,7 +57,7 @@ class Web3Connection {
 
 	}
 
-	async getAccounts(): Promise<string> {
+	async getAccounts(): Promise<string | undefined> {
 		try {
 			const accounts = await this.provider.send(
 				"eth_requestAccounts",

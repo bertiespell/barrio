@@ -32,7 +32,7 @@ export default function MyOffers() {
 	const setAccount = async () => {
 		try {
 			const account = await getWeb3.getAccounts();
-			setCurrentAccount(account);
+			if (account) setCurrentAccount(account);
 		} catch (err) {
 			// we only need to tell the user once when navigating to the page
 			if (!metaMaskShown) {

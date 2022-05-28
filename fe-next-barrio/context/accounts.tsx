@@ -11,7 +11,7 @@ const AccountsProvider = ({ children }: any) => {
 
 	const getAccounts = async () => {
 		const newAccount = await getWeb3.getAccounts();
-		setAccount(newAccount);
+		if (newAccount) setAccount(newAccount);
 		setLoading(false);
 	};
 

@@ -93,7 +93,7 @@ export default function NewListing() {
 		let listing: OrbitListing;
 		// save data to IPFS and OrbitDB
 		try {
-			listing = await createListing(formData);
+			listing = await createListing(formData as any);
 		} catch (e) {
 			setError({
 				title: "Unable to list item",
