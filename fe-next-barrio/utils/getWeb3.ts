@@ -65,7 +65,6 @@ class Web3Connection {
 			);
 
 			this.currentAccount = accounts[0];
-
 			return this.currentAccount;
 		} catch (err) {
 			console.error(err, "err");

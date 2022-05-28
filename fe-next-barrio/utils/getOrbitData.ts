@@ -2,6 +2,7 @@ import axios from "axios";
 
 const orbitURL: string = process.env.NEXT_PUBLIC_API_ADDRESS as string;
 
+axios.defaults.baseURL = orbitURL
 export const getListing = async (listingCID: string) => {
 	try {
 		return await axios({

@@ -24,10 +24,10 @@ const faqs = [
 					functionality of showing proof of purchase (which may be
 					useful later for insurance claims) as well as proof of
 					provenance which can be useful in the reselling of art,
-					antiques or collectibles. It's notoriously difficult to show
-					proof of purchase for second hand goods, so Barrio creates a
-					new financial system around second hand items allowing them
-					to be insured or claimed against.
+					antiques or collectibles. It&rsquo;s notoriously difficult
+					to show proof of purchase for second hand goods, so Barrio
+					creates a new financial system around second hand items
+					allowing them to be insured or claimed against.
 				</p>
 				<p className="pt-3 pb-3">
 					Since the IPFS image hash is stored in the smart contract
