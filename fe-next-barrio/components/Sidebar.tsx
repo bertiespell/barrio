@@ -38,6 +38,13 @@ const navigation = [
 		count: 0,
 		current: false,
 	},
+	{
+		name: "Post Ad",
+		icon: ChatIcon,
+		href: "/new-listing",
+		count: 0,
+		current: false,
+	},
 ];
 
 function classNames(...classes: any) {

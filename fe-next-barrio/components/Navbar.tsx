@@ -8,14 +8,6 @@ import Link from "next/link";
 import { ListingsContext } from "../context/listings";
 import { AccountsContext } from "../context/accounts";
 
-const navigation = [
-	{ name: "All Listings", href: "/listings", current: false },
-	{ name: "My Listings", href: "/my-listings", current: false },
-	{ name: "My Offers", href: "/my-offers", current: false },
-	{ name: "Post Ad", href: "/new-listing", current: false },
-	{ name: "Info", href: "/", current: true },
-];
-
 function classNames(...classes: any) {
 	return classes.filter(Boolean).join(" ");
 }
@@ -85,25 +77,6 @@ export default function Navbar() {
 										</div>
 									</div>
 								</div>
-								<div className="flex items-center md:absolute md:right-0 md:inset-y-0 lg:hidden">
-									{/* Mobile menu button */}
-									<Popover.Button className="-mx-2 rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
-										<span className="sr-only">
-											Open menu
-										</span>
-										{open ? (
-											<XIcon
-												className="block h-6 w-6"
-												aria-hidden="true"
-											/>
-										) : (
-											<MenuIcon
-												className="block h-6 w-6"
-												aria-hidden="true"
-											/>
-										)}
-									</Popover.Button>
-								</div>
 								<div className="hidden lg:flex lg:items-center lg:justify-end">
 									<div className="flex-shrink-0 relative ml-5">
 										<button className="bg-white rounded-full flex focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
@@ -126,44 +99,6 @@ export default function Navbar() {
 								</div>
 							</div>
 						</div>
-
-						<Popover.Panel
-							as="nav"
-							className="lg:hidden"
-							aria-label="Global"
-						>
-							<div className="max-w-3xl mx-auto px-2 pt-2 pb-3 space-y-1 sm:px-4">
-								{navigation.map((item) => (
-									<Link key={item.name} href={item.href}>
-										<a
-											aria-current={
-												item.current
-													? "page"
-													: undefined
-											}
-											className={classNames(
-												item.current
-													? "bg-gray-100 text-gray-900"
-													: "hover:bg-gray-50",
-												"block rounded-md py-2 px-3 text-base font-medium"
-											)}
-										>
-											{item.name}
-										</a>
-									</Link>
-								))}
-							</div>
-							<div className="border-t border-gray-200 pt-4 pb-3">
-								<div className="max-w-3xl mx-auto px-4 flex items-center sm:px-6">
-									<div className="flex-shrink-0"></div>
-									<div className="ml-3">
-										<div className="text-base font-medium text-gray-800">
-											{account}
-										</div>
-									</div>
-								</div>
-							</div>
-						</Popover.Panel>
 					</>
 				)}
 			</Popover>
