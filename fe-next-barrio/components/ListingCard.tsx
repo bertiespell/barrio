@@ -1,10 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { Disclosure, Tab } from "@headlessui/react";
 import { StarIcon } from "@heroicons/react/solid";
-import { HeartIcon, MinusSmIcon, PlusSmIcon } from "@heroicons/react/outline";
-import { getListing } from "../utils/getOrbitData";
-import { useRouter } from "next/router";
-import { makeGatewayURL } from "../utils/getIpfs";
+import { MinusSmIcon, PlusSmIcon } from "@heroicons/react/outline";
 import getWeb3 from "../utils/getWeb3";
 import { CardListing, Offer } from "../pages/listings";
 import ErrorAlert from "./ErrorAlert";
@@ -44,15 +41,18 @@ export default function ListingCard({
 
 	const makeOfferInMetamask = async (listingId: string) => {
 		try {
-			await getWeb3.makeOffer(listingId);
+			const offerMade = await getWeb3.makeOffer(listingId);
+			if (offerMade) {
+				getAllProducts();
 
-			getAllProducts();
-
-			setAlert({
-				title: "Success!",
-				message: "You've made an offer on this item!",
-			});
-			setShowAlert(true);
+				setAlert({
+					title: "Success!",
+					message: "You've made an offer on this item!",
+				});
+				setShowAlert(true);
+			} else {
+				throw Error("Empty offer");
+			}
 		} catch (err) {
 			setError({
 				title: "Failed to send offer to smart contract",
@@ -82,7 +82,7 @@ export default function ListingCard({
 
 	const getRatings = async () => {
 		const ratings = await getWeb3.getRatingsForSeller(product.user);
-		setRatings(ratings);
+		if (ratings) setRatings(ratings);
 	};
 
 	useEffect(() => {

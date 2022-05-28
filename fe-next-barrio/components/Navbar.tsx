@@ -1,13 +1,10 @@
 import { useContext, useState } from "react";
 import { Popover } from "@headlessui/react";
-import { DotsVerticalIcon, SearchIcon } from "@heroicons/react/solid";
 import { MenuIcon, XIcon } from "@heroicons/react/outline";
 import Slideover from "./Slideover";
-import getWeb3 from "../utils/getWeb3";
 import SuccessAlert from "./SuccessAlert";
 import ErrorAlert from "./ErrorAlert";
 import Link from "next/link";
-import { CardListing } from "../pages/listings";
 import { ListingsContext } from "../context/listings";
 import { AccountsContext } from "../context/accounts";
 

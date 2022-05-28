@@ -40,15 +40,14 @@ export function compareOffers(a: Offer, b: Offer) {
 
 // Uses a singleton pattern to construct, load and get web3
 class Web3Connection {
-	provider!: ethers.providers.Web3Provider;
+	provider: ethers.providers.Web3Provider | undefined;
 	currentAccount: string = "";
 
 	constructor() {
 		if ((Web3Connection as any)._instance) {
 			return (Web3Connection as any)._instance;
 		}
-		
-		if (typeof window !== "undefined") {
+		if (typeof window !== "undefined" && (window as any).ethereum) {
 			this.provider = new ethers.providers.Web3Provider(
 				(window as any).ethereum
 				);
@@ -59,6 +58,9 @@ class Web3Connection {
 
 	async getAccounts(): Promise<string | undefined> {
 		try {
+			if (!this.provider) {
+				return;
+			}
 			const accounts = await this.provider.send(
 				"eth_requestAccounts",
 				[]
@@ -72,6 +74,9 @@ class Web3Connection {
 	}
 
 	async createListing(listing: string, price: string, isAuction: boolean, isPriceInUsd: boolean) {
+		if (!this.provider) {
+			return;
+		}
 		const listingContract = new ethers.Contract(
 			listingsContractAddress,
 			Listings.abi,
@@ -98,6 +103,9 @@ class Web3Connection {
 	}
 
 	async createThirdPartyListing(listing: string, thirdPartyAddress: string, price: string, isAuction: boolean, isPriceInUsd: boolean) {
+		if (!this.provider) {
+			return;
+		}
 		const listingContract = new ethers.Contract(
 			listingsContractAddress,
 			Listings.abi,
@@ -124,7 +132,10 @@ class Web3Connection {
 		}
 	}
 
-	async getRatingsForSeller(sellerAddress: string): Promise<number> {
+	async getRatingsForSeller(sellerAddress: string): Promise<number | undefined> {
+		if (!this.provider) {
+			return;
+		}
 		try {
 			const ratingsContract = new ethers.Contract(
 				ratingsContractAddress,
@@ -146,6 +157,9 @@ class Web3Connection {
 	}
 
 	async rateSeller(ipfsHash: string, rating: number) {
+		if (!this.provider) {
+			return;
+		}
 		try {
 			const ratingsContract = new ethers.Contract(
 				ratingsContractAddress,
@@ -169,6 +183,9 @@ class Web3Connection {
 	}
 
 	async getRatingsForBuyer(buyerAddress: string) {
+		if (!this.provider) {
+			return;
+		}
 		try {
 			const ratingsContract = new ethers.Contract(
 				ratingsContractAddress,
@@ -195,8 +212,12 @@ class Web3Connection {
 		}	
 	}
 
-	async getAllListings(): Promise<string[]> {
+	async getAllListings(): Promise<string[] | undefined> {
+		if (!this.provider) {
+			return;
+		}
 		try {
+
 			const listingContract = new ethers.Contract(
 				listingsContractAddress,
 				Listings.abi,
@@ -210,7 +231,10 @@ class Web3Connection {
 		}
 	}
 
-	async sellerCanBeReviewed(listing: string): Promise<boolean> {
+	async sellerCanBeReviewed(listing: string): Promise<boolean | undefined> {
+		if (!this.provider) {
+			return;
+		}
 		try {
 			const ratingsContract = new ethers.Contract(
 				ratingsContractAddress,
@@ -231,7 +255,10 @@ class Web3Connection {
 		}	
 	}
 
-	async getListingData(listing: string): Promise<EthListingData> {
+	async getListingData(listing: string): Promise<EthListingData | undefined> {
+					if (!this.provider) {
+				return;
+			}
 		try {
 			const listingContract = new ethers.Contract(
 				listingsContractAddress,
@@ -314,6 +341,9 @@ class Web3Connection {
 	}
 
 	async makeOfferWithPrice(listing: string, price: string): Promise<any> {
+		if (!this.provider) {
+			return;
+		}
 		try {
 			const listingContract = new ethers.Contract(
 				listingsContractAddress,
@@ -337,7 +367,10 @@ class Web3Connection {
 		}
 	}
 
-	async makeOffer(listing: string): Promise<any> {
+	async makeOffer(listing: string): Promise<any | undefined> {
+		if (!this.provider) {
+			return;
+		}
 		try {
 			const listingContract = new ethers.Contract(
 				listingsContractAddress,
@@ -370,6 +403,9 @@ class Web3Connection {
 	}
 
 	async acceptOffer(listing: string, buyer: string) {
+					if (!this.provider) {
+				return;
+			}
 		const listingContract = new ethers.Contract(
 			listingsContractAddress,
 			Listings.abi,
@@ -391,6 +427,9 @@ class Web3Connection {
 	}
 
 	async confirmBuy(listing: string) {
+		if (!this.provider) {
+			return;
+		}
 		const listingContract = new ethers.Contract(
 			listingsContractAddress,
 			Listings.abi,

@@ -1,15 +1,18 @@
 import axios from "axios";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { CardListing } from "../pages/listings";
 import { makeGatewayURL } from "../utils/getIpfs";
 import { getAllListings } from "../utils/getOrbitData";
 import getWeb3, { Offer } from "../utils/getWeb3";
+import { AccountsContext } from "./accounts";
 
 export const ListingsContext = React.createContext({});
 
 const ListingsProvider = ({ children }: any) => {
+	const { account, getAccounts } = useContext(AccountsContext as any);
+
 	const router = useRouter();
 	const [route, setRoute] = useState("");
 
@@ -36,34 +39,35 @@ const ListingsProvider = ({ children }: any) => {
 		try {
 			const ethData = await getWeb3.getListingData(listing.id);
 			const canBeReviewed = await getWeb3.sellerCanBeReviewed(listing.id);
-
-			const isAuction = ethData.isAuction;
-			let offersMade = [];
-			if (!isAuction) {
-				offersMade = ethData["buyers"].map((buyer) => {
-					return {
-						buyer,
-						price: ethData.price,
-					};
-				});
-			} else {
-				offersMade = ethData.auctionData?.offers as Offer[];
+			if (ethData) {
+				const isAuction = ethData.isAuction;
+				let offersMade = [];
+				if (!isAuction) {
+					offersMade = ethData["buyers"].map((buyer) => {
+						return {
+							buyer,
+							price: ethData.price,
+						};
+					});
+				} else {
+					offersMade = ethData.auctionData?.offers as Offer[];
+				}
+				const bought = ethData.bought;
+				const timestamp = ethData.timestamp;
+				const auctionData = ethData.auctionData;
+				const useThirdPartyAddress = ethData.useThirdPartyAddress;
+				const listingWithOffer = {
+					...listing,
+					offersMade,
+					bought,
+					isAuction,
+					timestamp,
+					auctionData,
+					useThirdPartyAddress,
+					canBeReviewed,
+				};
+				return listingWithOffer;
 			}
-			const bought = ethData.bought;
-			const timestamp = ethData.timestamp;
-			const auctionData = ethData.auctionData;
-			const useThirdPartyAddress = ethData.useThirdPartyAddress;
-			const listingWithOffer = {
-				...listing,
-				offersMade,
-				bought,
-				isAuction,
-				timestamp,
-				auctionData,
-				useThirdPartyAddress,
-				canBeReviewed,
-			};
-			return listingWithOffer;
 		} catch (e) {
 			console.warn(e);
 		}
@@ -127,8 +131,12 @@ const ListingsProvider = ({ children }: any) => {
 			try {
 				setListings(mappedData);
 				setLoading(false);
-				const withOffers = await getSmartContractData(mappedData);
-				setListings(withOffers.filter((item) => item !== undefined));
+				if (account) {
+					const withOffers = await getSmartContractData(mappedData);
+					setListings(
+						withOffers.filter((item) => item !== undefined)
+					);
+				}
 
 				fetchAllImages(mappedData);
 			} catch (err) {

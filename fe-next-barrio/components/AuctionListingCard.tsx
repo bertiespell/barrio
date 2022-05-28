@@ -63,7 +63,7 @@ export default function AuctionListingCard({
 
 	const getRatings = async () => {
 		const ratings = await getWeb3.getRatingsForSeller(product.user);
-		setRatings(ratings);
+		if (ratings) setRatings(ratings);
 	};
 
 	useEffect(() => {
@@ -72,15 +72,22 @@ export default function AuctionListingCard({
 
 	const makeOfferInMetamask = async (listingId: string) => {
 		try {
-			await getWeb3.makeOfferWithPrice(listingId, newOfferPrice);
+			const offerMade = await getWeb3.makeOfferWithPrice(
+				listingId,
+				newOfferPrice
+			);
 
-			getAllProducts();
+			if (offerMade) {
+				getAllProducts();
 
-			setAlert({
-				title: "Success!",
-				message: "You've made an offer on this item!",
-			});
-			setShowAlert(true);
+				setAlert({
+					title: "Success!",
+					message: "You've made an offer on this item!",
+				});
+				setShowAlert(true);
+			} else {
+				throw Error("Empty offer");
+			}
 		} catch (err) {
 			setError({
 				title: "Failed to send offer to smart contract",

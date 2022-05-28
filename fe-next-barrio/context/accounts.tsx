@@ -10,10 +10,14 @@ const AccountsProvider = ({ children }: any) => {
 	const [account, setAccount] = useState("");
 
 	const getAccounts = async () => {
-		const newAccount = await getWeb3.getAccounts();
-		if (newAccount) setAccount(newAccount);
-		setLoading(false);
-		return newAccount;
+		try {
+			const newAccount = await getWeb3.getAccounts();
+			if (newAccount) setAccount(newAccount);
+			setLoading(false);
+			return newAccount;
+		} catch (e) {
+			console.log(e);
+		}
 	};
 
 	useEffect(() => {
