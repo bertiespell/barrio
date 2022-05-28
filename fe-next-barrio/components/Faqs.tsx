@@ -93,6 +93,10 @@ const faqs = [
 		),
 	},
 	{
+		question: "Which Ethereum network can I use Barrio on?",
+		answer: "For now, you'll need to be using the Kovan test network.",
+	},
+	{
 		question:
 			"What is the difference between an auction and a standard listing?",
 		answer: "In a standard listing your offer is always the same as the listing price, and the seller is free to choose out of any available offers. With an auction, the price can increase to any arbitrary amount above the asking price. The seller is still free to choose which offer to accept, but they're most likely to accept either the highest bid or a buyer with a higher rating.",

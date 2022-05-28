@@ -183,14 +183,14 @@ export default function Navbar() {
 				metamask account with wallet: 
 				${account}. You can now post new
 				listings and make offers on
-				items.`}
+				items. Please ensure you're using the Kovan network`}
 			/>
 			<ErrorAlert
 				open={showMetamaskError}
 				setOpen={setShowMetamaskError}
 				errorTitle={"Metamask Error"}
 				errorMessage={
-					"There was an issue connected your metamask account. Ensure that you're logged in and that you've addressed any pending notifications in Metamask."
+					"Please ensure you're using the Kovan network. There was an issue connected your metamask account. Ensure that you're logged in and that you've addressed any pending notifications in Metamask."
 				}
 			/>
 		</>
